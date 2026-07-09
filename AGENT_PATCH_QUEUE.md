@@ -37,7 +37,8 @@
 | 작업 | 이유 | 다음 명령 |
 |---|---|---|
 | GitHub push (2차 큐 커밋) | 패치 큐 원칙상 push 금지 — 사용자 승인 후 진행 | `git push origin main` |
-| VSIX 실설치 검증 | 자동화 불가 — VS Code에서 수동 설치 필요 | `Ctrl+Shift+P` → Install from VSIX → `vibe-diagnosis-vscode-1.1.2.vsix` |
+| VSIX 실설치 검증 | ✅ 부분 완료 (2026-07-10, Phase V) — **Antigravity IDE**(Code-OSS 1.107.0)에서 1.1.2 설치 성공, 설치 ID `gyeomsvibe.vibe-diagnosis-vscode@1.1.2`. **순정 VS Code는 이 머신에 미설치라 미검증** | 순정 VS Code 검증: VS Code 설치 후 `code --install-extension vscode-extension/vibe-diagnosis-vscode-1.1.2.vsix` |
+| VSIX 기능 동작 검증 (Phase V-2) | 미실행 — 설치 가능성만 확인됨. 상태바/Run/Init/Dashboard/Auto Repair 커맨드 동작은 별도 검증 필요 | Antigravity IDE에서 `.vibe-diagnosis` 있는 프로젝트 열기 → 상태바 확인 → `Vibe Diagnosis: Run` 실행 |
 | BYOK 실호출 검증 | 실제 API key 필요 — 금지 조항(키 저장 금지)에 따라 미실행 | 사용자가 대시보드에서 직접 설정 후 Auto Repair 시도 |
 | npm publish | 패키지명이 원작자(Rejard) 계정 소유 — publish 불가/금지 | 재배포하려면 스코프 변경(`@gyeomsvibe/...` — npm 스코프는 소문자만 허용) 결정 필요 |
 | 구 VSIX(1.0.0~1.1.0) 물리 삭제 | 증거 보존 중 (git 미추적) | 사용자 승인 시 삭제 |
