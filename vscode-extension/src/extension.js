@@ -67,7 +67,7 @@ function resolveVibeDiagInvocation(workspaceRoot, cliArgs) {
     return { file: 'node', args: [localBin, ...cliArgs], shell: false };
   }
 
-  return { file: 'npx', args: ['-y', '--package=vibe-diagnosis', 'vibe-diag', ...cliArgs], shell: true };
+  return { file: 'npm', args: ['exec', '--yes', '--package=vibe-diagnosis', '--', 'vibe-diag', ...cliArgs], shell: true };
 }
 
 function runVibeDiag(workspaceRoot, cliArgs, options, callback) {
