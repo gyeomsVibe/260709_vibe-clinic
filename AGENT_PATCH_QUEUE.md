@@ -13,9 +13,9 @@
 | P1 | MCP 실행 경로 고정 (원터치 순서) | ✅ 완료 | `.claude/skills/vibe-check/SKILL.md`, `.gemini/settings.json` 로컬 실행으로 정합화 |
 | P2 | mcp-server 락파일 drift | ✅ 완료 | `vibe-diagnosis`를 `file:..` 로컬 링크로 전환, lock 재생성, node_modules의 npm 구버전(1.0.0) 제거 |
 | P2 | vscode-extension 락파일 drift | ✅ 완료 | lock을 1.1.2로 재생성 |
-| P2 | VSIX 재빌드 | ✅ 완료 | `vibe-diagnosis-vscode-1.1.2.vsix` (현재 소스 기준, publisher=gyeomsVibe). 1.1.1 이하는 배포 제외(1.1.0 이하는 수정 전 코드, 1.1.1은 구계정 메타데이터) |
+| P2 | VSIX 재빌드 | ✅ 완료 | `vibe-diagnosis-vscode-1.1.3.vsix` (현재 소스 기준, publisher=gyeomsVibe). 1.1.2 이하는 배포 제외(1.1.2는 npx fallback 버그 포함) |
 | P3 | CLI help `--cwd` 문구 | ✅ 완료 | `bin/vibe-diag.js` — Options 섹션으로 분리, `vibe-diag run --cwd` 예시 명시 |
-| P3 | README `.vsix` 파일명 갱신 | ✅ 완료 | README.md / README.ko.md → 1.1.2 |
+| P3 | README `.vsix` 파일명 갱신 | ✅ 완료 | README.md / README.ko.md → 1.1.3 |
 | P4 | Repairer 동작 경계 문서화 | ✅ 완료 | README BYOK 섹션에 4원칙(전체 파일 치환 / .bak 백업 / 재실행 / OK=재실행 기준) 명기 |
 | — | init 멱등 보강 | ✅ 완료 | 기존 `.vibe-diagnosis` 존재 시에도 gitignore/MCP 설정 보강 (파일은 안 건드림). MCP `init_diagnostics`도 동일 동작 |
 
@@ -39,7 +39,7 @@
 | GitHub push (2차 큐 커밋) | 패치 큐 원칙상 push 금지 — 사용자 승인 후 진행 | `git push origin main` |
 | VSIX 실설치 검증 | ✅ 부분 완료 (2026-07-10, Phase V) — **Antigravity IDE**(Code-OSS 1.107.0)에서 1.1.2 설치 성공, 설치 ID `gyeomsvibe.vibe-diagnosis-vscode@1.1.2`. **순정 VS Code는 이 머신에 미설치라 미검증** | 순정 VS Code 검증: VS Code 설치 후 `code --install-extension vscode-extension/vibe-diagnosis-vscode-1.1.2.vsix` |
 | VSIX 기능 동작 검증 (Phase V-2) | ✅ CLI 범위 완료 (2026-07-10) — 설치 파일 무결성(수정판 코드 확인), 커맨드 5종 등록 확인, `run --json` 동작(OK/100%), Auto Repair BYOK 미설정 시 안전 차단("BYOK not configured", 실호출 없음), 대시보드 기동+`/api/run` 정상. **GUI 항목(상태바 Health 표시, Command Palette 실행, 확장 activation)은 미실행** | GUI 검증: Antigravity IDE에서 이 프로젝트 열기 → 상태바 확인 → `Vibe Diagnosis: Run` 실행 |
-| ⚠️ 확장 npx 폴백 결함 (Phase V-2에서 발견) | 설치된 확장은 개발 저장소 밖에서 `npx vibe-diag`로 폴백하는데, npm에 `vibe-diag` 패키지는 **존재하지 않음(404 확인)** — 실제 패키지명은 `vibe-diagnosis`(bin 이름이 `vibe-diag`). 이 머신에서는 npx 캐시(mcp-server `file:..` 설치 부산물)로 v1.1.0이 우연히 실행되지만, **캐시 없는 새 환경에서는 Run/Init/Dashboard 커맨드가 실패할 개연성 높음** | 수정 후보: extension.js 폴백을 `npx -y vibe-diagnosis`로 변경. 단 npm 배포본은 구코어(1.0.x, 원작자 계정)라는 별도 제약 있음 — 스코프 전환(Phase N)과 함께 결정 권장 |
+| ⚠️ 확장 npx 폴백 결함 (Phase V-2에서 발견) | ✅ 완료 | `vscode-extension/src/extension.js` 내 npx fallback 명령을 `npx -y --package=vibe-diagnosis vibe-diag`로 수정하여 캐시 유무와 무관하게 정상 작동 확인. VSIX 버전을 1.1.3으로 올림. |
 | BYOK 실호출 검증 | 실제 API key 필요 — 금지 조항(키 저장 금지)에 따라 미실행 | 사용자가 대시보드에서 직접 설정 후 Auto Repair 시도 |
 | npm publish | 패키지명이 원작자(Rejard) 계정 소유 — publish 불가/금지 | 재배포하려면 스코프 변경(`@gyeomsvibe/...` — npm 스코프는 소문자만 허용) 결정 필요 |
 | 구 VSIX(1.0.0~1.1.0) 물리 삭제 | 증거 보존 중 (git 미추적) | 사용자 승인 시 삭제 |
