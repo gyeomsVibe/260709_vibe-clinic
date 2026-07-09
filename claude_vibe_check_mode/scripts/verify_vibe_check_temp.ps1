@@ -5,8 +5,8 @@ New-Item -ItemType Directory -Path $tempRoot -Force | Out-Null
 
 try {
   Push-Location $tempRoot
-  & npm exec --yes --package=vibe-diagnosis -- vibe-diag init
-  & npm exec --yes --package=vibe-diagnosis -- vibe-diag run
+  & node "$PSScriptRoot\..\..\bin\vibe-diag.js" init
+  & node "$PSScriptRoot\..\..\bin\vibe-diag.js" run
   if (!(Test-Path ".vibe-diagnosis")) {
     throw ".vibe-diagnosis was not created."
   }

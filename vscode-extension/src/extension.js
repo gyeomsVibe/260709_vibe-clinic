@@ -62,25 +62,26 @@ function resolveVibeDiagInvocation(workspaceRoot, cliArgs) {
     }
   } catch {}
 
+  const localRepoBin = path.join(workspaceRoot, 'bin', 'vibe-diag.js');
+  if (fs.existsSync(localRepoBin)) {
+    return { file: 'node', args: [localRepoBin, ...cliArgs], shell: false };
+  }
+
   const localBin = path.join(workspaceRoot, 'node_modules', 'vibe-diagnosis', 'bin', 'vibe-diag.js');
   if (fs.existsSync(localBin)) {
     return { file: 'node', args: [localBin, ...cliArgs], shell: false };
   }
 
-  return { file: 'npm', args: ['exec', '--yes', '--package=vibe-diagnosis', '--', 'vibe-diag', ...cliArgs], shell: true };
+  return null;
 }
 
 function runVibeDiag(workspaceRoot, cliArgs, options, callback) {
   const inv = resolveVibeDiagInvocation(workspaceRoot, cliArgs);
-  if (!inv.shell) {
-    return execFile(inv.file, inv.args, { windowsHide: true, ...options }, callback);
-  }
-  if (inv.args.some(a => a.includes('"'))) {
-    callback(new Error('Unsupported character (") in workspace path'), '', '');
+  if (!inv) {
+    callback(new Error('vibe-diagnosis local CLI not found. Open the vibe-diagnosis repository or configure MCP/local CLI path.'), '', '');
     return null;
   }
-  const cmd = [inv.file, ...inv.args.map(a => (/\s/.test(a) ? `"${a}"` : a))].join(' ');
-  return exec(cmd, { windowsHide: true, ...options }, callback);
+  return execFile(inv.file, inv.args, { windowsHide: true, ...options }, callback);
 }
 
 function runDiagnostics(jsonMode) {

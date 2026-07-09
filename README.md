@@ -80,20 +80,34 @@ You: "Apply vibe-diagnosis to this project"
 
 ## 📦 CLI
 
-Install globally or use via npx:
+Run the CLI from the repository root:
 
 ```bash
-npm exec --yes --package=vibe-diagnosis -- vibe-diag init                        # Initialize .vibe-diagnosis/ + auto-configure MCP
-npm exec --yes --package=vibe-diagnosis -- vibe-diag run                         # Run all diagnostics
-npm exec --yes --package=vibe-diagnosis -- vibe-diag run --json                  # JSON output (for CI/CD)
-npm exec --yes --package=vibe-diagnosis -- vibe-diag dashboard                   # Open web dashboard
-npm exec --yes --package=vibe-diagnosis -- vibe-diag config get                  # Show BYOK configuration
-npm exec --yes --package=vibe-diagnosis -- vibe-diag config set provider openai  # Set AI provider
-npm exec --yes --package=vibe-diagnosis -- vibe-diag config set apiKey sk-...    # Set API key
-npm exec --yes --package=vibe-diagnosis -- vibe-diag config set model gpt-4o     # Set model name
-npm exec --yes --package=vibe-diagnosis -- vibe-diag repair <diagId>             # Auto-repair a specific diagnostic
-npm exec --yes --package=vibe-diagnosis -- vibe-diag repair --all                # Auto-repair all failing diagnostics
+# Windows PowerShell
+node .\bin\vibe-diag.js init                        # Initialize .vibe-diagnosis/ + auto-configure MCP
+node .\bin\vibe-diag.js run                         # Run all diagnostics
+node .\bin\vibe-diag.js run --json                  # JSON output (for CI/CD)
+node .\bin\vibe-diag.js dashboard                   # Open web dashboard
+node .\bin\vibe-diag.js config get                  # Show BYOK configuration
+node .\bin\vibe-diag.js config set provider openai  # Set AI provider
+node .\bin\vibe-diag.js config set apiKey sk-...    # Set API key
+node .\bin\vibe-diag.js config set model gpt-4o     # Set model name
+node .\bin\vibe-diag.js repair <diagId>             # Auto-repair a specific diagnostic
+node .\bin\vibe-diag.js repair --all                # Auto-repair all failing diagnostics
 npm run sync:rules                        # Synchronize GEMINI.md ↔ SKILL.md rules
+
+# macOS/Linux/Git Bash
+node ./bin/vibe-diag.js init
+node ./bin/vibe-diag.js run
+node ./bin/vibe-diag.js run --json
+node ./bin/vibe-diag.js dashboard
+node ./bin/vibe-diag.js config get
+node ./bin/vibe-diag.js config set provider openai
+node ./bin/vibe-diag.js config set apiKey sk-...
+node ./bin/vibe-diag.js config set model gpt-4o
+node ./bin/vibe-diag.js repair <diagId>
+node ./bin/vibe-diag.js repair --all
+npm run sync:rules
 ```
 
 > **Note on `init`:** In addition to creating `.vibe-diagnosis/`, `init` registers the MCP server by creating or updating `.gemini/settings.json` in your project (adding a `vibe-diagnosis` entry under `mcpServers`). An existing `vibe-diagnosis` entry is left untouched. It also adds `.vibe-diagnosis/config.json` to your `.gitignore`.
@@ -143,8 +157,13 @@ module.exports = {
 ## 🖥️ Web Dashboard
 
 ```bash
-npm exec --yes --package=vibe-diagnosis -- vibe-diag dashboard            # http://localhost:7700
-npm exec --yes --package=vibe-diagnosis -- vibe-diag dashboard --port 8080
+# Windows PowerShell
+node .\bin\vibe-diag.js dashboard            # http://localhost:7700
+node .\bin\vibe-diag.js dashboard --port 8080
+
+# macOS/Linux/Git Bash
+node ./bin/vibe-diag.js dashboard
+node ./bin/vibe-diag.js dashboard --port 8080
 ```
 
 The dashboard server binds to `127.0.0.1` only, so it is not exposed to other machines on your network.
