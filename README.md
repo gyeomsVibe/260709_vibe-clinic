@@ -82,6 +82,9 @@ You: "Apply vibe-diagnosis to this project"
 
 Run the CLI from the repository root:
 
+> [!IMPORTANT]
+> Running via npm/npx registry package is currently **not** supported/standard as the registry version does not align with the latest repository changes. You must execute from the local repository root via `node ./bin/vibe-diag.js` (or `node .\bin\vibe-diag.js` on Windows).
+
 ```bash
 # Windows PowerShell
 node .\bin\vibe-diag.js init                        # Initialize .vibe-diagnosis/ + auto-configure MCP
@@ -167,6 +170,9 @@ node ./bin/vibe-diag.js dashboard --port 8080
 ```
 
 The dashboard server binds to `127.0.0.1` only, so it is not exposed to other machines on your network.
+
+> [!TIP]
+> **Dashboard Verified:** Local dashboard execution has been successfully verified under Windows PowerShell environment using `node .\bin\vibe-diag.js dashboard` and API calls on `http://localhost:7700`.
 
 Features:
 - **Korean Localization**: Fully localized UI text and dynamic auto-repair feedback
