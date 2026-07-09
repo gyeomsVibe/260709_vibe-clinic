@@ -120,6 +120,8 @@ module.exports = {
 };
 ```
 
+**Optional fields:** `linkedTask` (the task id this diagnostic verifies) and `timeout` (per-diagnostic time budget in milliseconds, default `30000`). If a diagnostic exceeds its timeout it is reported as `ERROR` instead of hanging the whole run.
+
 ### Output example
 
 ```
@@ -143,6 +145,8 @@ module.exports = {
 npx vibe-diag dashboard            # http://localhost:7700
 npx vibe-diag dashboard --port 8080
 ```
+
+The dashboard server binds to `127.0.0.1` only, so it is not exposed to other machines on your network.
 
 Features:
 - Health ring gauge with percentage
@@ -273,6 +277,18 @@ For production, remove or gitignore the diagnostics directory:
 
 ```gitignore
 .vibe-diagnosis/
+```
+
+---
+
+## Development
+
+Run the unit test suite (Node's built-in test runner, no dependencies):
+
+```bash
+npm test              # unit tests in test/
+npm run test:self     # dogfooding — run this project's own diagnostics
+npm run test:example  # run the calculator example diagnostics
 ```
 
 ---
