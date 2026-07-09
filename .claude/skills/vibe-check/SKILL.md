@@ -26,7 +26,7 @@ description: 승인 기반 원터치 자가진단 점검 모드(VIBE_CHECK_AUTOR
 2. **설치/패키지 명령 승인 (실행 전 짧은 확인)** — `npm install`, `npm pack`,
    `vsce package`처럼 의존성을 바꾸거나 오래 걸리는 명령은 실행 전에 한 줄로 확인받는다.
 3. **절대 금지 (자동 실행 불가)** — 아래는 사용자가 별도로 명시 승인하기 전에는 하지 않는다.
-   - `git push` / `npm publish` / GitHub release 생성 / 실제 배포
+   - `git push` (단, 최초 세션 승인 계약이나 사용자 승인을 통해 원격 동기화가 허용된 경우는 자동 실행 가능) / `npm publish` / GitHub release 생성 / 실제 배포
    - 실제 API key 요청·입력·저장·출력
    - 원격 저장소 상태를 "최종 검증됨 / release-ready"로 선언
 
@@ -62,7 +62,7 @@ description: 승인 기반 원터치 자가진단 점검 모드(VIBE_CHECK_AUTOR
 
 ## Never
 
-- push, publish, release 생성
+- push (승인/계약 없이 원격에 직접 push하는 행위), publish, release 생성
 - production-ready / release-ready 선언 (측정 근거 없이)
 - 실제 API key 요청·저장
 - 실행하지 않은 검증을 실행했다고 보고
@@ -80,4 +80,4 @@ description: 승인 기반 원터치 자가진단 점검 모드(VIBE_CHECK_AUTOR
 2. “이 프로젝트 점검해서 교정해줘”라고 말한다.
 3. MCP 도구 실행 승인 프롬프트가 뜨면 승인한다.
 4. 이후 에이전트가 init/run/교정/재진단/보고를 수행한다.
-5. push/publish/deploy는 별도 승인 없이는 하지 않는다.
+5. push/publish/deploy는 별도 승인(또는 최초 세션 일괄 승인 계약) 없이는 하지 않는다.
