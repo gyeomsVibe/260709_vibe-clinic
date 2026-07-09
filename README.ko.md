@@ -80,6 +80,7 @@ npx vibe-diag config set apiKey sk-...    # API 키 설정
 npx vibe-diag config set model gpt-4o     # 모델명 설정
 npx vibe-diag repair <diagId>             # 특정 진단 AI 자동 수리
 npx vibe-diag repair --all                # 실패한 모든 진단 자동 수리
+npm run sync:rules                        # GEMINI.md ↔ SKILL.md 규칙 동기화
 ```
 
 > **`init` 참고:** `init`은 `.vibe-diagnosis/` 생성 외에도 프로젝트의 `.gemini/settings.json`을 생성/수정하여 MCP 서버(`mcpServers`의 `vibe-diagnosis` 항목)를 등록합니다. 이미 `vibe-diagnosis` 항목이 있으면 건드리지 않습니다. 또한 `.vibe-diagnosis/config.json`을 `.gitignore`에 추가합니다.
@@ -136,6 +137,7 @@ npx vibe-diag dashboard --port 8080
 대시보드 서버는 `127.0.0.1`에만 바인딩되므로 네트워크의 다른 기기에는 노출되지 않습니다.
 
 기능:
+- **한국어 로컬라이징(한글화)**: UI 및 동적 복구 프로세스 한글 피드백 완벽 제공
 - Health 링 게이지 (건강도 퍼센트)
 - 진단 카드 그리드 (레이어별 색상 구분)
 - "Run Diagnostics" 원클릭 진단 버튼

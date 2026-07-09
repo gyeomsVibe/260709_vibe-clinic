@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🩺 Vibe Diagnosis Dashboard</title>
+<title>🩺 Vibe Diagnosis 자가진단 대시보드</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -198,14 +198,14 @@ header{display:flex;align-items:center;justify-content:space-between;padding:20p
       <span class="logo-icon">🩺</span>
       <div>
         <h1>Vibe Diagnosis</h1>
-        <span id="projectName">Loading...</span>
+        <span id="projectName">로딩 중...</span>
       </div>
     </div>
     <div class="header-right">
       <div class="ai-status" id="aiStatus" onclick="scrollToByok()">
         <span class="ai-dot"></span>
         <span>🤖</span>
-        <span id="aiStatusText">Not configured</span>
+        <span id="aiStatusText">미설정</span>
       </div>
       <div class="health-ring" id="healthRing">
         <svg width="72" height="72" viewBox="0 0 72 72">
@@ -214,7 +214,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:20p
                   stroke-dasharray="188.5" stroke-dashoffset="188.5"/>
         </svg>
         <span class="health-text" id="healthText">—</span>
-        <span class="health-label">Health</span>
+        <span class="health-label">건강도</span>
       </div>
     </div>
   </header>
@@ -223,41 +223,41 @@ header{display:flex;align-items:center;justify-content:space-between;padding:20p
     <button class="btn-run" id="btnRun" onclick="runDiagnostics()">
       <span class="btn-icon">🔍</span>
       <span class="spinner"></span>
-      Run Diagnostics
+      진단 실행
     </button>
     <div class="stats" id="statsBar">
-      <div class="stat"><strong id="statTotal">—</strong> total</div>
-      <div class="stat" style="color:var(--ok)"><strong id="statOk">—</strong> OK</div>
-      <div class="stat" style="color:var(--warn)"><strong id="statWarn">—</strong> WARN</div>
-      <div class="stat" style="color:var(--err)"><strong id="statErr">—</strong> ERR</div>
+      <div class="stat"><strong id="statTotal">—</strong> 전체</div>
+      <div class="stat" style="color:var(--ok)"><strong id="statOk">—</strong> 통과(OK)</div>
+      <div class="stat" style="color:var(--warn)"><strong id="statWarn">—</strong> 경고(WARN)</div>
+      <div class="stat" style="color:var(--err)"><strong id="statErr">—</strong> 오류(ERR)</div>
     </div>
   </div>
 
   <div class="byok-bar" id="byokBar">
     <label>🤖 BYOK</label>
     <select id="byokProvider">
-      <option value="">Provider</option>
+      <option value="">제공자</option>
       <option value="openai">OpenAI</option>
       <option value="anthropic">Anthropic</option>
       <option value="gemini">Google Gemini</option>
       <option value="openrouter">OpenRouter</option>
     </select>
     <div class="byok-sep"></div>
-    <input type="password" id="byokApiKey" placeholder="API Key" autocomplete="off">
+    <input type="password" id="byokApiKey" placeholder="API 키" autocomplete="off">
     <div class="byok-sep"></div>
-    <input type="text" id="byokModel" class="byok-model" placeholder="Model (e.g. gpt-4o-mini)">
+    <input type="text" id="byokModel" class="byok-model" placeholder="모델명 (예: gpt-4o-mini)">
     <div class="byok-sep"></div>
-    <button class="btn-save" id="btnSave" onclick="saveByokConfig()">💾 Save</button>
+    <button class="btn-save" id="btnSave" onclick="saveByokConfig()">💾 저장</button>
     <span class="byok-feedback" id="byokFeedback"></span>
   </div>
 
-  <div class="section-title">Diagnostics <span class="count" id="diagCount">0</span></div>
+  <div class="section-title">진단 항목 <span class="count" id="diagCount">0</span></div>
   <div class="cards" id="cardsContainer">
-    <div class="empty"><div class="icon">📋</div><p>Loading diagnostics...</p></div>
+    <div class="empty"><div class="icon">📋</div><p>진단 항목을 불러오는 중...</p></div>
   </div>
 
   <div class="errors-section">
-    <div class="section-title">Error Patterns <span class="count" id="errorCount">0</span></div>
+    <div class="section-title">에러 패턴 <span class="count" id="errorCount">0</span></div>
     <ul class="error-list" id="errorList"></ul>
   </div>
 </div>
@@ -310,7 +310,7 @@ function updateHealthRing(percent) {
 
 function createCard(diag, result) {
   const status = result ? result.status.toLowerCase() : 'pending';
-  const details = result ? result.details : 'Not yet tested';
+  const details = result ? result.details : '아직 테스트되지 않음';
   const duration = result ? result.duration + 'ms' : '—';
   const layerClass = 'badge-' + (diag.layer || 'task').toLowerCase();
   const needsRepair = result && (result.status === 'ERROR' || result.status === 'WARNING');
@@ -319,21 +319,21 @@ function createCard(diag, result) {
   let repairHtml = '';
   if (needsRepair && byokConfigured) {
     let btnClass = 'btn-repair';
-    let btnContent = '<span class="repair-icon">🔧</span><span class="repair-spinner"></span> Auto Repair';
+    let btnContent = '<span class="repair-icon">🔧</span><span class="repair-spinner"></span> 자동 복구';
     let summaryHtml = '';
     let disabled = '';
 
     if (repairState === 'repairing') {
       btnClass += ' repairing repairing-pulse';
-      btnContent = '<span class="repair-icon">🔧</span><span class="repair-spinner"></span> Repairing...';
+      btnContent = '<span class="repair-icon">🔧</span><span class="repair-spinner"></span> 복구 중...';
       disabled = 'disabled';
     } else if (repairState === 'repaired') {
       btnClass += ' repaired';
-      btnContent = '✅ Fixed!';
+      btnContent = '✅ 복구 완료!';
       disabled = 'disabled';
     } else if (repairState && repairState.startsWith('failed:')) {
       btnClass += ' failed';
-      btnContent = '<span class="repair-icon">🔧</span><span class="repair-spinner"></span> Retry';
+      btnContent = '<span class="repair-icon">🔧</span><span class="repair-spinner"></span> 재시도';
       summaryHtml = `<span class="repair-summary" title="${repairState.slice(7)}">${repairState.slice(7)}</span>`;
     }
 
@@ -381,7 +381,7 @@ async function loadDiagnostics() {
     document.getElementById('diagCount').textContent = diagnosticsList.length;
   } catch (err) {
     document.getElementById('cardsContainer').innerHTML =
-      '<div class="empty"><div class="icon">⚠️</div><p>Failed to load diagnostics</p></div>';
+      '<div class="empty"><div class="icon">⚠️</div><p>진단 항목을 불러오지 못했습니다.</p></div>';
   }
 }
 
@@ -392,7 +392,7 @@ async function loadErrors() {
     document.getElementById('errorCount').textContent = errors.length;
 
     if (errors.length === 0) {
-      list.innerHTML = '<li class="error-item"><span class="icon">✨</span> No error patterns recorded</li>';
+      list.innerHTML = '<li class="error-item"><span class="icon">✨</span> 기록된 에러 패턴이 없습니다.</li>';
       return;
     }
 
@@ -408,7 +408,7 @@ function renderCards() {
   const container = document.getElementById('cardsContainer');
 
   if (diagnosticsList.length === 0) {
-    container.innerHTML = '<div class="empty"><div class="icon">📋</div><p>No diagnostics found. Create .diag.js files in .vibe-diagnosis/diagnostics/</p></div>';
+    container.innerHTML = '<div class="empty"><div class="icon">📋</div><p>진단 항목이 없습니다. .vibe-diagnosis/diagnostics/ 디렉토리에 .diag.js 파일을 생성해주세요.</p></div>';
     return;
   }
 
@@ -438,12 +438,12 @@ async function runDiagnostics() {
     await loadDiagnostics();
 
     if (data.overallStatus === 'OK') {
-      showToast('✅ All diagnostics passed! Health ' + data.healthPercent + '%', 'success');
+      showToast('✅ 모든 진단을 통과했습니다! 건강도 ' + data.healthPercent + '%', 'success');
     } else {
-      showToast('⚠️ Issues detected — Health ' + data.healthPercent + '%', 'error');
+      showToast('⚠️ 문제가 감지되었습니다 — 건강도 ' + data.healthPercent + '%', 'error');
     }
   } catch (err) {
-    showToast('❌ Failed to run diagnostics', 'error');
+    showToast('❌ 진단 실행에 실패했습니다.', 'error');
   } finally {
     btn.classList.remove('running');
   }
@@ -473,20 +473,20 @@ async function repairDiagnostic(diagId) {
       if (data.rerunResult) {
         lastResults[diagId] = data.rerunResult;
       }
-      showToast('✅ ' + (data.summary || 'Repair successful!'), 'success');
+      showToast('✅ ' + (data.summary || '복구 성공!'), 'success');
     } else {
-      repairStates[diagId] = 'failed:' + (data.summary || data.error || 'Repair did not resolve the issue');
+      repairStates[diagId] = 'failed:' + (data.summary || data.error || '복구로 문제가 해결되지 않았습니다.');
       if (data.rerunResult) {
         lastResults[diagId] = data.rerunResult;
       }
-      showToast('⚠️ ' + (data.summary || 'Repair applied but issue persists'), 'error');
+      showToast('⚠️ ' + (data.summary || '복구가 적용되었으나 문제가 지속됩니다.'), 'error');
     }
 
     renderCards();
     updateStatsFromResults();
   } catch (err) {
     repairStates[diagId] = 'failed:' + err.message;
-    showToast('❌ Repair request failed', 'error');
+    showToast('❌ 복구 요청 실패', 'error');
     renderCards();
   }
 }
@@ -531,14 +531,14 @@ async function saveByokConfig() {
   const feedback = document.getElementById('byokFeedback');
 
   if (!provider || !apiKey || !model) {
-    feedback.textContent = '⚠️ Fill all fields';
+    feedback.textContent = '⚠️ 모든 필드를 입력해주세요.';
     feedback.className = 'byok-feedback err';
     return;
   }
 
   const btn = document.getElementById('btnSave');
   btn.disabled = true;
-  feedback.textContent = 'Saving...';
+  feedback.textContent = '저장 중...';
   feedback.className = 'byok-feedback';
 
   try {
@@ -550,17 +550,17 @@ async function saveByokConfig() {
     const data = await res.json();
 
     if (data.success) {
-      feedback.textContent = '✅ Saved';
+      feedback.textContent = '✅ 저장됨';
       feedback.className = 'byok-feedback ok';
       byokConfigured = true;
       updateAiStatus();
       renderCards();
     } else {
-      feedback.textContent = '❌ ' + (data.error || 'Failed');
+      feedback.textContent = '❌ ' + (data.error || '저장 실패');
       feedback.className = 'byok-feedback err';
     }
   } catch (err) {
-    feedback.textContent = '❌ Network error';
+    feedback.textContent = '❌ 네트워크 오류';
     feedback.className = 'byok-feedback err';
   } finally {
     btn.disabled = false;
@@ -580,7 +580,7 @@ function updateAiStatus() {
     text.textContent = (providerNames[provider] || provider) + ' · ' + model;
   } else {
     status.classList.remove('connected');
-    text.textContent = 'Not configured';
+    text.textContent = '미설정';
   }
 }
 

@@ -93,6 +93,7 @@ npx vibe-diag config set apiKey sk-...    # Set API key
 npx vibe-diag config set model gpt-4o     # Set model name
 npx vibe-diag repair <diagId>             # Auto-repair a specific diagnostic
 npx vibe-diag repair --all                # Auto-repair all failing diagnostics
+npm run sync:rules                        # Synchronize GEMINI.md ↔ SKILL.md rules
 ```
 
 > **Note on `init`:** In addition to creating `.vibe-diagnosis/`, `init` registers the MCP server by creating or updating `.gemini/settings.json` in your project (adding a `vibe-diagnosis` entry under `mcpServers`). An existing `vibe-diagnosis` entry is left untouched. It also adds `.vibe-diagnosis/config.json` to your `.gitignore`.
@@ -149,6 +150,7 @@ npx vibe-diag dashboard --port 8080
 The dashboard server binds to `127.0.0.1` only, so it is not exposed to other machines on your network.
 
 Features:
+- **Korean Localization**: Fully localized UI text and dynamic auto-repair feedback
 - Health ring gauge with percentage
 - Diagnostic cards grid (color-coded by layer)
 - One-click "Run Diagnostics" button

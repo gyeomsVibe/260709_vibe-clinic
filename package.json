@@ -15,7 +15,8 @@
   "scripts": {
     "test": "node --test \"test/*.test.js\"",
     "test:self": "node bin/vibe-diag.js run",
-    "test:example": "node bin/vibe-diag.js run --cwd examples/calculator"
+    "test:example": "node bin/vibe-diag.js run --cwd examples/calculator",
+    "sync:rules": "node bin/sync-rules.js"
   },
   "keywords": [
     "vibe-coding",
@@ -37,10 +38,18 @@
   },
   "author": "gyeoms-vibe <gyeomsvibe@gmail.com>",
   "contributors": [
-    "Rejard <lemaiiisk@gmail.com>"
+    {
+      "name": "Rejard",
+      "email": "lemaiiisk@gmail.com"
+    }
   ],
   "license": "Apache-2.0",
   "engines": {
     "node": ">=18.0.0"
-  }
+  },
+  "directories": {
+    "example": "examples",
+    "test": "test"
+  },
+  "type": "commonjs"
 }

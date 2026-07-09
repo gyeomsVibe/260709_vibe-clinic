@@ -61,3 +61,18 @@
 - production-ready / release-ready 선언 (측정 근거 없이)
 - 실제 API key 요청·저장
 - 실행하지 않은 검증을 실행했다고 보고
+
+## Claude Code 운영 규칙 및 한계
+
+> [!IMPORTANT]
+> **Claude Code 비대화형 모드 한계**
+> - Claude Code의 `claude -p` 비대화형 모드는 MCP 도구 승인 프롬프트에서 멈출 수 있다.
+> - 실제 운영은 대화형 Claude Code 세션에서 진행하며, 사용자는 세부 명령을 입력하지 않고 도구 실행 승인만 한다.
+
+### Claude Code vibe-check 운영 규칙
+
+1. 프로젝트 폴더에서 Claude Code를 연다.
+2. “이 프로젝트 점검해서 교정해줘”라고 말한다.
+3. MCP 도구 실행 승인 프롬프트가 뜨면 승인한다.
+4. 이후 에이전트가 init/run/교정/재진단/보고를 수행한다.
+5. push/publish/deploy는 별도 승인 없이는 하지 않는다.
