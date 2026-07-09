@@ -25,10 +25,11 @@ text = target.read_text(encoding="utf-8") if target.exists() else ""
 start = "<!-- VIBE_CHECK_GLOBAL_RULES_START -->"
 end = "<!-- VIBE_CHECK_GLOBAL_RULES_END -->"
 pattern = re.escape(start) + r".*?" + re.escape(end)
+wrapped = start + "\n" + snippet.strip() + "\n" + end
 if re.search(pattern, text, flags=re.S):
-    text = re.sub(pattern, snippet, text, flags=re.S)
+    text = re.sub(pattern, wrapped, text, flags=re.S)
 else:
-    text = text.rstrip() + "\n\n" + snippet + "\n"
+    text = text.rstrip() + "\n\n" + wrapped + "\n"
 target.write_text(text, encoding="utf-8")
 PY
 

@@ -40,10 +40,11 @@ if (Test-Path $ClaudeMdPath) {
 }
 
 $pattern = [regex]::Escape($start) + "(?s).*?" + [regex]::Escape($end)
+$wrappedSnippet = $start + "`n" + $snippet.Trim() + "`n" + $end
 if ($existing -match $pattern) {
-  $updated = [regex]::Replace($existing, $pattern, [System.Text.RegularExpressions.MatchEvaluator]{ param($m) $snippet })
+  $updated = [regex]::Replace($existing, $pattern, [System.Text.RegularExpressions.MatchEvaluator]{ param($m) $wrappedSnippet })
 } else {
-  $updated = ($existing.TrimEnd() + "`n`n" + $snippet + "`n")
+  $updated = ($existing.TrimEnd() + "`n`n" + $wrappedSnippet + "`n")
 }
 Write-Utf8 $ClaudeMdPath $updated
 
