@@ -4,7 +4,7 @@ set -euo pipefail
 RUN_SMOKE_TEST="${RUN_SMOKE_TEST:-1}"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-CLAUDE_DIR="${HOME}/.claude"
+CLAUDE_DIR="${VIBE_CHECK_TEST_HOME:-$HOME}/.claude"
 SKILL_DIR="${CLAUDE_DIR}/skills/vibe-check"
 SKILL_PATH="${SKILL_DIR}/SKILL.md"
 CLAUDE_MD_PATH="${CLAUDE_DIR}/CLAUDE.md"
@@ -16,14 +16,13 @@ SNIPPET="$(cat "${SCRIPT_DIR}/global/CLAUDE.md.snippet")"
 START="<!-- VIBE_CHECK_GLOBAL_RULES_START -->"
 END="<!-- VIBE_CHECK_GLOBAL_RULES_END -->"
 
-touch "${CLAUDE_MD_PATH}"
-python3 - "$CLAUDE_MD_PATH" "${SCRIPT_DIR}/global/CLAUDE.md.snippet" <<'PY'
+python3 - "$CLAUDE_MD_PATH" "${SCRIPT_DIR}/global/CLAUDE.md.snippet" "$START" "$END" <<'PY'
 import re, sys, pathlib
 target = pathlib.Path(sys.argv[1])
 snippet = pathlib.Path(sys.argv[2]).read_text(encoding="utf-8")
 text = target.read_text(encoding="utf-8") if target.exists() else ""
-start = "<!-- VIBE_CHECK_GLOBAL_RULES_START -->"
-end = "<!-- VIBE_CHECK_GLOBAL_RULES_END -->"
+start = sys.argv[3]
+end = sys.argv[4]
 pattern = re.escape(start) + r".*?" + re.escape(end)
 wrapped = start + "\n" + snippet.strip() + "\n" + end
 if re.search(pattern, text, flags=re.S):

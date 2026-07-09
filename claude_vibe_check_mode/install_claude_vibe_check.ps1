@@ -16,7 +16,10 @@ function Write-Utf8($Path, $Text) {
   [System.IO.File]::WriteAllText($Path, $Text, [System.Text.UTF8Encoding]::new($false))
 }
 
-$HomeDir = [Environment]::GetFolderPath("UserProfile")
+$HomeDir = $env:VIBE_CHECK_TEST_HOME
+if ([string]::IsNullOrEmpty($HomeDir)) {
+  $HomeDir = [Environment]::GetFolderPath("UserProfile")
+}
 $ClaudeDir = Join-Path $HomeDir ".claude"
 $SkillDir = Join-Path $ClaudeDir "skills\vibe-check"
 $SkillPath = Join-Path $SkillDir "SKILL.md"
