@@ -242,6 +242,28 @@ Search `vibe-diagnosis` in VS Code Extensions Marketplace, or install from `.vsi
 
 ---
 
+## 🔁 One-Touch Check Mode (VIBE_CHECK_AUTORUN_MODE)
+
+An approval-based autorun mode: you approve the session once, and the agent runs the full **init → diagnose → minimal fix → re-diagnose → report** loop by itself. Rules live in [.claude/skills/vibe-check/SKILL.md](./.claude/skills/vibe-check/SKILL.md) (Claude Code) and [GEMINI.md](./GEMINI.md) (Antigravity/Gemini) — both share the same triggers.
+
+### First time (one-shot session approval)
+
+> VIBE_CHECK_AUTORUN_MODE를 이 프로젝트에 적용해줘.
+> 로컬 파일 수정과 로컬 테스트 실행까지 승인한다.
+> 원격 push, publish, release는 금지한다.
+
+### Every time after
+
+| Trigger style | Say this |
+|---|---|
+| Short | "vibe-check 해줘" |
+| **Normal (recommended)** | **"이 프로젝트 점검해서 교정해줘"** |
+| Precise | "이 프로젝트를 vibe-diagnosis 기준으로 점검해서 교정해줘. 초기화가 안 되어 있으면 초기화하고, 진단을 실행하고, 실패한 항목만 최소 수정한 뒤, 다시 진단해서 결과를 단계별로 설명해줘." |
+
+What the agent will **never** do without separate explicit approval: `git push`, `npm publish`, creating releases, requesting/storing real API keys, or declaring the project release-ready.
+
+---
+
 ## 🔄 Agent Automation
 
 Add to your project's `.agents/AGENTS.md` or `CLAUDE.md`:
