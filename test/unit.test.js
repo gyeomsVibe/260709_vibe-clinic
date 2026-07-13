@@ -58,6 +58,26 @@ test('runDiagnostics returns a WARNING placeholder when no diagnostics exist', a
   }
 });
 
+test('runDiagnostics provides ctx.cwd as an alias of ctx.projectDir', async () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'vibe-ctx-'));
+  const diagDir = path.join(dir, '.vibe-diagnosis', 'diagnostics');
+  fs.mkdirSync(diagDir, { recursive: true });
+  fs.writeFileSync(
+    path.join(diagDir, 'ctx.diag.js'),
+    `module.exports = { id: 'ctx', name: 'Ctx', layer: 'TASK', run: (ctx) => ({
+       status: (ctx.cwd && ctx.cwd === ctx.projectDir) ? 'OK' : 'ERROR',
+       details: 'cwd=' + ctx.cwd + ' projectDir=' + ctx.projectDir,
+     }) };`
+  );
+  try {
+    const results = await runDiagnostics(dir);
+    assert.strictEqual(results.length, 1);
+    assert.strictEqual(results[0].status, 'OK', results[0].details);
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
 test('runDiagnostics enforces a per-diagnostic timeout', async () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'vibe-timeout-'));
   const diagDir = path.join(dir, '.vibe-diagnosis', 'diagnostics');

@@ -79,7 +79,9 @@ async function runDiagnostics(projectDir) {
 
     try {
       const result = await withTimeout(
-        Promise.resolve().then(() => mod.run({ projectDir })),
+        // `cwd` is provided as an alias of `projectDir` so diagnostics that read
+        // either key resolve the project root correctly (never process.cwd()).
+        Promise.resolve().then(() => mod.run({ projectDir, cwd: projectDir })),
         mod.timeout || DEFAULT_TIMEOUT_MS,
         mod.id
       );
