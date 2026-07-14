@@ -1,5 +1,6 @@
 {
   "name": "vibe-diagnosis",
+  "private": true,
   "version": "1.1.0",
   "description": "Self-diagnosis framework for vibe coding projects",
   "main": "src/runner.js",
@@ -16,7 +17,8 @@
     "test": "node --test \"test/*.test.js\"",
     "test:self": "node bin/vibe-diag.js run",
     "test:example": "node bin/vibe-diag.js run --cwd examples/calculator",
-    "sync:rules": "node bin/sync-rules.js"
+    "sync:rules": "node bin/sync-rules.js",
+    "publish": "echo 'Error: Public publishing is strictly prohibited.' && exit 1"
   },
   "keywords": [
     "vibe-coding",

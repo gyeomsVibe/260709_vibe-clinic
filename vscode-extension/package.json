@@ -1,5 +1,10 @@
 {
   "name": "vibe-diagnosis-vscode",
+  "private": true,
+  "scripts": {
+    "publish": "echo 'Error: VS Code Marketplace publishing is strictly prohibited.' && exit 1",
+    "vsce:publish": "echo 'Error: VS Code Marketplace publishing is strictly prohibited.' && exit 1"
+  },
   "displayName": "Vibe Diagnosis",
   "description": "Self-diagnosis framework for vibe coding projects — Health monitoring, diagnostics dashboard, and error pattern tracking for AI-assisted development",
   "version": "1.1.4",
