@@ -1,5 +1,7 @@
 # Vibe Clinic for VS Code
 
+![Vibe Clinic Banner](vibe-clinic-banner.png)
+
 Self-diagnosis framework for vibe coding projects.
 
 ## Features

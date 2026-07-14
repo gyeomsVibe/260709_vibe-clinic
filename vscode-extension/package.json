@@ -14,6 +14,10 @@
     "Rejard <lemaiiisk@gmail.com>"
   ],
   "icon": "icon.png",
+  "galleryBanner": {
+    "color": "#0d091a",
+    "theme": "dark"
+  },
   "engines": {
     "vscode": "^1.80.0"
   },
