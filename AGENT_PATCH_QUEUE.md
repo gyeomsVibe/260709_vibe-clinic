@@ -17,7 +17,19 @@
 | 자동 검증 | ✅ 완료 | 단위 테스트 12/12, self 100%, example 3/3, MCP smoke 100% |
 | VSIX 재빌드 | ✅ 완료 | `vibe-clinic-vscode-2.0.0.vsix`, 명령·메타데이터·LICENSE·NOTICE 확인 |
 | 구 VSIX 물리 삭제 | ✅ 완료 | 승인 후 `vibe-diagnosis-vscode-1.1.4.vsix` 삭제 |
-| 승인 배치 commit·push | ▶ 실행 단계 | 승인된 파일만 명시 스테이징하고 push 후 `HEAD = origin/main` 확인 |
+| 환경 비밀 파일 보호 | ✅ 로컬 완료 | 실제 `.env` 내용은 읽지 않고 루트 `.gitignore`에 추가, `.env.example`은 추적 가능 유지. 현재 미커밋 |
+| 이전 승인 배치 commit·push | ✅ 완료 | 이전 승인 배치 push 완료, 당시 `HEAD = origin/main` 확인 |
+
+## 대시보드 프리미엄 UX 큐 (3차 — 문서 7~9 사이클)
+
+| 작업 | 상태 | 산출물 / 비고 |
+|---|---|---|
+| ② 에러 패턴 실패-매핑 필터링 | ✅ 완료 | 실패 진단 ID에 매핑된 패턴만 노출, 청정 상태 빈 메시지 (`src/dashboard.html`) |
+| ③ 진단 터미널 로그 뷰 | ✅ 완료 | 실패 카드 아코디언 → 터미널 스타일 로그 박스 |
+| ④ AI 치료 코드 디프 뷰어 | ✅ 완료 | `/api/repair`가 originalCode/repairedCode 반환, `computeSimpleDiff` 라인 디프 모달 |
+| ① 현대식 폴더 선택기 | ✅ 완료 (문서 9 방식) | `src/folder-picker.ps1` — 컴파일-프리 IFileOpenDialog 리플렉션(FOS_PICKFOLDERS 0x20), UTF-8 BOM 저장(PS 5.1 인코딩 함정 회피), 투명 TopMost owner로 포그라운드 보장, `-DryRun` 자가검증(DRYRUN_OK 확인). `/api/project/select`는 `execFile -STA -File` 호출로 교체 |
+| 폴더 선택기 시행착오 완결 보고 3건 | 📕 SUPERSEDED 표기 완료 | 7-3(STA)·7-3(IFileOpenDialog)·8(fosFlags) 완결 보고는 무효 — 문서 9가 대체. 7-1의 ①항목에도 부분 수정 배너 |
+| 폴더 선택 GUI 실클릭 검증 | ⏳ 수동 필요 | 대시보드에서 `[📁 폴더 선택]` 클릭 → 현대식 창·전면 표시·폴더 선택 후 경로 주입 확인 (DryRun으로 리플렉션 체인은 검증 완료, Show 이후는 GUI 필요) |
 
 ## 1.x 패치 이력 (역사 기록 — 재실행 금지)
 
