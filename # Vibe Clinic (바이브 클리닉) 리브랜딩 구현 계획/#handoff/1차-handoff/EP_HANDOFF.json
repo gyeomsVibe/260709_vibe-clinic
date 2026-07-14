@@ -1,0 +1,482 @@
+{
+  "envelope": {
+    "artifact_class": "forensic_master_archive_evidence_pack",
+    "ep_version": "1.0",
+    "generated_at_utc": "2026-07-15",
+    "self_integrity": {
+      "algorithm": "SHA-256",
+      "scope": "canonical JSON of the `evidence_pack` object below (this `envelope` excluded)",
+      "evidence_pack_sha256": "5cfc69765b341d7add4c4ddc06b3c772d5dde18b25fe8df65e4d23eae311702c",
+      "verify_procedure": "node: sortDeep(evidence_pack) -> JSON.stringify -> sha256 hex; must equal evidence_pack_sha256",
+      "note": "The hash is computed over json.dumps(evidence_pack, ensure_ascii=False, sort_keys=True, separators=(',',':')). Any edit to evidence_pack invalidates it.",
+      "canonicalization": "JSON.stringify(sortDeep(evidence_pack)) — deep key-sort, no whitespace, UTF-8"
+    }
+  },
+  "evidence_pack": {
+    "ep_meta": {
+      "artifact_class": "forensic_master_archive_evidence_pack",
+      "ep_version": "1.0",
+      "schema": "EP-Handoff/forensic-v1",
+      "generated_at_utc": "2026-07-15",
+      "generator": "Claude Fable 5 (Claude Code) acting as Context Compiler",
+      "integrity_basis": "All content_hash values are SHA-256 of the file bytes at generation time. Any later edit invalidates the hash; the receiving agent MUST re-hash before trusting a source as unchanged.",
+      "source_tier_legend": {
+        "S1": "Load-bearing production source code, behavior proven by automated tests",
+        "S2": "Config / manifest / environment state (package.json, MCP config, git state)",
+        "S3": "Automated test & verification artifacts",
+        "S4": "Author-generated planning/report docs (DIRECTION_DRAFT or report quality; NOT proof)",
+        "S5": "Historical / superseded / external-repo evidence (do not treat as current)"
+      },
+      "confidence_policy": "Trust order: current working-tree code (re-read) > automated test result > S1 hash match > S4 doc claims. Docs may lag code."
+    },
+    "environment": {
+      "user_identity": "윤겸스 (respond in Korean)",
+      "primary_repo": {
+        "name": "260709_vibe-clinic",
+        "abs_path": "D:/D_Workspace_NB/-google-workspace/-antigravity-workspace/260709_vibe-clinic",
+        "git_remote": "git@github-gyeoms:gyeomsVibe/260709_vibe-clinic.git",
+        "branch": "main",
+        "head_commit": "8ea0443de8776cbcbcff191f0aa30cc9a945bed4",
+        "upstream": "origin/main",
+        "ahead_of_upstream": 0,
+        "note": "HEAD is fully pushed. BUT working tree has UNCOMMITTED 2.0.1 changes (see contradiction C2)."
+      },
+      "external_repo_in_scope": {
+        "name": "260714_gyeoms-ai-agent",
+        "abs_path": "D:/D_Workspace_NB/-google-workspace/-antigravity-workspace/260714_gyeoms-ai-agent",
+        "identity": "polygon-referral-investment-platform",
+        "git": "separate repository (NOT a submodule of the primary repo)",
+        "note": "Migrated to .vibe-clinic format + on-chain diagnostic implemented; changes UNCOMMITTED there."
+      },
+      "versions_in_working_tree": {
+        "root": "2.0.1",
+        "mcp-server": "2.0.1",
+        "vscode-extension": "2.0.1"
+      },
+      "test_state": {
+        "runner": "node --test",
+        "count": 22,
+        "pass": 22,
+        "fail": 0,
+        "command": "npm test (in primary_repo)"
+      },
+      "toolchain": {
+        "node_test_runner": true,
+        "ethers_in_target": "6.16.0 (backend/node_modules)",
+        "powershell": "Windows PowerShell 5.1 (CP949) - scripts must be ASCII or UTF-8 BOM"
+      }
+    },
+    "source_manifest": [
+      {
+        "source_id": "S1.runner",
+        "path": "src/runner.js",
+        "tier": "S1",
+        "sha256": "caff48ec6e37490bb79ed41898178294b8c9ffae4253998d4b7184abc376e97b",
+        "role": "diagnostic discovery+execution engine (.vibe-clinic/*.clinic.js)",
+        "mutable": true
+      },
+      {
+        "source_id": "S1.dashboard_js",
+        "path": "src/dashboard.js",
+        "tier": "S1",
+        "sha256": "1d6efb7c9ec55d197a7f27241d20b3d9afcbe7780d4aaeac448530f8895ba8d4",
+        "role": "dashboard HTTP server + /api/*; folder-picker invocation",
+        "mutable": true,
+        "note": "MODIFIED in working tree (uncommitted)"
+      },
+      {
+        "source_id": "S1.dashboard_html",
+        "path": "src/dashboard.html",
+        "tier": "S1",
+        "sha256": "d3dacd65303efbffd6c03bcf0d3b5d4c4901d9d51a18f581fbd91f24dc0f6f1a",
+        "role": "dashboard UI (Clinic Teal, terminal log, diff viewer, project selector)",
+        "mutable": true,
+        "note": "MODIFIED in working tree (uncommitted)"
+      },
+      {
+        "source_id": "S1.folder_picker",
+        "path": "src/folder-picker.ps1",
+        "tier": "S1",
+        "sha256": "e9563914f0b878f32e8d655691a732d433241e1603d97e674090ef6ade0c3ad0",
+        "role": "compile-free IFileOpenDialog reflection folder picker (ASCII-only)",
+        "mutable": true,
+        "note": "GUI end-to-end NOT auto-verified (see C3/C4)"
+      },
+      {
+        "source_id": "S1.repairer",
+        "path": "src/repairer.js",
+        "tier": "S1",
+        "sha256": "cf4476071d58e7242671ce2c01f7bb5f5472b14a2e7371c1ce5981d6fa0cabec",
+        "role": "BYOK AI auto-repair (whole-file replace, .bak, re-run)",
+        "mutable": true,
+        "note": "MODIFIED in working tree (uncommitted)"
+      },
+      {
+        "source_id": "S1.reporter",
+        "path": "src/reporter.js",
+        "tier": "S1",
+        "sha256": "2bbce0d87f696cc7b2430711278c5d73bb54662be05eb8b26b8519ee85b78f9d",
+        "role": "terminal/JSON output formatter",
+        "mutable": true
+      },
+      {
+        "source_id": "S1.config_manager",
+        "path": "src/config-manager.js",
+        "tier": "S1",
+        "sha256": "fc4b0615848e8e0214f4de713e6fa558f22133bffa0b3acfd3d51d2b44151131",
+        "role": "BYOK config + gitignore + env override (VIBE_CLINIC_*)",
+        "mutable": true
+      },
+      {
+        "source_id": "S1.ai_provider",
+        "path": "src/ai-provider.js",
+        "tier": "S1",
+        "sha256": "56f05c56e8b404d73f25a2d1026f5b76e0297b0eeb36e45ba42d0fe5ebdeac45",
+        "role": "OpenAI/Anthropic/Gemini/OpenRouter adapters; Gemini key via x-goog-api-key header",
+        "mutable": true
+      },
+      {
+        "source_id": "S1.init",
+        "path": "src/init.js",
+        "tier": "S1",
+        "sha256": "23b9be20d842f9010ed350211e20c6fa7142fd76b396bcce97283ae9fcb4cd8a",
+        "role": "idempotent init; MCP config registration (local node path)",
+        "mutable": true
+      },
+      {
+        "source_id": "S1.schema",
+        "path": "src/schema.js",
+        "tier": "S1",
+        "sha256": "7fe2a82a26b34c0c5e38da004c21b1341ef28dde568b97376c9bd781302b7c93",
+        "role": "diagnostic module/result schema validation",
+        "mutable": true
+      },
+      {
+        "source_id": "S1.cli",
+        "path": "bin/vibe-clinic.js",
+        "tier": "S1",
+        "sha256": "200c1ca30e4e28c7bc6adfd14aecce33633c8bdb7c4ed462722566d824aad389",
+        "role": "CLI entry (vibe-clinic / vbc): init|run|dashboard|config|repair",
+        "mutable": true
+      },
+      {
+        "source_id": "S1.mcp",
+        "path": "mcp-server/index.js",
+        "tier": "S1",
+        "sha256": "f4f948719cc123a01eb9fdbd574782aa1da4522e86c97944949d5af3336e00e5",
+        "role": "MCP server; tools run_clinic/init_clinic/list_clinics/read+write_error_pattern/open_dashboard",
+        "mutable": true,
+        "note": "MODIFIED in working tree (uncommitted)"
+      },
+      {
+        "source_id": "S1.vscode_ext",
+        "path": "vscode-extension/src/extension.js",
+        "tier": "S1",
+        "sha256": "60f9ad355555fef7015998937ea7eed09e497d79ba8de60059c77d56a91bd059",
+        "role": "VS Code/Antigravity extension; vibeClinic.* commands; vibeClinic.cliPath",
+        "mutable": true,
+        "note": "MODIFIED in working tree (uncommitted)"
+      },
+      {
+        "source_id": "S2.pkg_root",
+        "path": "package.json",
+        "tier": "S2",
+        "sha256": "4a388b70538e596a55725f93d43b9ec52824f46b8579a12d70331c9aa5900525",
+        "role": "name vibe-clinic, private:true, bin vibe-clinic+vbc, publish blocked",
+        "mutable": true,
+        "note": "version 2.0.1 (uncommitted)"
+      },
+      {
+        "source_id": "S3.tests",
+        "path": "test/unit.test.js",
+        "tier": "S3",
+        "sha256": "0ed855ea12151b52fb7477e0e298a338d1ba8bbceda76c864f40417c8ff88606",
+        "role": "22 unit/integration tests (cwd alias, timeout, errorMessage stack, byok, api hardening, folder-select)",
+        "mutable": true,
+        "note": "MODIFIED in working tree (uncommitted)"
+      },
+      {
+        "source_id": "S2.gemini_md",
+        "path": "GEMINI.md",
+        "tier": "S2",
+        "sha256": "d700963b7a06cfc28aca46608902b7b1be1f2387ffd96a06c581d06da6d0be85",
+        "role": "Antigravity vibe-check autorun rules (canonical body)",
+        "mutable": true
+      },
+      {
+        "source_id": "S2.skill_local",
+        "path": ".claude/skills/vibe-check/SKILL.md",
+        "tier": "S2",
+        "sha256": "2e21db50495a15f7abe7c0e1684cc35be26ebf2a76171a0c3a37bea16a3420ca",
+        "role": "Claude Code vibe-check skill (project-local)",
+        "mutable": true,
+        "note": "byte-identical to all 3 global skills (hash matches)"
+      },
+      {
+        "source_id": "S2.skill_global_claude",
+        "path": "~/.claude/skills/vibe-check/SKILL.md",
+        "tier": "S2",
+        "sha256": "2e21db50495a15f7abe7c0e1684cc35be26ebf2a76171a0c3a37bea16a3420ca",
+        "role": "Claude Code global skill",
+        "mutable": true
+      },
+      {
+        "source_id": "S2.skill_global_codex",
+        "path": "~/.codex/skills/vibe-check/SKILL.md",
+        "tier": "S2",
+        "sha256": "2e21db50495a15f7abe7c0e1684cc35be26ebf2a76171a0c3a37bea16a3420ca",
+        "role": "Codex global skill",
+        "mutable": true
+      },
+      {
+        "source_id": "S2.skill_global_gemini",
+        "path": "~/.gemini/config/skills/vibe-check/SKILL.md",
+        "tier": "S2",
+        "sha256": "2e21db50495a15f7abe7c0e1684cc35be26ebf2a76171a0c3a37bea16a3420ca",
+        "role": "Antigravity global skill",
+        "mutable": true
+      },
+      {
+        "source_id": "S1.target_manager_diag",
+        "path": "260714_gyeoms-ai-agent/.vibe-clinic/diagnostics/manager_assets.clinic.js",
+        "tier": "S1",
+        "sha256": "659b7414c699a94d342992b84ba54378b2106317391bc8df1724a2fed1a90b6e",
+        "role": "REWRITTEN: real Polygon SUT balance on-chain check (4s timeout + provider.destroy)",
+        "mutable": true,
+        "note": "UNCOMMITTED in the separate 260714 repo"
+      },
+      {
+        "source_id": "S1.target_example_diag",
+        "path": "260714_gyeoms-ai-agent/.vibe-clinic/diagnostics/example.clinic.js",
+        "tier": "S1",
+        "sha256": "8d0de08352c2d3d4045ee970074730f53608f8c8217a60bbfee111a6a712b6ab",
+        "role": "example diagnostic (migrated from .diag.js)",
+        "mutable": true
+      },
+      {
+        "source_id": "S5.target_contract_helper",
+        "path": "260714_gyeoms-ai-agent/backend/contractHelper.js",
+        "tier": "S5",
+        "sha256": "9074e4c3f5a84b951209cc8018926154d34c63b7931748463aff1247fb1eddc7",
+        "role": "REFERENCE ONLY (unchanged): ethers v6 provider, RPC_URL default, SUT default 0x98965474EcBeC2F532F1f780ee37b0b05F77Ca55",
+        "mutable": false
+      }
+    ],
+    "claims": [
+      {
+        "claim_id": "C-RUN-1",
+        "statement": "Runner passes { projectDir, cwd: projectDir } so diagnostics reading ctx.cwd resolve the project root (never process.cwd()).",
+        "status": "VERIFIED",
+        "source_ids": [
+          "S1.runner",
+          "S3.tests"
+        ],
+        "evidence": "unit test 'ctx.cwd alias'; commit 0598610"
+      },
+      {
+        "claim_id": "C-RUN-2",
+        "statement": "Runner attaches errorMessage=err.stack on load-failure and runtime throw, populating the dashboard terminal log.",
+        "status": "VERIFIED",
+        "source_ids": [
+          "S1.runner",
+          "S1.dashboard_html",
+          "S3.tests"
+        ],
+        "evidence": "unit test 'captures stack trace in errorMessage'; commit 1e2e064"
+      },
+      {
+        "claim_id": "C-RUN-3",
+        "statement": "Per-diagnostic timeout (default 30000ms, mod.timeout override) prevents hangs.",
+        "status": "VERIFIED",
+        "source_ids": [
+          "S1.runner",
+          "S3.tests"
+        ]
+      },
+      {
+        "claim_id": "C-PICK-1",
+        "statement": "Folder picker uses compile-free IFileOpenDialog reflection (FOS_PICKFOLDERS 0x20) via System.Windows.Forms internals; ASCII-only; SIGDN passed as enum via Enum.Parse('SIGDN_FILESYSPATH'); owner window created without Show() to avoid ghost.",
+        "status": "PARTIALLY_VERIFIED",
+        "source_ids": [
+          "S1.folder_picker",
+          "S1.dashboard_js"
+        ],
+        "evidence": "parser OK + -DryRun -> DRYRUN_OK; SIGDN enum resolves; GUI end-to-end select/cancel/ghost NOT auto-verified",
+        "caveat": "See C3 - parallel-session commit 8ea0443 'reconcile folder picker verification' may have changed the selected approach; RE-READ code."
+      },
+      {
+        "claim_id": "C-SEC-1",
+        "statement": "Dashboard binds 127.0.0.1 only, removed CORS wildcard, /api/errors path-traversal blocked via basename+.md.",
+        "status": "VERIFIED",
+        "source_ids": [
+          "S1.dashboard_js"
+        ],
+        "evidence": "smoke test earlier; commit e01252f 'harden APIs and folder selection' may extend this - RE-READ"
+      },
+      {
+        "claim_id": "C-SEC-2",
+        "statement": "Gemini API key sent via x-goog-api-key header (not URL query).",
+        "status": "VERIFIED",
+        "source_ids": [
+          "S1.ai_provider"
+        ]
+      },
+      {
+        "claim_id": "C-REBRAND-1",
+        "statement": "Hard cut vibe-diagnosis -> vibe-clinic 2.0: config dir .vibe-clinic, ext .clinic.js, CLI vibe-clinic/vbc, MCP tools run_clinic/init_clinic/list_clinics. NO backward-compat reading of .vibe-diagnosis/.diag.js.",
+        "status": "VERIFIED",
+        "source_ids": [
+          "S1.runner",
+          "S1.cli",
+          "S1.mcp",
+          "S2.pkg_root"
+        ],
+        "evidence": "commit f546be0"
+      },
+      {
+        "claim_id": "C-MODE-1",
+        "statement": "vibe-check autorun mode is unified byte-identical across Claude Code, Codex, Antigravity global skills.",
+        "status": "VERIFIED",
+        "source_ids": [
+          "S2.skill_global_claude",
+          "S2.skill_global_codex",
+          "S2.skill_global_gemini"
+        ],
+        "evidence": "all three sha256 = 2e21db50495a15f7...3420ca"
+      },
+      {
+        "claim_id": "C-MCP-1",
+        "statement": "vibe-clinic MCP registered in all 3 tools pointing to 260709_vibe-clinic/mcp-server/index.js (absolute); Claude Code shows Connected.",
+        "status": "VERIFIED",
+        "source_ids": [
+          "S2.skill_global_claude"
+        ],
+        "evidence": "claude mcp list; ~/.codex/config.toml [mcp_servers.vibe_clinic]; ~/.gemini/config/mcp_config.json"
+      },
+      {
+        "claim_id": "C-TARGET-1",
+        "statement": "260714 project migrated .vibe-diagnosis->.vibe-clinic; manager_assets diagnostic now does a REAL read-only Polygon SUT balanceOf with 4s timeout + provider.destroy; result OK (balance 0.0 SUT), no hang (exit 0, ~4s).",
+        "status": "VERIFIED",
+        "source_ids": [
+          "S1.target_manager_diag",
+          "S5.target_contract_helper"
+        ],
+        "evidence": "vbc run --cwd 260714 -> Health 100%, live SUT symbol/decimals/balance read",
+        "caveat": "Offline->WARNING fallback path NOT tested (machine online). UNCOMMITTED in separate repo."
+      },
+      {
+        "claim_id": "C-MIA-1",
+        "statement": "MIA docs 24/25/26 (Clinic Teal design + path encoding fix + AI scanner implementationNotes) are ALREADY fully implemented in code; 22/22 tests pass.",
+        "status": "VERIFIED_CODE_ONLY",
+        "source_ids": [
+          "S1.dashboard_html",
+          "S1.dashboard_js",
+          "S3.tests"
+        ],
+        "evidence": "grep: --accent #06B6D4, --ok #34D399, radial-gradient ellipse x2, createElement('option'), charset=utf-8, projectOptions, implementationNotes",
+        "caveat": "Visual color rendering + Korean dropdown + sibling-folder listing NOT visually confirmed (needs browser)."
+      }
+    ],
+    "unresolved_contradiction_ledger": [
+      {
+        "id": "C1",
+        "type": "stale_documentation",
+        "description": "Error-fix report doc 10 test count drifted: primary agent wrote 13 -> user/linter edited to 18 -> current authoritative is 22.",
+        "resolution_hint": "Trust automated result (22). Update doc 10 if desired.",
+        "severity": "low"
+      },
+      {
+        "id": "C2",
+        "type": "uncommitted_wip",
+        "description": "HEAD 8ea0443 is pushed (ahead=0), but working tree has UNCOMMITTED changes bumping all packages to 2.0.1 plus modified dashboard.js/html, repairer.js, mcp-server/*, extension.js, test/unit.test.js, READMEs, AGENT_PATCH_QUEUE. Intent (commit 2.0.1 now? still WIP?) is UNKNOWN.",
+        "resolution_hint": "Ask 윤겸스 whether to commit the 2.0.1 working set; do NOT push without explicit approval.",
+        "severity": "high"
+      },
+      {
+        "id": "C3",
+        "type": "code_vs_context_drift",
+        "description": "3 commits landed AFTER primary agent's last authored commit 1e2e064: e01252f 'harden APIs and folder selection', d575f9c 'protect full vibe-check workflow', 8ea0443 'reconcile folder picker verification'. Their diffs are NOT fully in primary agent's context. The actual current folder-selection approach and API hardening may differ from claims C-PICK-1/C-SEC-1.",
+        "resolution_hint": "New agent MUST `git show e01252f d575f9c 8ea0443` and re-read src/dashboard.js + src/folder-picker.ps1 before acting.",
+        "severity": "high"
+      },
+      {
+        "id": "C4",
+        "type": "verification_gap",
+        "description": "Folder picker GUI end-to-end (open as modern Explorer, select folder, cancel, no ghost) is only proven via -DryRun; real click path unverified. Earlier user screenshots showed the dialog opening and a prior 'ghost/잔상' complaint.",
+        "resolution_hint": "Drive via in-app Browser tool against a live dashboard, or user manual click.",
+        "severity": "medium"
+      },
+      {
+        "id": "C5",
+        "type": "undecided_business_rule",
+        "description": "On-chain manager SUT balance is 0.0; diagnostic treats 'contract reachable + read success' as OK. Whether balance==0 should be WARNING is an undecided rule.",
+        "resolution_hint": "Ask 윤겸스 if a >0 threshold is desired.",
+        "severity": "low"
+      },
+      {
+        "id": "C6",
+        "type": "cross_repo_uncommitted",
+        "description": "260714_gyeoms-ai-agent (SEPARATE repo) has uncommitted migration + on-chain diagnostic rewrite. Not part of primary repo history.",
+        "resolution_hint": "Commit in that repo separately only if user asks.",
+        "severity": "medium"
+      }
+    ],
+    "decision_history": [
+      {
+        "d": "Hard cut over compatibility bridge",
+        "who": "윤겸스",
+        "rationale": "explicitly rejected runtime .vibe-diagnosis compat; chose full gyeoms/2.0 version",
+        "commit": "f546be0"
+      },
+      {
+        "d": "npm publish permanently blocked",
+        "rationale": "package name owned by original author Rejard; root package.json private:true + publish script errors out",
+        "source": "S2.pkg_root"
+      },
+      {
+        "d": "MCP registered via local absolute node path (not npx)",
+        "rationale": "npx pulls Rejard's old 1.0.x / 404 for vibe-diag; local path uses current engine across all 3 tools"
+      },
+      {
+        "d": "Folder picker: compile-free IFileOpenDialog reflection",
+        "rationale": "FolderBrowserDialog=legacy UI; Add-Type C#=AV/encoding blocked; fosFlags field doesn't exist. Doc 9 research pinned the reflection approach.",
+        "note": "may have been revised by commit 8ea0443 - verify"
+      },
+      {
+        "d": "On-chain check option B (real Polygon query) over option A (treat offline as OK)",
+        "who": "윤겸스",
+        "rationale": "wanted genuine on-chain verification; implemented with ERR_002 hang guards"
+      }
+    ],
+    "inherited_constraints": [
+      "Address the user as 윤겸스; respond in Korean by default; pair hard technical terms with English.",
+      "Assume possibly non-developer; explain what changes and why.",
+      "APPROVAL GATE (per-action, per-session, do NOT generalize): git push, npm publish, vsce/marketplace publish, GitHub release, deployment, real API key entry/storage. Even if previously approved once, re-confirm each time.",
+      "Local file edits + local tests + MCP smoke test are allowed under the standing session approval.",
+      "Never read/modify .env/.pem/.key/secrets; never print secrets. .env is gitignored in primary repo.",
+      "Report in the fixed 6-category format: 실행한 것 / 발견한 것 / 수정한 것 / 다시 실행한 검증 / 아직 실행하지 않은 것 / 다음 승인 필요 항목.",
+      "stop-at-done: once a goal is closed, do NOT re-verify or re-implement finished work; record optional QA as backlog only.",
+      "Repair principle: 1 failure -> 1 cause -> smallest fix -> re-run -> report; never weaken a diagnostic to fake a pass.",
+      "Never claim a test/verification ran if it didn't; separate verified facts from assumptions.",
+      "Windows PowerShell 5.1 (CP949): keep .ps1 ASCII-only or UTF-8 BOM to avoid Korean-parse failures.",
+      "git identity for primary repo: gyeomsVibe <yoongyeomkim0515@gmail.com>; remote via SSH alias github-gyeoms using key ~/.ssh/id_ed25519_gyeoms."
+    ],
+    "handoff_specification": {
+      "previous_response_id": "UNAVAILABLE_IN_HARNESS - Claude Code sessions have no API response_id. Use head_commit 8ea0443 + this EP as the recovery anchor.",
+      "recovery_procedure": [
+        "1. cd primary_repo; run: git status --short && git log --oneline -6 && npm test",
+        "2. git show e01252f d575f9c 8ea0443  (re-diff the 3 parallel-session commits not in prior context - see C3)",
+        "3. Re-read src/dashboard.js and src/folder-picker.ps1 to confirm the CURRENT folder-selection + API-hardening implementation before trusting claims C-PICK-1/C-SEC-1.",
+        "4. Re-hash any S1 file you depend on and compare to source_manifest; mismatch = file changed since EP.",
+        "5. Resolve C2 first: ask 윤겸스 whether to commit the uncommitted 2.0.1 working set."
+      ],
+      "immediate_next_actions_ranked": [
+        "A. Decide + (on approval) commit the uncommitted 2.0.1 working-tree changes; do NOT push without separate approval (C2).",
+        "B. MIA verification-only: drive the live dashboard in a browser to visually confirm Clinic Teal colors, Korean-path dropdown, sibling-folder auto-listing, '구현 방식' section (C4, C-MIA-1).",
+        "C. If asked: commit the 260714 external-repo migration + on-chain diagnostic in that repo (C6).",
+        "D. Optional: decide balance==0 WARNING rule (C5); update stale report doc 10 test count to 22 (C1)."
+      ],
+      "resume_prompt_for_new_window": "이전 세션(Vibe Clinic 2.0.x, 저장소 260709_vibe-clinic)을 데이터 손실 없이 이어간다. 방금 붙여넣은 EP(Evidence Pack)를 신뢰 기준으로 삼되, 코드는 항상 현재 작업 트리를 다시 읽어 확인해라. 마지막 확인 상태: HEAD=8ea0443(push 완료), 그러나 작업 트리에 2.0.1 미커밋 변경 존재, 테스트 22/22 통과, MIA 대시보드 리뉴얼·경로 인코딩·AI 스캐너 항목은 코드상 이미 구현 완료(육안 검수만 남음). 내 마지막 커밋(1e2e064) 이후 병렬 세션 커밋 3건(e01252f, d575f9c, 8ea0443)이 있으니 먼저 `git status`, `npm test`, 그리고 그 3개 커밋을 diff해서 현재 상태를 재확인한 뒤, EP의 unresolved_contradiction_ledger(C2·C3 우선)를 해소할 계획을 6분류로 제시해라. push/publish/배포는 매번 별도 승인이 필요하고, 나를 '윤겸스'로 부르고 한국어로 답해라. 먼저 재확인 결과부터 보고하고 다음 작업을 물어봐라."
+    }
+  }
+}
