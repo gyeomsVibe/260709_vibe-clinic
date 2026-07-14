@@ -82,9 +82,15 @@ function readBody(req) {
 }
 
 function startDashboard(projectDir, port = 7700) {
+  let currentProjectDir = path.resolve(projectDir);
   let lastRunResults = [];
 
   const server = http.createServer(async (req, res) => {
+    // CORS 헤더 설정
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
     const url = new URL(req.url, `http://${req.headers.host}`);
 
     if (req.method === 'OPTIONS') {
@@ -99,20 +105,20 @@ function startDashboard(projectDir, port = 7700) {
     }
 
     if (req.method === 'GET' && url.pathname === '/api/list') {
-      const diagnostics = listDiagnosticMeta(projectDir);
+      const diagnostics = listDiagnosticMeta(currentProjectDir);
       sendJson(res, diagnostics);
       return;
     }
 
     if (req.method === 'GET' && url.pathname === '/api/errors') {
-      const errors = listErrorPatterns(projectDir);
+      const errors = listErrorPatterns(currentProjectDir);
       sendJson(res, errors);
       return;
     }
 
     if (req.method === 'GET' && url.pathname.startsWith('/api/errors/')) {
       const filename = decodeURIComponent(url.pathname.slice('/api/errors/'.length));
-      const content = readErrorPattern(projectDir, filename);
+      const content = readErrorPattern(currentProjectDir, filename);
       if (content === null) {
         sendText(res, 'Not found', 404);
       } else {
@@ -123,7 +129,7 @@ function startDashboard(projectDir, port = 7700) {
 
     if (req.method === 'POST' && url.pathname === '/api/run') {
       try {
-        const results = await runDiagnostics(projectDir);
+        const results = await runDiagnostics(currentProjectDir);
         lastRunResults = results;
         const summary = {
           total: results.length,
@@ -141,7 +147,7 @@ function startDashboard(projectDir, port = 7700) {
     }
 
     if (req.method === 'GET' && url.pathname === '/api/byok/config') {
-      const byok = getByokConfig(projectDir, { maskKey: true });
+      const byok = getByokConfig(currentProjectDir, { maskKey: true });
       const providers = listProviders();
       sendJson(res, { byok, providers });
       return;
@@ -151,8 +157,8 @@ function startDashboard(projectDir, port = 7700) {
       try {
         const body = await readBody(req);
         const { provider, apiKey, model } = body;
-        saveByokConfig(projectDir, { provider: provider || '', apiKey: apiKey || '', model: model || '' });
-        const byok = getByokConfig(projectDir, { maskKey: true });
+        saveByokConfig(currentProjectDir, { provider: provider || '', apiKey: apiKey || '', model: model || '' });
+        const byok = getByokConfig(currentProjectDir, { maskKey: true });
         sendJson(res, { success: true, byok });
       } catch (err) {
         sendJson(res, { error: err.message }, 400);
@@ -180,7 +186,7 @@ function startDashboard(projectDir, port = 7700) {
           return;
         }
 
-        const result = await repairDiagnostic(projectDir, diagResult);
+        const result = await repairDiagnostic(currentProjectDir, diagResult);
 
         if (result.rerunResult) {
           const idx = lastRunResults.findIndex(r => r.id === diagId);
@@ -188,6 +194,86 @@ function startDashboard(projectDir, port = 7700) {
         }
 
         sendJson(res, result);
+      } catch (err) {
+        sendJson(res, { error: err.message }, 500);
+      }
+      return;
+    }
+
+    if (req.method === 'GET' && url.pathname === '/api/project/list') {
+      try {
+        const coreRoot = path.resolve(__dirname, '..');
+        const projectOptions = [
+          { name: 'Vibe Clinic 본체', path: coreRoot }
+        ];
+
+        const examplesDir = path.join(coreRoot, 'examples');
+        if (fs.existsSync(examplesDir)) {
+          const subdirs = fs.readdirSync(examplesDir, { withFileTypes: true })
+            .filter(d => d.isDirectory())
+            .map(d => ({
+              name: `예제: ${d.name}`,
+              path: path.join(examplesDir, d.name)
+            }));
+          projectOptions.push(...subdirs);
+        }
+
+        sendJson(res, { currentProjectDir, projectOptions });
+      } catch (err) {
+        sendJson(res, { error: err.message }, 500);
+      }
+      return;
+    }
+
+    if (req.method === 'POST' && url.pathname === '/api/project/select') {
+      try {
+        const { execFile } = require('child_process');
+        // Compile-free IFileOpenDialog picker (FOS_PICKFOLDERS via reflection).
+        // Shipped as a standalone .ps1 so no Base64/encoding issues; -STA is
+        // required for the dialog, and the script guarantees foreground focus.
+        const pickerScript = path.join(__dirname, 'folder-picker.ps1');
+
+        execFile(
+          'powershell',
+          ['-NoProfile', '-STA', '-ExecutionPolicy', 'Bypass', '-File', pickerScript],
+          { windowsHide: true, timeout: 300000 },
+          (err, stdout, stderr) => {
+            const match = String(stdout || '').match(/^SELECTED:(.+)$/m);
+            if (match) {
+              sendJson(res, { success: true, selectedPath: match[1].trim() });
+              return;
+            }
+            if (err) {
+              const detail = (stderr || err.message || '').toString().trim().slice(0, 300);
+              sendJson(res, { error: `폴더 선택 창을 여는데 실패했습니다: ${detail}` }, 500);
+              return;
+            }
+            sendJson(res, { success: false, cancelled: true });
+          }
+        );
+      } catch (err) {
+        sendJson(res, { error: err.message }, 500);
+      }
+      return;
+    }
+
+    if (req.method === 'POST' && url.pathname === '/api/project/change') {
+      try {
+        const body = await readBody(req);
+        if (!body.projectDir) {
+          sendJson(res, { error: 'projectDir is required' }, 400);
+          return;
+        }
+
+        const targetPath = path.resolve(body.projectDir);
+        if (!fs.existsSync(targetPath)) {
+          sendJson(res, { error: `지정한 경로가 존재하지 않습니다: ${body.projectDir}` }, 400);
+          return;
+        }
+
+        currentProjectDir = targetPath;
+        lastRunResults = [];
+        sendJson(res, { success: true, currentProjectDir });
       } catch (err) {
         sendJson(res, { error: err.message }, 500);
       }
@@ -203,7 +289,7 @@ function startDashboard(projectDir, port = 7700) {
     console.log(`\n  \x1b[36m🩺 Vibe Clinic Dashboard\x1b[0m`);
     console.log(`  \x1b[90m${'─'.repeat(40)}\x1b[0m`);
     console.log(`  Running at: \x1b[32m${url}\x1b[0m`);
-    console.log(`  Project:    ${projectDir}`);
+    console.log(`  Project:    ${currentProjectDir}`);
     console.log(`  \x1b[90m${'─'.repeat(40)}\x1b[0m`);
     console.log(`  Press \x1b[33mCtrl+C\x1b[0m to stop\n`);
 
