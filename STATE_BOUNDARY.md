@@ -1,24 +1,27 @@
 # STATE_BOUNDARY — 상태 경계 문서
 
 > 이 문서는 "어떤 상태를 기준으로 말하는지" 혼동을 막기 위한 기준표다.
-> 아래 5개 상태는 **서로 다른 스냅샷**이며, 절대 한 덩어리로 취급하지 않는다.
-> (원칙 출처: GPT-handoff 패치 큐 P0 — 증거 상태 분리)
+> 아래 상태는 서로 다른 스냅샷이며, 절대 한 덩어리로 취급하지 않는다.
 
-기준 시각: 2026-07-09
+기준 시각: 2026-07-14
 
 ## 상태 분리표
 
 | # | 상태 | 위치 | 내용 기준 | 비고 |
 |---|---|---|---|---|
-| 1 | **GPT-handoff ZIP** | `GPT-handoff/GYEOMS_260709_vibe-clinic_EP_MASTER_ARCHIVE.zip` | 전수분석 **이전** 시점 스냅샷 | sha256: `cabf9a2b...b6c5c` (동봉 .sha256.txt 참조). 히스토리 보존용 — 현재 코드 기준으로 참조 금지 |
-| 2 | **현재 작업 트리** | 이 저장소 루트 | 전수분석 후 15개 이슈 수정 + 메타데이터 리브랜딩 + 이번 패치 큐 적용본 | **유일한 "현재 소스" 기준** |
-| 3 | **GitHub 원격** | `gyeomsVibe/260709_vibe-clinic` `main` | 로컬과 동기화됨 (계정명 `gyeoms-vibe` → `gyeomsVibe` 변경, SSH 키 승계 확인) | 새 커밋은 push 승인 후 반영 |
-| 4 | **VSIX 산출물 (구버전)** | `vscode-extension/vibe-diagnosis-vscode-1.1.0.vsix` 이하, `1.1.1.vsix`, `1.1.2.vsix` | 1.1.0 이하: **수정 전 버그 코드 포함** (dashboard 5초 종료 버그, publisher=Rejard). 1.1.1: 구계정(gyeoms-vibe) 메타데이터. 1.1.2: npx fallback 시 패키지명 404 버그 존재. | ⚠️ 배포 대상에서 제외. 현재 소스 기준 산출물은 `1.1.3.vsix` (publisher=gyeomsVibe). 이전 1.1.2는 Antigravity IDE(Code-OSS 1.107.0)에서 설치 성공하였으나, 이번 1.1.3은 순정 VS Code 미설치로 인해 미검증 상태로 유지 |
-| 5 | **mcp-server/node_modules** | `mcp-server/node_modules/vibe-diagnosis` | (정리 전) npm registry의 **구버전 1.0.0 코어**가 설치되어 있었음 | `file:..` 로컬 링크로 전환하여 현재 소스 코어를 사용하도록 정리됨 |
+| 1 | **역사 아카이브** | `GPT-handoff/1차 handoff/GYEOMS_260709_vibe-diagnosis_EP_MASTER_ARCHIVE.zip` | Vibe Clinic 완전 전환 이전 스냅샷 | 원문 증거이므로 파일명과 내용은 변경하지 않는다. 현재 코드의 입력으로 사용하지 않는다. |
+| 2 | **현재 작업 트리** | 이 저장소 루트 | Vibe Clinic 2.0.0 hard cut 소스 | `.vibe-clinic/`, `*.clinic.js`, `vibe-clinic`/`vbc`, `run_clinic` 기준이다. |
+| 3 | **GitHub 원격** | `gyeomsVibe/260709_vibe-clinic` `main` | 이 문서를 포함한 승인 배치를 push한 뒤 `HEAD`와 `origin/main`으로 확인 | 해시를 문서에 고정하지 않고 Git으로 실시간 판정한다. |
+| 4 | **현재 VSIX** | `vscode-extension/vibe-clinic-vscode-2.0.0.vsix` | 현재 Vibe Clinic 소스, 2.0.0 메타데이터, LICENSE/NOTICE로 재빌드 | 로컬 산출물이며 Marketplace 배포는 하지 않았다. |
+| 5 | **구 VSIX** | `vscode-extension/vibe-diagnosis-vscode-1.1.4.vsix` | 리브랜딩 전 산출물 | 2026-07-14 사용자 승인 후 물리 삭제 완료. |
+| 6 | **로컬 의존성** | `mcp-server/node_modules/vibe-clinic` | `file:..` 링크로 현재 루트 코어 사용 | npm registry의 구 배포본과 구분한다. |
+| 7 | **npm 배포본** | registry의 기존 패키지 | 원작자 계정의 과거 배포 상태 | 이 저장소는 `private: true`이며 publish하지 않는다. |
+| 8 | **라이선스 귀속** | `LICENSE`, `NOTICE`, `vscode-extension/LICENSE`, `vscode-extension/NOTICE` | Apache-2.0, Vibe Clinic 수정분 Copyright 2026 gyeomsVibe | 원작 Copyright 2025 Rejard와 프로젝트 링크를 보존한다. |
 
 ## 판단 규칙
 
-- "코드가 이렇다"라고 말할 때의 기준은 항상 **상태 2 (현재 작업 트리)**.
-- "사용자가 설치하면 받는 것"은 npm은 registry 배포본(1.0.x, 원작자 계정), VSIX는 로컬 재빌드본 기준 — 상태 2와 다를 수 있음을 항상 명시.
-- 구 VSIX(1.0.0~1.1.0)와 GPT-handoff ZIP은 **증거 보존용**이며 어떤 수정 작업의 입력으로도 쓰지 않는다.
-- npm의 `vibe-diagnosis`/`vibe-diagnosis-mcp` 패키지는 원작자(Rejard) 계정 배포본(≤1.0.x)이며, 이 저장소에서 publish하지 않는다.
+- "현재 코드"는 항상 **상태 2**를 뜻한다.
+- 역사 아카이브는 증거 보존용이며 현재 동작 근거로 사용하지 않는다. 구 VSIX는 삭제됐으므로 현재 산출물로 간주하지 않는다.
+- 테스트 통과는 현재 작업 트리에 대해서만 주장한다.
+- GitHub 반영 여부는 반드시 `HEAD`와 `origin/main`을 비교해 판단한다.
+- VSIX 실설치 검증과 npm/Marketplace 배포는 소스 테스트와 별도 상태로 보고한다.

@@ -3,9 +3,23 @@
 > Antigravity / Claude Code가 순서대로 처리하는 작업표.
 > 상태 기준은 `STATE_BOUNDARY.md`를 따른다. (원문: GPT-handoff 패치 큐 문서)
 
-기준일: 2026-07-09
+기준일: 2026-07-14
 
-## 큐 상태
+## Vibe Clinic 2.0 Hard Cut
+
+| 작업 | 상태 | 검증 / 비고 |
+|---|---|---|
+| 프로젝트·CLI·설정 경로 완전 전환 | ✅ 완료 | `vibe-clinic`, `vbc`, `.vibe-clinic/`, `*.clinic.js` |
+| MCP 서버·도구명 전환 | ✅ 완료 | `vibe-clinic`, `init_clinic`, `list_clinics`, `run_clinic` |
+| VS Code 확장 전환 | ✅ 완료 | `vibe-clinic-vscode` 2.0.0, `vibeClinic.*` 명령 |
+| 로컬 MCP 실행 경로 전환 | ✅ 완료 | 비공개 패키지 npx 호출 제거, 로컬 `mcp-server/index.js` 사용 |
+| 락파일 정합화 | ✅ 완료 | MCP·VS Code package-lock 모두 2.0.0 |
+| 자동 검증 | ✅ 완료 | 단위 테스트 12/12, self 100%, example 3/3, MCP smoke 100% |
+| VSIX 재빌드 | ✅ 완료 | `vibe-clinic-vscode-2.0.0.vsix`, 명령·메타데이터·LICENSE·NOTICE 확인 |
+| 구 VSIX 물리 삭제 | ✅ 완료 | 승인 후 `vibe-diagnosis-vscode-1.1.4.vsix` 삭제 |
+| 승인 배치 commit·push | ▶ 실행 단계 | 승인된 파일만 명시 스테이징하고 push 후 `HEAD = origin/main` 확인 |
+
+## 1.x 패치 이력 (역사 기록 — 재실행 금지)
 
 | 우선순위 | 작업 | 상태 | 산출물 / 비고 |
 |---|---|---|---|
@@ -32,7 +46,7 @@
 | G | Cleanup + Ledger Reconciliation | ✅ 완료 | 임시 스크립트(.ps1) 및 test-vibe 삭제, task/walkthrough 갱신 |
 | — | Level 4 Hook (자동 재진단: 파일 수정 후/커밋 전) | 🔮 future | MVP 제외 (설계 문서 원칙: 프롬프트 → Skill → GEMINI.md → Hook 순서). 필요 시 별도 설계 |
 
-## 남은 큐 (미착수 / 별도 결정 필요)
+## 1.x 잔여·검증 기록 (역사 기록 — 재실행 금지)
 
 | 작업 | 이유 | 다음 명령 |
 |---|---|---|

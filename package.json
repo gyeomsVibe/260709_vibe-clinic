@@ -19,6 +19,7 @@
     "test:self": "node bin/vibe-clinic.js run",
     "test:example": "node bin/vibe-clinic.js run --cwd examples/calculator",
     "sync:rules": "node bin/sync-rules.js",
+    "sync:rules:global": "node bin/sync-rules.js --global",
     "publish": "echo 'Error: Public publishing is strictly prohibited.' && exit 1"
   },
   "keywords": [

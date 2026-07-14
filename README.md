@@ -97,7 +97,8 @@ node .\bin\vibe-clinic.js config set apiKey sk-...    # Set API key
 node .\bin\vibe-clinic.js config set model gpt-4o     # Set model name
 node .\bin\vibe-clinic.js repair <diagId>             # Auto-repair a specific diagnostic
 node .\bin\vibe-clinic.js repair --all                # Auto-repair all failing diagnostics
-npm run sync:rules                        # Synchronize GEMINI.md ↔ SKILL.md rules
+npm run sync:rules                        # Sync project-local agent rules
+npm run sync:rules:global                 # Explicitly sync the user-global Claude skill
 
 # macOS/Linux/Git Bash
 node ./bin/vibe-clinic.js init
@@ -111,6 +112,7 @@ node ./bin/vibe-clinic.js config set model gpt-4o
 node ./bin/vibe-clinic.js repair <diagId>
 node ./bin/vibe-clinic.js repair --all
 npm run sync:rules
+npm run sync:rules:global
 ```
 
 > **Note on `init`:** In addition to creating `.vibe-clinic/`, `init` registers the MCP server by creating or updating `.gemini/settings.json` in your project (adding a `vibe-clinic` entry under `mcpServers`). An existing `vibe-clinic` entry is left untouched. It also adds `.vibe-clinic/config.json` to your `.gitignore`.
@@ -275,9 +277,11 @@ An approval-based autorun mode: you approve the session once, and the agent runs
 
 ### First time (one-shot session approval)
 
-> VIBE_CHECK_AUTORUN_MODE를 이 프로젝트에 적용해줘.
-> 로컬 파일 수정과 로컬 테스트 실행까지 승인한다.
-> 원격 push, publish, release는 금지한다.
+```text
+VIBE_CHECK_AUTORUN_MODE를 이 프로젝트에 적용해줘.
+로컬 파일 수정과 로컬 테스트 실행까지 승인한다.
+원격 push, publish, release는 금지한다.
+```
 
 ### Every time after
 
@@ -370,5 +374,7 @@ npm run test:example  # run the calculator example diagnostics
 
 Apache License 2.0 — Open, Royalty-Free
 
-See [LICENSE](./LICENSE) for details.
+Vibe Clinic modifications are Copyright 2026 gyeomsVibe. The original Vibe Diagnosis work remains Copyright 2025 Rejard.
+
+See [LICENSE](./LICENSE) and [NOTICE](./NOTICE) for details.
 
