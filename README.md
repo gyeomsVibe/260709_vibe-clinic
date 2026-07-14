@@ -1,5 +1,7 @@
 # 🩺 vibe-clinic
 
+![Vibe Clinic Banner](./assets/vibe-clinic-banner.png)
+
 **Self-diagnosis framework for vibe coding projects**
 
 When coding with AI agents, prove that your project works — with code.

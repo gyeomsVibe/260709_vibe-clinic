@@ -219,6 +219,15 @@ async function repairDiagnostic(projectDir, diagResult) {
       };
     }
 
+    const originalFilesData = parsed.files.map(f => {
+      const absPath = path.resolve(projectDir, f.path);
+      let content = '';
+      if (fs.existsSync(absPath)) {
+        content = fs.readFileSync(absPath, 'utf-8');
+      }
+      return { path: f.path, content };
+    });
+
     const { modified, backups } = applyChanges(projectDir, parsed.files);
     const rerunResult = await rerunSingleDiagnostic(projectDir, diagResult.id, modified);
 
@@ -230,6 +239,8 @@ async function repairDiagnostic(projectDir, diagResult) {
       summary: parsed.summary,
       rerunResult,
       error: null,
+      originalFiles: originalFilesData,
+      repairedFiles: parsed.files
     };
   } catch (err) {
     return {

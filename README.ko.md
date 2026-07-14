@@ -1,5 +1,7 @@
 # 🩺 vibe-clinic
 
+![Vibe Clinic Banner](./assets/vibe-clinic-banner.png)
+
 **바이브코딩 프로젝트를 위한 자가 진단 프레임워크**
 
 AI 에이전트와 함께 코딩할 때, "지금 이 프로젝트가 정상인가?"를 코드로 증명합니다.

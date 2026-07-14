@@ -4,3 +4,4 @@ node_modules/
 *.vsix
 .vibe-clinic/config.json
 claude_vibe_check_mode_package.zip
+.env

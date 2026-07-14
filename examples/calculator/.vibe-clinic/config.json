@@ -2,5 +2,14 @@
   "projectName": "simple-calculator",
   "diagnosticsDir": "diagnostics",
   "errorPatternsDir": "error-patterns",
-  "layers": ["TASK", "FUNCTION", "SYSTEM"]
+  "layers": [
+    "TASK",
+    "FUNCTION",
+    "SYSTEM"
+  ],
+  "byok": {
+    "provider": "gemini",
+    "apiKey": "AQ.A****aVJg",
+    "model": "gemini-3.5-flash"
+  }
 }

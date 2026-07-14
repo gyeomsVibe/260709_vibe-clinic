@@ -188,6 +188,83 @@ header{display:flex;align-items:center;justify-content:space-between;padding:20p
   .byok-bar .byok-sep{display:none}
   .byok-bar select,.byok-bar input{width:100%}
 }
+
+/* 터미널 로그박스 스타일 */
+.terminal-log-box {
+  margin-top: 12px;
+  padding: 12px;
+  background: #0d1117;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 13px;
+  color: #c9d1d9;
+  white-space: pre-wrap;
+  overflow-x: auto;
+  max-height: 200px;
+  box-shadow: inset 0 2px 8px rgba(0,0,0,0.5);
+}
+.terminal-title {
+  font-size: 11px;
+  color: #8b949e;
+  border-bottom: 1px solid #21262d;
+  padding-bottom: 4px;
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+}
+.terminal-stdout { color: #58a6ff; }
+.terminal-stderr { color: #f85149; }
+
+/* 코드 디프 뷰어 스타일 */
+.diff-container {
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 12px;
+  line-height: 1.6;
+  background: #0d1117;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow-x: auto;
+  max-height: 380px;
+  margin-top: 12px;
+  box-shadow: inset 0 4px 16px rgba(0,0,0,0.5);
+}
+.diff-line {
+  display: flex;
+  padding: 1px 8px;
+  min-height: 19px;
+}
+.diff-num {
+  width: 45px;
+  color: #8b949e;
+  text-align: right;
+  padding-right: 12px;
+  user-select: none;
+  border-right: 1px solid #21262d;
+}
+.diff-code {
+  padding-left: 12px;
+  white-space: pre;
+}
+.diff-equal {
+  color: #c9d1d9;
+}
+.diff-delete {
+  background: rgba(248, 81, 73, 0.15);
+  color: #ff7b72;
+}
+.diff-insert {
+  background: rgba(56, 139, 253, 0.15);
+  color: #58a6ff;
+}
+.card-details-trigger {
+  cursor: pointer;
+  user-select: none;
+}
+.card-details-trigger:hover {
+  text-decoration: underline;
+  color: var(--accent2);
+}
 </style>
 </head>
 <body>
@@ -233,6 +310,17 @@ header{display:flex;align-items:center;justify-content:space-between;padding:20p
     </div>
   </div>
 
+  <div class="byok-bar" id="projectBar" style="margin-bottom: 16px;">
+    <label>📁 프로젝트 선택</label>
+    <select id="projectSelector" onchange="changeProject(this.value)">
+      <option value="">불러오는 중...</option>
+    </select>
+    <div class="byok-sep"></div>
+    <button class="btn-save" onclick="selectFolder()" style="background:var(--surface3); border:1px solid var(--border); margin-right:4px;">📁 폴더 선택</button>
+    <input type="text" id="customProjectDir" placeholder="직접 경로 입력 (예: D:\workspace\project)" style="flex: 1;">
+    <button class="btn-save" onclick="changeProjectCustom()">이동</button>
+  </div>
+
   <div class="byok-bar" id="byokBar">
     <label>🤖 BYOK</label>
     <select id="byokProvider">
@@ -270,6 +358,20 @@ header{display:flex;align-items:center;justify-content:space-between;padding:20p
   </div>
 </div>
 
+<div class="modal-overlay" id="repairModalOverlay" onclick="closeRepairModal(event)">
+  <div class="modal" style="max-width: 800px; width: 90%;">
+    <button class="close" onclick="document.getElementById('repairModalOverlay').classList.remove('active')">&times;</button>
+    <h3 id="repairModalTitle">🩺 AI 치료 결과 리포트</h3>
+    <div id="repairReportSummary" style="margin: 12px 0; font-size: 14px; line-height: 1.6; color: var(--text2);">
+      로딩 중...
+    </div>
+    <h4 style="margin: 16px 0 8px 0; color: var(--text-primary); font-size: 14px; font-weight: 600;">코드 변경 내역 (Diff)</h4>
+    <div id="repairDiffContainer">
+      <!-- Diff 내용 삽입 -->
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -291,7 +393,7 @@ async function fetchErrors() {
 }
 
 async function fetchErrorContent(filename) {
-  const res = await fetch(API + '/api/errors/' + encodeURIComponent(filename));
+  const res = await fetch(API + '/api/errors/' + encodeURIComponent(filename) + '?t=' + Date.now());
   return res.text();
 }
 
@@ -338,7 +440,7 @@ function createCard(diag, result) {
     }
 
     repairHtml = `
-      <div class="card-actions">
+      <div class="card-actions" onclick="event.stopPropagation()">
         <button class="${btnClass}" ${disabled} onclick="repairDiagnostic('${diag.id}')">
           ${btnContent}
         </button>
@@ -347,8 +449,27 @@ function createCard(diag, result) {
     `;
   }
 
+  let terminalHtml = '';
+  if (result) {
+    const errorMsg = result.errorMessage ? `\n\nERROR MESSAGE:\n${result.errorMessage}` : '';
+    const stdoutMsg = result.stdout ? `\n\nSTDOUT:\n${result.stdout}` : '';
+    const stderrMsg = result.stderr ? `\n\nSTDERR:\n${result.stderr}` : '';
+    const detailsMsg = `DETAILS: ${result.details || '없음'}`;
+    const rawLogs = `${detailsMsg}${errorMsg}${stdoutMsg}${stderrMsg}`;
+
+    terminalHtml = `
+      <div class="terminal-log-box" style="display: none;" onclick="event.stopPropagation()">
+        <div class="terminal-title">
+          <span>🐚 TERMINAL LOG VIEW</span>
+          <span style="color:#8b949e;">${duration}</span>
+        </div>
+        <div>${escapeHtml(rawLogs)}</div>
+      </div>
+    `;
+  }
+
   return `
-    <div class="card status-${status}">
+    <div class="card status-${status}" onclick="toggleTerminalLog(this, event)" style="cursor: pointer;">
       <div class="card-header">
         <div>
           <div class="card-name">${diag.name || diag.id}</div>
@@ -359,10 +480,11 @@ function createCard(diag, result) {
       ${diag.linkedTask ? `<div class="card-task">🔗 ${diag.linkedTask}</div>` : ''}
       <div class="card-status">
         <span class="status-dot ${status}"></span>
-        <span class="card-details">${details}</span>
+        <span class="card-details card-details-trigger">${details}</span>
         <span class="card-duration">${duration}</span>
       </div>
       ${repairHtml}
+      ${terminalHtml}
     </div>
   `;
 }
@@ -389,19 +511,33 @@ async function loadErrors() {
   try {
     const errors = await fetchErrors();
     const list = document.getElementById('errorList');
-    document.getElementById('errorCount').textContent = errors.length;
+    
+    // 실패 노드 ID들 수집
+    const failedIds = (lastResults && typeof lastResults === 'object')
+      ? Object.values(lastResults).filter(r => r && r.status !== 'OK').map(r => r.id.toLowerCase())
+      : [];
 
-    if (errors.length === 0) {
-      list.innerHTML = '<li class="error-item"><span class="icon">✨</span> 기록된 에러 패턴이 없습니다.</li>';
+    // 실패 노드 ID가 포함된 파일 이름만 동적 필터링
+    const filteredErrors = errors.filter(filename => {
+      const lower = filename.toLowerCase();
+      return failedIds.some(id => lower.includes(id));
+    });
+
+    document.getElementById('errorCount').textContent = filteredErrors.length;
+
+    if (filteredErrors.length === 0) {
+      list.innerHTML = '<li class="error-item"><span class="icon">✨</span> 현재 발생했거나 매핑된 에러 패턴이 없습니다.</li>';
       return;
     }
 
-    list.innerHTML = errors.map(f =>
+    list.innerHTML = filteredErrors.map(f =>
       `<li class="error-item" onclick="showError('${f}')">
         <span class="icon">📄</span> ${f}
       </li>`
     ).join('');
-  } catch {}
+  } catch (err) {
+    console.error(err);
+  }
 }
 
 function renderCards() {
@@ -474,6 +610,7 @@ async function repairDiagnostic(diagId) {
         lastResults[diagId] = data.rerunResult;
       }
       showToast('✅ ' + (data.summary || '복구 성공!'), 'success');
+      showRepairReport(data);
     } else {
       repairStates[diagId] = 'failed:' + (data.summary || data.error || '복구로 문제가 해결되지 않았습니다.');
       if (data.rerunResult) {
@@ -489,6 +626,92 @@ async function repairDiagnostic(diagId) {
     showToast('❌ 복구 요청 실패', 'error');
     renderCards();
   }
+}
+
+function showRepairReport(data) {
+  const summaryEl = document.getElementById('repairReportSummary');
+  const diffContainer = document.getElementById('repairDiffContainer');
+  
+  summaryEl.textContent = data.summary || 'AI가 코드를 성공적으로 분석하고 패치를 적용했습니다.';
+  
+  if (data.originalFiles && data.repairedFiles && data.originalFiles.length > 0) {
+    let diffHtml = '';
+    for (let k = 0; k < data.repairedFiles.length; k++) {
+      const repFile = data.repairedFiles[k];
+      const origFile = data.originalFiles.find(f => f.path === repFile.path) || { content: '' };
+      
+      diffHtml += `
+        <div style="margin-top: 16px; margin-bottom: 8px; font-weight: 600; font-size: 13px; color: var(--accent2);">
+          📄 ${repFile.path}
+        </div>
+        <div class="diff-container">
+          ${computeSimpleDiff(origFile.content, repFile.content)}
+        </div>
+      `;
+    }
+    diffContainer.innerHTML = diffHtml;
+  } else {
+    diffContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text3);">변경된 소스 코드 내역이 없습니다.</div>';
+  }
+  
+  document.getElementById('repairModalOverlay').classList.add('active');
+}
+
+function closeRepairModal(event) {
+  if (event.target === document.getElementById('repairModalOverlay')) {
+    document.getElementById('repairModalOverlay').classList.remove('active');
+  }
+}
+
+function computeSimpleDiff(originalText, repairedText) {
+  const origLines = originalText.split('\n');
+  const repLines = repairedText.split('\n');
+  
+  let html = '';
+  let i = 0, j = 0;
+  
+  while (i < origLines.length || j < repLines.length) {
+    if (i < origLines.length && j < repLines.length) {
+      if (origLines[i] === repLines[j]) {
+        html += `<div class="diff-line diff-equal"><span class="diff-num">${i+1}</span><span class="diff-code">  ${escapeHtml(origLines[i])}</span></div>`;
+        i++;
+        j++;
+      } else {
+        html += `<div class="diff-line diff-delete"><span class="diff-num">${i+1}</span><span class="diff-code">- ${escapeHtml(origLines[i])}</span></div>`;
+        html += `<div class="diff-line diff-insert"><span class="diff-num">${j+1}</span><span class="diff-code">+ ${escapeHtml(repLines[j])}</span></div>`;
+        i++;
+        j++;
+      }
+    } else if (i < origLines.length) {
+      html += `<div class="diff-line diff-delete"><span class="diff-num">${i+1}</span><span class="diff-code">- ${escapeHtml(origLines[i])}</span></div>`;
+      i++;
+    } else if (j < repLines.length) {
+      html += `<div class="diff-line diff-insert"><span class="diff-num">${j+1}</span><span class="diff-code">+ ${escapeHtml(repLines[j])}</span></div>`;
+      j++;
+    }
+  }
+  return html;
+}
+
+function toggleTerminalLog(cardEl, event) {
+  if (event.target.closest('.card-actions') || event.target.closest('.btn-repair')) {
+    return;
+  }
+  const box = cardEl.querySelector('.terminal-log-box');
+  if (box) {
+    const isHidden = box.style.display === 'none';
+    box.style.display = isHidden ? 'block' : 'none';
+  }
+}
+
+function escapeHtml(text) {
+  if (!text) return '';
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 }
 
 function updateStatsFromResults() {
@@ -604,9 +827,86 @@ function closeModal(event) {
   }
 }
 
+async function loadProjectList() {
+  try {
+    const res = await fetch(API + '/api/project/list');
+    const data = await res.json();
+    
+    const selector = document.getElementById('projectSelector');
+    const customInput = document.getElementById('customProjectDir');
+    
+    if (data.projectOptions) {
+      selector.innerHTML = data.projectOptions.map(p => 
+        `<option value="${p.path}" ${data.currentProjectDir === p.path ? 'selected' : ''}>${p.name}</option>`
+      ).join('');
+      
+      const hasOption = data.projectOptions.some(p => p.path === data.currentProjectDir);
+      if (!hasOption) {
+        const customOpt = document.createElement('option');
+        customOpt.value = data.currentProjectDir;
+        customOpt.textContent = '직접 입력 경로';
+        customOpt.selected = true;
+        selector.appendChild(customOpt);
+      }
+    }
+    
+    customInput.value = data.currentProjectDir;
+    document.getElementById('projectName').textContent = data.currentProjectDir.split(/[\\/]/).pop() || data.currentProjectDir;
+  } catch (err) {
+    showToast('❌ 프로젝트 목록 로드 실패', 'error');
+  }
+}
+
+async function changeProject(projectDir) {
+  if (!projectDir) return;
+  try {
+    const res = await fetch(API + '/api/project/change', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ projectDir })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast('📁 프로젝트가 변경되었습니다.', 'success');
+      repairStates = {};
+      await Promise.all([loadProjectList(), runDiagnostics(), loadErrors(), loadByokConfig()]);
+    } else {
+      showToast('❌ ' + (data.error || '프로젝트 변경 실패'), 'error');
+    }
+  } catch (err) {
+    showToast('❌ 네트워크 오류', 'error');
+  }
+}
+
+async function changeProjectCustom() {
+  const projectDir = document.getElementById('customProjectDir').value.trim();
+  if (!projectDir) {
+    showToast('⚠️ 경로를 입력해 주세요.', 'error');
+    return;
+  }
+  await changeProject(projectDir);
+}
+
+async function selectFolder() {
+  try {
+    showToast('📂 폴더 선택 대화상자를 여는 중...', 'success');
+    const res = await fetch(API + '/api/project/select', { method: 'POST' });
+    const data = await res.json();
+    if (data.success && data.selectedPath) {
+      document.getElementById('customProjectDir').value = data.selectedPath;
+      await changeProject(data.selectedPath);
+    } else if (data.cancelled) {
+      showToast('⚠️ 폴더 선택이 취소되었습니다.', 'error');
+    } else if (data.error) {
+      showToast('❌ ' + data.error, 'error');
+    }
+  } catch (err) {
+    showToast('❌ 네트워크 오류', 'error');
+  }
+}
+
 async function init() {
-  document.getElementById('projectName').textContent = window.location.host;
-  await Promise.all([loadDiagnostics(), loadErrors(), loadByokConfig()]);
+  await Promise.all([loadProjectList(), loadDiagnostics(), loadErrors(), loadByokConfig()]);
 }
 
 init();
