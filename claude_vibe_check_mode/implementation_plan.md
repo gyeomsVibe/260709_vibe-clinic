@@ -21,14 +21,14 @@
 
 ### 2. Claude Code 로컬 MCP 서버 등록 및 검증
 - **명령 실행**:
-  - `claude mcp add vibe-diagnosis -- node d:/D_Workspace_NB/-google-workspace/-antigravity-workspace/260709_vibe-diagnosis/mcp-server/index.js`
+  - `claude mcp add vibe-diagnosis -- node d:/D_Workspace_NB/-google-workspace/-antigravity-workspace/260709_vibe-clinic/mcp-server/index.js`
 - **검증**:
   - `claude mcp list` 명령으로 `vibe-diagnosis`가 정상 등록 및 연결(`√ Connected`)되었는지 상태 확인.
 
 ### 3. 규칙 동기화 패치 및 스크립트화 (보조 목표)
 - `SKILL.md`와 `GEMINI.md` 사이의 미세한 텍스트/포맷 차이 분석 및 동기화.
 - 동기화를 자동화할 수 있는 빌드 스크립트 작성.
-#### [NEW] [sync-rules.js](file:///d:/D_Workspace_NB/-google-workspace/-antigravity-workspace/260709_vibe-diagnosis/bin/sync-rules.js)
+#### [NEW] [sync-rules.js](file:///d:/D_Workspace_NB/-google-workspace/-antigravity-workspace/260709_vibe-clinic/bin/sync-rules.js)
 - `GEMINI.md`와 `SKILL.md` 간의 규칙 본문 영역을 동기화하여 향후 규칙 변경 시 충돌을 방지하는 노드 스크립트 생성.
 - `SKILL.md`는 frontmatter(Yaml)를 유지한 채 본문 규칙만을 `GEMINI.md`로부터 가져오도록 구현.
 
