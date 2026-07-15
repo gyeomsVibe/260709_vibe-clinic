@@ -724,6 +724,8 @@ async function applyRepairProposal(projectDir, proposal, options = {}) {
       regressions: [],
       summary: proposal.summary,
       rerunResult,
+      // 치료 후 전체 진단 결과 — cureAll이 다음 건의 회귀 기준선으로 재사용한다.
+      allResults,
       error: null,
       originalFiles: proposal.originalFiles,
       repairedFiles: proposal.repairedFiles,
@@ -731,6 +733,91 @@ async function applyRepairProposal(projectDir, proposal, options = {}) {
   } catch (err) {
     return createFailureResult(proposal.diagId, err.message);
   }
+}
+
+// 💉 전체 치료 오케스트레이터: 실패 진단을 순차 치료한다. 신규 치료 로직은
+// 없다 — 기존 createRepairProposal + applyRepairProposal(회귀 게이트/자동 롤백)을
+// 여러 건에 적용하고 결과를 분류할 뿐이다. "실제 치료" 판정은 오직
+// VERIFIED_RESULT(적용 후 재진단 OK + 회귀 0)만 인정한다.
+async function cureAll(projectDir, diagResults, options = {}) {
+  const strategy = options.strategy || 'auto';
+  const deps = { strategy, chat: options.chat, getByok: options.getByok };
+
+  const cured = [];        // ✅ 실제 완치 (VERIFIED_RESULT)
+  const rolledBack = [];   // ⚠️ 롤백 (회귀/미완치)
+  const manual = [];       // 📋 수동 조치 필요 (kind:MANUAL)
+  const blocked = [];      // 🚫 진단 약화 차단
+  const unprescribable = []; // 🔑 처방 불가 (로컬 룰 없음 + 키 없음 등)
+  const held = [];         // ⏸ 간헐 의심(SUSPECTED) — 재확인 우선, 자동 치료 보류
+
+  let baseline = Array.isArray(diagResults) ? diagResults.slice() : [];
+
+  const failing = baseline.filter(
+    r => (r.status === 'ERROR' || r.status === 'WARNING') && r.id !== '_no_diagnostics'
+  );
+
+  for (const diag of failing) {
+    if (diag.confidence === 'SUSPECTED') {
+      held.push({ diagId: diag.id, reason: '간헐 실패(재현 1/2) — 자동 치료 전 재진단으로 재확인 권장' });
+      continue;
+    }
+
+    let proposal;
+    try {
+      proposal = await createRepairProposal(projectDir, diag, deps);
+    } catch (err) {
+      unprescribable.push({ diagId: diag.id, reason: err.message });
+      continue;
+    }
+
+    if (!proposal.success) {
+      if (proposal.errorCode === 'BLOCKED_WEAKENING') blocked.push({ diagId: diag.id, reason: proposal.error });
+      else unprescribable.push({ diagId: diag.id, reason: proposal.error });
+      continue;
+    }
+
+    if (proposal.kind === 'MANUAL') {
+      manual.push({ diagId: diag.id, prescription: proposal.prescription, summary: proposal.summary });
+      continue;
+    }
+
+    let result;
+    try {
+      result = await applyRepairProposal(projectDir, proposal, { baselineResults: baseline });
+    } catch (err) {
+      unprescribable.push({ diagId: diag.id, reason: err.message });
+      continue;
+    }
+
+    if (result.success && result.maturity === 'VERIFIED_RESULT') {
+      // 완치로 기록되는 것은 반드시 재진단 status==='OK'가 검증된 건뿐이다.
+      cured.push({
+        diagId: diag.id,
+        healedId: result.rerunResult?.id || diag.id, // 치료 후 모듈 id (로드 실패건은 파일명→모듈id로 바뀜)
+        verifiedStatus: result.rerunResult?.status,   // 반드시 'OK' (할루시네이션 방지 근거)
+        summary: proposal.summary,
+        filesModified: result.filesModified,
+      });
+      if (Array.isArray(result.allResults)) baseline = result.allResults; // 회귀 기준선 갱신
+    } else {
+      // 롤백됐거나(파일 원상복구) 완치 미검증 → 절대 완치로 인정하지 않는다.
+      rolledBack.push({ diagId: diag.id, reason: result.error, regressions: (result.regressions || []).map(r => r.id) });
+    }
+  }
+
+  return {
+    summary: {
+      total: failing.length,
+      cured: cured.length,
+      rolledBack: rolledBack.length,
+      manual: manual.length,
+      blocked: blocked.length,
+      unprescribable: unprescribable.length,
+      held: held.length,
+    },
+    cured, rolledBack, manual, blocked, unprescribable, held,
+    finalResults: baseline,
+  };
 }
 
 async function repairDiagnostic(projectDir, diagResult) {
@@ -743,5 +830,6 @@ module.exports = {
   repairDiagnostic,
   createRepairProposal,
   applyRepairProposal,
+  cureAll,
   readTreatmentLedger,
 };

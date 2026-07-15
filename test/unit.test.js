@@ -925,6 +925,61 @@ test('strategy "ai" forces the AI candidate even when a local rule exists', asyn
   }
 });
 
+// ─── 💉 Cure All (batch orchestrator) ──────────────────────────────────────
+
+const { cureAll } = require('../src/repairer');
+
+test('cureAll only counts VERIFIED_RESULT cures and never a hallucinated OK', async () => {
+  // ESM 프로젝트: 로컬 룰로 .cjs 변환 → 실제 완치 가능한 진단 1건.
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'vibe-cureall-'));
+  const diagDir = path.join(dir, '.vibe-clinic', 'diagnostics');
+  fs.mkdirSync(diagDir, { recursive: true });
+  fs.writeFileSync(path.join(dir, 'package.json'), '{"name":"x","type":"module"}', 'utf-8');
+  // 로드 실패로 고쳐질 진단 (로컬 룰이 .cjs로 변환)
+  fs.writeFileSync(path.join(diagDir, 'esm.clinic.js'),
+    "module.exports = { id: 'esm-diag', name: 'ESM', layer: 'TASK', run() { return { status: 'OK', details: 'ok' }; } };", 'utf-8');
+  try {
+    const baseline = await runDiagnostics(dir);
+    // esm-diag는 type:module에서 로드 실패(ERROR) 상태여야 한다.
+    const report = await cureAll(dir, baseline, {
+      strategy: 'local',
+      getByok: () => ({ provider: '', apiKey: '', model: '' }),
+    });
+    // 완치로 카운트된 건은 실제로 재진단 OK가 된 것만.
+    // ESM 로드 실패 케이스처럼 치료 후 모듈 id가 파일명과 달라질 수 있으므로
+    // healedId(치료 후 실제 id)를 우선 조회하고, 없으면 diagId로 fallback한다.
+    for (const c of report.cured) {
+      const after = report.finalResults.find(r => r.id === (c.healedId || c.diagId));
+      assert.strictEqual(after?.status, 'OK', `cured ${c.diagId} (healedId: ${c.healedId}) must actually be OK on re-diagnosis`);
+    }
+    assert.strictEqual(report.summary.cured + report.summary.rolledBack + report.summary.manual + report.summary.unprescribable, report.summary.total);
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('cureAll classifies manual, cured and rolled-back findings correctly', async () => {
+  const { dir } = makeRegressionFixture(); // diag-a ERROR (fileA), diag-b OK (fileB)
+  const diagDir = path.join(dir, '.vibe-clinic', 'diagnostics');
+  // 수동 처방만 가능한 진단 추가 (자체 prescription).
+  fs.writeFileSync(path.join(diagDir, 'net.clinic.js'),
+    "module.exports = { id: 'net-diag', name: 'Net', layer: 'TASK', retriable: false, run() { return { status: 'WARNING', details: 'link down', prescription: ['네트워크를 확인하세요.'] }; } };", 'utf-8');
+  try {
+    const baseline = await runDiagnostics(dir);
+    // diag-a는 로컬 룰이 없고 키도 없음 → unprescribable. net-diag → manual.
+    const report = await cureAll(dir, baseline, {
+      strategy: 'local',
+      getByok: () => ({ provider: '', apiKey: '', model: '' }),
+    });
+    assert.ok(report.manual.some(m => m.diagId === 'net-diag'), 'net-diag should be a manual prescription');
+    assert.ok(report.unprescribable.some(u => u.diagId === 'diag-a'), 'diag-a has no local rule and no key');
+    // diag-b는 원래 OK였으므로 치료 대상이 아님 (회귀도 없어야 함).
+    assert.ok(!report.rolledBack.some(r => r.diagId === 'diag-b'));
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
 test('a clean repair with a baseline is labeled VERIFIED_RESULT', async () => {
   const { dir, snap } = makeRegressionFixture();
   try {

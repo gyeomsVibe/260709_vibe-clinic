@@ -4,7 +4,7 @@ const path = require('path');
 const { runDiagnostics, discoverDiagnostics } = require('./runner');
 const { validateDiagnosticModule } = require('./schema');
 const { getByokConfig, saveByokConfig, getResolvedByok } = require('./config-manager');
-const { createRepairProposal, applyRepairProposal, readTreatmentLedger } = require('./repairer');
+const { createRepairProposal, applyRepairProposal, cureAll, readTreatmentLedger } = require('./repairer');
 const aiProvider = require('./ai-provider');
 const { execFile } = require('child_process');
 const { initialize } = require('./init');
@@ -586,6 +586,7 @@ function startDashboard(projectDir, port = 7700, options = {}) {
   const repairProposals = new Map();
   const createProposal = options.createRepairProposal || createRepairProposal;
   const applyProposal = options.applyRepairProposal || applyRepairProposal;
+  const cureAllImpl = options.cureAll || cureAll;
 
   function removeExpiredRepairProposals() {
     const now = Date.now();
@@ -801,6 +802,22 @@ function startDashboard(projectDir, port = 7700, options = {}) {
 
         sendJson(res, result, result.error ? 409 : 200);
       } catch (err) {
+        sendJson(res, { error: err.message }, 500);
+      }
+      return;
+    }
+
+    // 💉 전체 치료: 실패 진단을 순차 치료하고 분류별 요약을 반환한다.
+    // "실제 치료" 판정은 cureAll 내부의 VERIFIED_RESULT(재진단 OK + 회귀 0)만 인정.
+    if (req.method === 'POST' && url.pathname === '/api/repair/cure-all') {
+      try {
+        const body = await readBody(req).catch(() => ({}));
+        const report = await cureAllImpl(currentProjectDir, lastRunResults, { strategy: body.strategy });
+        // 치료 후 전체 진단 상태를 서버 기준선에도 반영.
+        if (Array.isArray(report.finalResults)) lastRunResults = report.finalResults;
+        sendJson(res, report);
+      } catch (err) {
+        console.error('[API Error] POST /api/repair/cure-all failed:', err);
         sendJson(res, { error: err.message }, 500);
       }
       return;

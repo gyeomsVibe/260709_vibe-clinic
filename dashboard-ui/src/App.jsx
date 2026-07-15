@@ -145,6 +145,8 @@ function App() {
   const [isRepairProposing, setIsRepairProposing] = useState(false);
   const [isRepairApplying, setIsRepairApplying] = useState(false);
   const [isInitializing, setIsInitializing] = useState(false);
+  const [isCureAllRunning, setIsCureAllRunning] = useState(false); // 💉 전체 치료 진행 중
+  const [cureAllReport, setCureAllReport] = useState(null);        // 💉 치료 리포트 모달 데이터
 
   const [toast, setToast] = useState({ show: false, type: 'success', message: '' });
 
@@ -466,6 +468,40 @@ function App() {
     }
   };
 
+  // 💉 전체 치료 오케스트레이터 — 실패 진단을 일괄 치료하고 분류 리포트를 반환한다.
+  // 완치 판정 = 오직 VERIFIED_RESULT(재진단 OK + 회귀 0)만. 할루시네이션 치료 차단.
+  const runCureAll = async () => {
+    const failingCount = summary.error + summary.warning;
+    if (failingCount === 0) return;
+    if (!window.confirm(`실패한 진단 ${failingCount}건을 일괄 치료합니다.\n\n완치 인정 기준: 재진단 OK 검증 완료(VERIFIED_RESULT)만\n자동 롤백: 회귀 발생 시 원상복구됨\n\n계속하시겠습니까?`)) return;
+
+    setIsCureAllRunning(true);
+    showToast('💉 전체 치료 중… 재진단 포함 최대 30초 소요', 'success');
+    try {
+      const res = await fetch('/api/repair/cure-all', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ strategy: 'auto' }),
+      });
+      const data = await res.json();
+      if (data.report) {
+        setCureAllReport(data.report);
+        const { cured, rolledBack, manual, unprescribable } = data.report.summary;
+        const msg = `✅ 완치 ${cured} · ⚠️ 롤백 ${rolledBack} · 📋 수동 ${manual} · 🔑 처방불가 ${unprescribable}`;
+        showToast(msg, cured > 0 ? 'success' : 'error');
+        // 치료 후 진단 결과 + 원장 갱신
+        await runDiagnostics();
+        fetchTreatments();
+      } else {
+        showToast(data.error || '전체 치료 중 오류', 'error');
+      }
+    } catch (err) {
+      showToast('전체 치료 통신 오류', 'error');
+    } finally {
+      setIsCureAllRunning(false);
+    }
+  };
+
   const viewErrorPattern = async (filename) => {
     try {
       const res = await fetch(`/api/errors/${encodeURIComponent(filename)}`);
@@ -492,6 +528,117 @@ function App() {
       <div className={`toast ${toast.show ? 'show' : ''} ${toast.type === 'error' ? 'error' : 'success'}`}>
         {toast.message}
       </div>
+
+      {/* 💉 전체 치료 리포트 모달 */}
+      {cureAllReport && (
+        <div className="modal-overlay" onClick={() => setCureAllReport(null)}>
+          <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: '640px' }}>
+            {/* 헤더 */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <div>
+                <h2 style={{ fontSize: '18px', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <span>💉</span> 전체 치료 리포트
+                </h2>
+                <p style={{ fontSize: '11px', color: 'var(--text3)', marginTop: '4px' }}>
+                  완치 인정 기준: 재진단 OK 검증(VERIFIED_RESULT)만 — 할루시네이션 치료 차단
+                </p>
+              </div>
+              <button onClick={() => setCureAllReport(null)} style={{ background: 'none', border: 'none', color: 'var(--text3)', cursor: 'pointer', padding: '4px' }}>
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* 요약 카운터 */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px', marginBottom: '20px' }}>
+              {[
+                { label: '✅ 실제 완치', value: cureAllReport.summary.cured, color: 'var(--ok)', bg: 'var(--ok-bg)', border: 'var(--ok-border)' },
+                { label: '⚠️ 롤백', value: cureAllReport.summary.rolledBack, color: 'var(--warn)', bg: 'var(--warn-bg)', border: 'var(--warn-border)' },
+                { label: '📋 수동 조치', value: cureAllReport.summary.manual, color: '#60a5fa', bg: 'rgba(59,130,246,0.1)', border: 'rgba(59,130,246,0.3)' },
+                { label: '🚫 약화 차단', value: cureAllReport.summary.blocked || 0, color: 'var(--err)', bg: 'var(--err-bg)', border: 'var(--err-border)' },
+                { label: '🔑 처방불가', value: cureAllReport.summary.unprescribable, color: 'var(--text3)', bg: 'rgba(255,255,255,0.04)', border: 'var(--border)' },
+              ].map(({ label, value, color, bg, border }) => (
+                <div key={label} style={{ background: bg, border: `1px solid ${border}`, borderRadius: '8px', padding: '10px 8px', textAlign: 'center' }}>
+                  <div style={{ fontSize: '22px', fontWeight: 800, color }}>{value}</div>
+                  <div style={{ fontSize: '9px', color: 'var(--text3)', marginTop: '3px', lineHeight: 1.3 }}>{label}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* 완치 목록 */}
+            {cureAllReport.cured.length > 0 && (
+              <div style={{ marginBottom: '16px' }}>
+                <h4 style={{ fontSize: '12px', fontWeight: 700, color: 'var(--ok)', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  ✅ 실제 완치 — 재진단 OK 검증 완료
+                </h4>
+                {cureAllReport.cured.map(c => (
+                  <div key={c.diagId} style={{ background: 'var(--ok-bg)', border: '1px solid var(--ok-border)', borderRadius: '6px', padding: '10px 12px', marginBottom: '6px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: '12px', fontWeight: 600, fontFamily: 'monospace', color: 'var(--text)' }}>{c.diagId}</span>
+                      <span style={{ fontSize: '10px', color: 'var(--ok)', fontWeight: 700 }}>재진단 OK ✓</span>
+                    </div>
+                    {c.summary && <div style={{ fontSize: '11px', color: 'var(--text3)', marginTop: '4px' }}>{c.summary}</div>}
+                    {c.filesModified?.length > 0 && (
+                      <div style={{ fontSize: '10px', color: 'var(--text3)', marginTop: '4px', fontFamily: 'monospace' }}>
+                        수정: {c.filesModified.join(', ')}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* 롤백 목록 */}
+            {cureAllReport.rolledBack.length > 0 && (
+              <div style={{ marginBottom: '16px' }}>
+                <h4 style={{ fontSize: '12px', fontWeight: 700, color: 'var(--warn)', marginBottom: '8px' }}>⚠️ 자동 롤백 — 회귀/미완치로 원상복구</h4>
+                {cureAllReport.rolledBack.map(r => (
+                  <div key={r.diagId} style={{ background: 'var(--warn-bg)', border: '1px solid var(--warn-border)', borderRadius: '6px', padding: '10px 12px', marginBottom: '6px' }}>
+                    <span style={{ fontSize: '12px', fontWeight: 600, fontFamily: 'monospace' }}>{r.diagId}</span>
+                    {r.regressions?.length > 0 && (
+                      <div style={{ fontSize: '10px', color: 'var(--warn)', marginTop: '4px' }}>회귀: {r.regressions.join(', ')}</div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* 수동 조치 목록 */}
+            {cureAllReport.manual.length > 0 && (
+              <div style={{ marginBottom: '16px' }}>
+                <h4 style={{ fontSize: '12px', fontWeight: 700, color: '#60a5fa', marginBottom: '8px' }}>📋 수동 조치 필요 — 아래 처방전을 따르세요</h4>
+                {cureAllReport.manual.map(m => (
+                  <div key={m.diagId} style={{ background: 'rgba(59,130,246,0.07)', border: '1px solid rgba(59,130,246,0.25)', borderRadius: '6px', padding: '10px 12px', marginBottom: '6px' }}>
+                    <div style={{ fontSize: '12px', fontWeight: 600, fontFamily: 'monospace', marginBottom: '6px' }}>{m.diagId}</div>
+                    {m.prescription?.map((step, i) => (
+                      <div key={i} style={{ fontSize: '11px', color: 'var(--text2)', marginBottom: '3px' }}>· {step}</div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* 처방불가 목록 */}
+            {cureAllReport.unprescribable.length > 0 && (
+              <div style={{ marginBottom: '16px' }}>
+                <h4 style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text3)', marginBottom: '8px' }}>🔑 처방불가 — AI 키 설정 또는 수동 처리 필요</h4>
+                {cureAllReport.unprescribable.map(u => (
+                  <div key={u.diagId} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', borderRadius: '6px', padding: '8px 12px', marginBottom: '6px' }}>
+                    <span style={{ fontSize: '12px', fontFamily: 'monospace', color: 'var(--text3)' }}>{u.diagId}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <button
+              onClick={() => setCureAllReport(null)}
+              className="btn-primary"
+              style={{ width: '100%', padding: '10px', borderRadius: '6px', fontSize: '13px', marginTop: '4px' }}
+            >
+              닫기
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Header UI */}
       <header>
@@ -759,13 +906,41 @@ function App() {
               <button 
                 className="btn-primary" 
                 onClick={runDiagnostics} 
-                disabled={isDiagRunning}
+                disabled={isDiagRunning || isCureAllRunning}
                 style={{ padding: '8px 18px', borderRadius: '6px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '8px' }}
               >
                 {isDiagRunning ? (
                   <span className="spinner" style={{ width: '12px', height: '12px', border: '2px solid rgba(0,0,0,0.2)', borderTopColor: '#090e14', borderRadius: '50%', animation: 'spin .6s linear infinite' }}></span>
                 ) : <Play size={14} />}
                 진단 실행 🩺
+              </button>
+
+              {/* 💉 전체 치료 버튼 — 실패 진단 ≥ 1일 때만 활성 */}
+              <button
+                id="btn-cure-all"
+                onClick={runCureAll}
+                disabled={isCureAllRunning || isDiagRunning || (summary.error + summary.warning === 0)}
+                style={{
+                  padding: '8px 18px',
+                  borderRadius: '6px',
+                  fontSize: '13px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  fontWeight: 700,
+                  cursor: (summary.error + summary.warning === 0 || isCureAllRunning || isDiagRunning) ? 'not-allowed' : 'pointer',
+                  background: (summary.error + summary.warning === 0) ? 'rgba(239,68,68,0.05)' : 'rgba(239,68,68,0.15)',
+                  color: (summary.error + summary.warning === 0) ? 'var(--text3)' : '#fca5a5',
+                  border: `1px solid ${(summary.error + summary.warning === 0) ? 'var(--border)' : 'rgba(239,68,68,0.35)'}`,
+                  transition: 'all 0.2s ease',
+                  boxShadow: (summary.error + summary.warning > 0 && !isCureAllRunning) ? '0 0 14px rgba(239,68,68,0.15)' : 'none',
+                  opacity: (summary.error + summary.warning === 0) ? 0.45 : 1,
+                }}
+              >
+                {isCureAllRunning ? (
+                  <span className="spinner" style={{ width: '12px', height: '12px', border: '2px solid rgba(239,68,68,0.2)', borderTopColor: '#ef4444', borderRadius: '50%', animation: 'spin .6s linear infinite' }}></span>
+                ) : <span style={{ fontSize: '15px' }}>💉</span>}
+                {isCureAllRunning ? '치료 중…' : `전체 치료 (${summary.error + summary.warning})`}
               </button>
             </div>
             
