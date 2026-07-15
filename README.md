@@ -94,9 +94,9 @@ node .\bin\vibe-clinic.js run                         # Run all diagnostics
 node .\bin\vibe-clinic.js run --json                  # JSON output (for CI/CD)
 node .\bin\vibe-clinic.js dashboard                   # Open web dashboard
 node .\bin\vibe-clinic.js config get                  # Show BYOK configuration
-node .\bin\vibe-clinic.js config set provider openai  # Set AI provider
-node .\bin\vibe-clinic.js config set apiKey sk-...    # Set API key
-node .\bin\vibe-clinic.js config set model gpt-4o     # Set model name
+node .\bin\vibe-clinic.js config set provider gemini  # Set AI provider (gemini only)
+node .\bin\vibe-clinic.js config set apiKey ...       # Set API key
+node .\bin\vibe-clinic.js config set model gemini-3.5-flash  # Set model name
 node .\bin\vibe-clinic.js repair <diagId>             # Auto-repair a specific diagnostic
 node .\bin\vibe-clinic.js repair --all                # Auto-repair all failing diagnostics
 npm run sync:rules                        # Validate the project adapter and local skill (no writes)
@@ -108,9 +108,9 @@ node ./bin/vibe-clinic.js run
 node ./bin/vibe-clinic.js run --json
 node ./bin/vibe-clinic.js dashboard
 node ./bin/vibe-clinic.js config get
-node ./bin/vibe-clinic.js config set provider openai
-node ./bin/vibe-clinic.js config set apiKey sk-...
-node ./bin/vibe-clinic.js config set model gpt-4o
+node ./bin/vibe-clinic.js config set provider gemini
+node ./bin/vibe-clinic.js config set apiKey ...
+node ./bin/vibe-clinic.js config set model gemini-3.5-flash
 node ./bin/vibe-clinic.js repair <diagId>
 node ./bin/vibe-clinic.js repair --all
 npm run sync:rules
@@ -197,23 +197,21 @@ Features:
 
 No vendor lock-in. Your API key stays on your machine and is never sent anywhere except the provider you choose.
 
-### Supported Providers
+### Supported Provider
+
+Vibe Clinic 2.0.1 is **Google Gemini only** (other providers were removed to keep the UI simple):
 
 | Provider | Model examples |
 |---|---|
-| **OpenAI** | `gpt-4o`, `gpt-4o-mini` |
-| **Anthropic** | `claude-sonnet-4-20250514`, `claude-3-5-haiku-20241022` |
-| **Google Gemini** | `gemini-2.5-flash`, `gemini-2.5-pro` |
-| **OpenRouter** | Any model available on OpenRouter |
+| **Google Gemini** | `gemini-3.5-flash`, `gemini-2.5-flash`, `gemini-2.5-pro` |
 
 ### Dashboard Configuration
 
-Open the dashboard and use the BYOK configuration bar at the top:
+Open the dashboard and use the BYOK settings panel:
 
-1. Select a **Provider** from the dropdown
-2. Enter your **API Key**
-3. Optionally set a **Model** (defaults are provided per provider)
-4. Click **Save** — settings are stored locally in `.vibe-clinic/config.json`
+1. Enter your **Gemini API Key**
+2. Optionally pick a **Model** (default: `gemini-3.5-flash`)
+3. Click **Save** — settings are stored locally in `.vibe-clinic/config.json`
 
 Once configured, ERROR and WARNING diagnostic cards will show an **Auto Repair** button. It creates an AI repair proposal; review the Diff and explicitly approve it before any file is changed.
 
@@ -231,9 +229,9 @@ Once configured, ERROR and WARNING diagnostic cards will show an **Auto Repair**
 You can also configure BYOK via environment variables (useful for CI/CD or team-shared setups):
 
 ```bash
-export VIBE_CLINIC_PROVIDER=openai      # openai | anthropic | gemini | openrouter
-export VIBE_CLINIC_API_KEY=sk-...
-export VIBE_CLINIC_MODEL=gpt-4o          # optional, uses provider default
+export VIBE_CLINIC_PROVIDER=gemini      # gemini only in 2.0.1
+export VIBE_CLINIC_API_KEY=...
+export VIBE_CLINIC_MODEL=gemini-3.5-flash  # optional, uses provider default
 ```
 
 Environment variables take precedence over `config.json` settings.

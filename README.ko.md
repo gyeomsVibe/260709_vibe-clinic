@@ -79,9 +79,9 @@ node .\bin\vibe-clinic.js run                         # 모든 진단 실행
 node .\bin\vibe-clinic.js run --json                  # JSON 출력 (CI/CD용)
 node .\bin\vibe-clinic.js dashboard                   # 웹 대시보드 열기
 node .\bin\vibe-clinic.js config get                  # BYOK 설정 확인
-node .\bin\vibe-clinic.js config set provider openai  # AI 프로바이더 설정
+node .\bin\vibe-clinic.js config set provider gemini  # AI 프로바이더 설정 (gemini 전용)
 node .\bin\vibe-clinic.js config set apiKey sk-...    # API 키 설정
-node .\bin\vibe-clinic.js config set model gpt-4o     # 모델명 설정
+node .\bin\vibe-clinic.js config set model gemini-3.5-flash  # 모델명 설정
 node .\bin\vibe-clinic.js repair <diagId>             # 특정 진단 AI 자동 수리
 node .\bin\vibe-clinic.js repair --all                # 실패한 모든 진단 자동 수리
 npm run sync:rules                        # 프로젝트 어댑터·로컬 스킬 정합성 검사 (파일 변경 없음)
@@ -93,9 +93,9 @@ node ./bin/vibe-clinic.js run
 node ./bin/vibe-clinic.js run --json
 node ./bin/vibe-clinic.js dashboard
 node ./bin/vibe-clinic.js config get
-node ./bin/vibe-clinic.js config set provider openai
+node ./bin/vibe-clinic.js config set provider gemini
 node ./bin/vibe-clinic.js config set apiKey sk-...
-node ./bin/vibe-clinic.js config set model gpt-4o
+node ./bin/vibe-clinic.js config set model gemini-3.5-flash
 node ./bin/vibe-clinic.js repair <diagId>
 node ./bin/vibe-clinic.js repair --all
 npm run sync:rules
@@ -184,21 +184,19 @@ node ./bin/vibe-clinic.js dashboard --port 8080
 
 ### 지원 프로바이더
 
+Vibe Clinic 2.0.1은 **Google Gemini 전용**입니다 (UI 단순화를 위해 나머지 프로바이더는 제거):
+
 | 프로바이더 | 모델 예시 |
 |---|---|
-| **OpenAI** | `gpt-4o`, `gpt-4o-mini` |
-| **Anthropic** | `claude-sonnet-4-20250514`, `claude-3-5-haiku-20241022` |
-| **Google Gemini** | `gemini-2.5-flash`, `gemini-2.5-pro` |
-| **OpenRouter** | OpenRouter에서 제공하는 모든 모델 |
+| **Google Gemini** | `gemini-3.5-flash`, `gemini-2.5-flash`, `gemini-2.5-pro` |
 
 ### 대시보드 설정
 
-대시보드를 열고 상단의 BYOK 설정 바를 사용합니다:
+대시보드를 열고 BYOK 설정 패널을 사용합니다:
 
-1. 드롭다운에서 **Provider** 선택
-2. **API Key** 입력
-3. **Model** 이름 입력 (예: `gpt-4o-mini`)
-4. **Save** 클릭 — 설정이 `.vibe-clinic/config.json`에 로컬 저장됩니다
+1. **Gemini API Key** 입력
+2. **Model** 선택 (기본값: `gemini-3.5-flash`)
+3. **설정 저장** 클릭 — 설정이 `.vibe-clinic/config.json`에 로컬 저장됩니다
 
 설정 완료 후, ERROR/WARNING 진단 카드에 **Auto Repair** 버튼이 표시됩니다. 클릭하면 AI 수리 제안을 만들고, Diff를 검토해 명시적으로 승인한 뒤에만 파일이 변경됩니다.
 
@@ -216,9 +214,9 @@ node ./bin/vibe-clinic.js dashboard --port 8080
 CI/CD나 팀 공유 환경에서는 환경변수로 설정할 수도 있습니다:
 
 ```bash
-export VIBE_CLINIC_PROVIDER=openai      # openai | anthropic | gemini | openrouter
-export VIBE_CLINIC_API_KEY=sk-...
-export VIBE_CLINIC_MODEL=gpt-4o          # 선택사항
+export VIBE_CLINIC_PROVIDER=gemini      # 2.0.1은 gemini 전용
+export VIBE_CLINIC_API_KEY=...
+export VIBE_CLINIC_MODEL=gemini-3.5-flash  # 선택사항
 ```
 
 환경변수는 `config.json` 설정보다 우선합니다.
