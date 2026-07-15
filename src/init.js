@@ -63,8 +63,17 @@ function initialize(targetDir) {
   const configDest = path.join(diagRoot, 'config.json');
   fs.copyFileSync(configSrc, configDest);
 
+  const hasEsm = (() => {
+    try {
+      const pkg = JSON.parse(fs.readFileSync(path.join(targetDir, 'package.json'), 'utf-8'));
+      return pkg.type === 'module';
+    } catch {
+      return false;
+    }
+  })();
+  const ext = hasEsm ? 'cjs' : 'js';
   const exampleSrc = path.join(TEMPLATE_DIR, 'example.clinic.js');
-  const exampleDest = path.join(diagnosticsDir, 'example.clinic.js');
+  const exampleDest = path.join(diagnosticsDir, `example.clinic.${ext}`);
   fs.copyFileSync(exampleSrc, exampleDest);
 
   const errorPatternSrc = path.join(TEMPLATE_DIR, 'error-pattern.md');
@@ -81,7 +90,7 @@ function initialize(targetDir) {
   console.log('    .vibe-clinic/');
   console.log('    ├── config.json');
   console.log('    ├── diagnostics/');
-  console.log('    │   └── example.clinic.js');
+  console.log(`    │   └── example.clinic.${ext}`);
   console.log('    └── error-patterns/');
   console.log('        └── ERR_000_template.md');
 

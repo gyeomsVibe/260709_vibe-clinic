@@ -8,28 +8,28 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --bg:#0B1222;
-  --surface:#111D2E;
-  --surface-hover:#1A2B40;
-  --surface2:#0D1726;
-  --surface3:#162236;
-  --border:#1E3A5F;
-  --border-hover:rgba(6,182,212,0.3);
-  --text:#E2E8F0;
-  --text2:#94A3B8;
-  --text3:#64748B;
-  --ok:#34D399;
-  --ok-bg:rgba(52,211,153,0.1);
-  --ok-border:#059669;
-  --warn:#FBBF24;
-  --warn-bg:rgba(251,191,36,0.08);
-  --warn-border:#D97706;
-  --err:#FB7185;
-  --err-bg:rgba(251,113,133,0.08);
-  --err-border:#E11D48;
-  --accent:#06B6D4;
-  --accent-glow:rgba(6,182,212,0.15);
-  --accent2:#0EA5E9;
+  --bg:#080c10;
+  --surface:#0f141c;
+  --surface-hover:#151c27;
+  --surface2:#080c10;
+  --surface3:#18222f;
+  --border:#1b2533;
+  --border-hover:#388bfd;
+  --text:#f0f6fc;
+  --text2:#c9d1d9;
+  --text3:#8b949e;
+  --ok:#3fb950;
+  --ok-bg:rgba(63, 185, 80, 0.1);
+  --ok-border:#3fb950;
+  --warn:#d29922;
+  --warn-bg:rgba(210, 153, 34, 0.1);
+  --warn-border:#d29922;
+  --err:#f85149;
+  --err-bg:rgba(248, 81, 73, 0.1);
+  --err-border:#f85149;
+  --accent:#58a6ff;
+  --accent-glow:rgba(56, 139, 253, 0.15);
+  --accent2:#1f6feb;
   --radius:10px;
   --radius-sm:6px;
 }
@@ -37,8 +37,8 @@ body{
   font-family:'Outfit','Inter',sans-serif;
   background-color:var(--bg);
   background-image:
-    radial-gradient(ellipse at 20% 50%, rgba(6,182,212,0.05) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 20%, rgba(14,165,233,0.03) 0%, transparent 50%);
+    radial-gradient(ellipse at 20% 50%, rgba(56, 139, 253, 0.05) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(56, 139, 253, 0.02) 0%, transparent 50%);
   background-attachment:fixed;
   color:var(--text);
   min-height:100vh;
@@ -628,6 +628,140 @@ header{display:flex;align-items:center;justify-content:space-between;padding:20p
   color: var(--text);
   margin-bottom: 2px;
 }
+/* 토글 스위치 스타일 */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 38px;
+  height: 20px;
+}
+.switch input { 
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--border);
+  transition: .3s;
+}
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 14px;
+  width: 14px;
+  left: 3px;
+  bottom: 3px;
+  background-color: var(--text2);
+  transition: .3s;
+}
+input:checked + .slider {
+  background-color: var(--accent);
+}
+input:focus + .slider {
+  box-shadow: 0 0 1px var(--accent);
+}
+input:checked + .slider:before {
+  transform: translateX(18px);
+  background-color: #090e14;
+}
+.slider.round {
+  border-radius: 20px;
+}
+.slider.round:before {
+  border-radius: 50%;
+}
+
+/* 필터 툴바 버튼 스타일 */
+.btn-run-diag {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: var(--accent);
+  color: #090e14;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .2s;
+  font-family: inherit;
+}
+.btn-run-diag:hover {
+  filter: brightness(1.15);
+  box-shadow: 0 0 15px var(--accent-glow);
+}
+.btn-run-diag.running {
+  opacity: 0.7;
+  pointer-events: none;
+}
+.btn-run-diag.running .spinner {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba(0,0,0,0.2);
+  border-top-color: #090e14;
+  border-radius: 50%;
+  animation: spin .6s linear infinite;
+}
+.toolbar-filter-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text2);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .2s;
+  font-family: inherit;
+}
+.toolbar-filter-btn:hover {
+  border-color: var(--text3);
+  color: var(--text);
+}
+.toolbar-filter-btn.active {
+  background: var(--surface3);
+  border-color: var(--border-hover);
+  color: var(--text);
+}
+.toolbar-filter-btn.filter-all.active {
+  border-color: var(--text2);
+}
+.toolbar-filter-btn.filter-ok.active {
+  border-color: var(--ok);
+  color: var(--ok);
+  box-shadow: 0 0 8px var(--ok-bg);
+}
+.toolbar-filter-btn.filter-warn.active {
+  border-color: var(--warn);
+  color: var(--warn);
+  box-shadow: 0 0 8px var(--warn-bg);
+}
+.toolbar-filter-btn.filter-err.active {
+  border-color: var(--err);
+  color: var(--err);
+  box-shadow: 0 0 8px var(--err-bg);
+}
+
+/* 추가 카드 스타일 */
+.card.add-card:hover {
+  border-color: var(--border-hover) !important;
+  box-shadow: 0 0 16px var(--accent-glow);
+}
+.card.add-card:hover div {
+  color: var(--text) !important;
+}
+
 .help-step-body p {
   font-size: 11px;
   color: var(--text2);
@@ -642,99 +776,164 @@ header{display:flex;align-items:center;justify-content:space-between;padding:20p
     <div class="logo">
       <span class="logo-icon">🩺</span>
       <div>
-        <h1 style="display: inline-flex; align-items: center;">
+        <h1 style="display: inline-flex; align-items: center; font-size: 20px; font-weight: 700; gap: 8px;">
           Vibe Clinic
-          <button class="btn-save" onclick="openHelpPopup()" style="background: var(--surface); border: 1px solid var(--border); color: var(--text2); margin-left: 12px; padding: 4px 10px; font-size: 11px; font-weight: 500;">💡 사용 방법</button>
+          <div class="logo-badge" style="font-size: 11px; font-weight: 500; color: var(--text3); border: 1px solid var(--border); padding: 2px 8px; border-radius: 4px; margin-left: 8px; background: var(--surface3);">코드 진단 🩺</div>
+          <button class="btn-save" onclick="openHelpPopup()" style="background: var(--surface); border: 1px solid var(--border); color: var(--text2); margin-left: 8px; padding: 4px 10px; font-size: 11px; font-weight: 500; cursor: pointer; border-radius: 4px; display: inline-flex; align-items: center; gap: 4px;">💡 사용 방법</button>
         </h1>
-        <span id="projectName">로딩 중...</span>
+        <span id="projectName" style="font-size: 12px; color: var(--text3); font-weight: 400; margin-top: 4px; display: block;">로딩 중...</span>
       </div>
     </div>
+    
     <div class="header-right">
-      <div class="ai-status" id="aiStatus" onclick="scrollToByok()">
-        <span class="ai-dot"></span>
-        <span>🤖</span>
-        <span id="aiStatusText">미설정</span>
+      <div class="health-ring-container" style="display: flex; align-items: center; gap: 12px;">
+        <div class="health-ring" id="healthRing" style="width: 52px; height: 52px; position: relative;">
+          <svg width="52" height="52" viewBox="0 0 52 52">
+            <circle class="ring-bg" cx="26" cy="26" r="22" stroke="var(--border)" stroke-width="4" fill="none"/>
+            <circle class="ring-fg" id="ringFg" cx="26" cy="26" r="22" stroke="var(--accent)" stroke-width="4" fill="none"
+                    stroke-dasharray="138.2" stroke-dashoffset="138.2" stroke-linecap="round" style="transition: stroke-dashoffset .8s ease;"/>
+          </svg>
+          <span class="health-text" id="healthText" style="font-size: 12px; font-weight: 700; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">—</span>
+        </div>
+        <div style="display: flex; flex-direction: column;">
+          <span class="health-title-label" style="font-size: 11px; font-weight: 600; color: var(--text2);">건강도 수치</span>
+          <span id="overallStatusBadge" style="font-size: 10px; color: var(--text3); margin-top: 2px;">연결대기</span>
+        </div>
       </div>
-      <div class="health-ring" id="healthRing">
-        <svg width="72" height="72" viewBox="0 0 72 72">
-          <circle class="ring-bg" cx="36" cy="36" r="30"/>
-          <circle class="ring-fg" id="ringFg" cx="36" cy="36" r="30"
-                  stroke-dasharray="188.5" stroke-dashoffset="188.5"/>
-        </svg>
-        <span class="health-text" id="healthText">—</span>
-        <span class="health-label">건강도</span>
+      
+      <div class="header-status-capsules" style="display: flex; align-items: center; gap: 6px; margin-left: 8px; border-left: 1px solid var(--border); padding-left: 16px;">
+        <span class="status-pill ok" style="font-size: 11px; background: var(--ok-bg); border: 1px solid var(--ok); color: var(--ok); padding: 2px 8px; border-radius: 12px; font-weight: 500;">🟢 정상</span>
+        <span class="status-pill warning" style="font-size: 11px; background: var(--warn-bg); border: 1px solid var(--warn); color: var(--warn); padding: 2px 8px; border-radius: 12px; font-weight: 500;">🟡 경고</span>
+      </div>
+      
+      <div style="display: flex; align-items: center; gap: 12px; border-left: 1px solid var(--border); padding-left: 16px; margin-left: 8px;">
+        <span class="icon-btn" title="알림" style="cursor:pointer; font-size:16px; color:var(--text3); transition: color .2s; position:relative;">
+          🔔
+          <span style="position:absolute; top:-2px; right:-2px; width:6px; height:6px; background:var(--err); border-radius:50%;"></span>
+        </span>
+        <span class="icon-btn" title="설정" style="cursor:pointer; font-size:16px; color:var(--text3); transition: color .2s;">⚙️</span>
       </div>
     </div>
   </header>
 
   <div class="canvas-grid">
     <div class="canvas-left">
-      <div class="byok-bar" id="projectBar" style="margin-bottom: 0;">
-        <label>📁 프로젝트 선택</label>
-        <select id="projectSelector" onchange="changeProject(this.value)" style="width: 100%; margin-bottom: 8px;">
-          <option value="">불러오는 중...</option>
-        </select>
-        <input type="text" id="customProjectDir" placeholder="직접 경로 입력 (권장)" style="width: 100%; margin-bottom: 8px;">
-        <div style="display: flex; gap: 8px; width: 100%;">
-          <button class="btn-save" onclick="changeProjectCustom()" style="flex: 1;">이동</button>
-          <button class="btn-save" onclick="selectFolder()" title="Windows 보조 선택기" style="background:var(--surface3); border:1px solid var(--border);">📁 선택기 (보조)</button>
+      <div class="byok-bar" id="environmentSettingsBar" style="margin-bottom: 0; display: flex; flex-direction: column; align-items: stretch; gap: 12px; padding: 16px;">
+        <!-- Section 1: Project Selector -->
+        <div>
+          <div style="font-size: 11px; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">📁 대상 프로젝트 선택</div>
+          <div style="display: flex; flex-direction: column; gap: 6px;">
+            <select id="projectSelector" onchange="changeProject(this.value)" style="width: 100%; padding: 6px 10px; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; color: var(--text); outline: none; font-size: 12.5px;">
+              <option value="">불러오는 중...</option>
+            </select>
+            <div style="display: flex; gap: 6px; width: 100%;">
+              <input type="text" id="customProjectDir" placeholder="직접 경로 입력" style="flex: 1; padding: 6px 10px; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 12px; outline: none;">
+              <button class="btn-save" onclick="changeProjectCustom()" style="padding: 6px 12px; font-size: 12px; height: 32px; border-radius: 6px; font-weight: 600;">이동</button>
+              <button class="btn-save" onclick="selectFolder()" title="Windows 보조 선택기" style="background:var(--surface3); border:1px solid var(--border); padding: 6px 12px; font-size: 12px; height: 32px; border-radius: 6px; font-weight: 600; color: var(--text2);">선택</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Divider line -->
+        <div style="border-top: 1px solid var(--border); margin: 2px 0;"></div>
+
+        <!-- Section 2: BYOK Toggle & Inputs -->
+        <div>
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+            <span style="font-size: 11px; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px;">🔑 API 키 개별 설정 (BYOK)</span>
+            <label class="switch" style="transform: scale(0.9);">
+              <input type="checkbox" id="byokToggle" onchange="toggleByokInputs(this.checked)">
+              <span class="slider"></span>
+            </label>
+          </div>
+          
+          <div id="byokInputsContainer" style="display: none; flex-direction: column; gap: 8px; margin-top: 8px;">
+            <div style="display: grid; grid-template-columns: 1fr; gap: 8px;">
+              <div>
+                <label style="font-size: 10px; color: var(--text3); display: block; margin-bottom: 2px;">Gemini API Key</label>
+                <input type="password" id="byokApiKey" placeholder="AI 기능용 API 키 입력" style="width: 100%; padding: 6px 10px; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 12px; outline: none;" autocomplete="off">
+              </div>
+              <div>
+                <label style="font-size: 10px; color: var(--text3); display: block; margin-bottom: 2px;">모델 선택 (Gemini 전용)</label>
+                <select id="byokModel" style="width: 100%; padding: 6px 10px; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 12px; cursor: pointer; outline: none;">
+                  <option value="gemini-3.5-flash" selected>gemini-3.5-flash (추천/고속)</option>
+                  <option value="gemini-1.5-pro">gemini-1.5-pro (고성능)</option>
+                </select>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 4px; gap: 8px;">
+              <span id="byokFeedback" class="byok-feedback" style="font-size: 11px; flex: 1;"></span>
+              <button class="btn-save" id="btnSave" onclick="saveByokConfig()" style="padding: 6px 12px; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; border-radius: 6px;">💾 설정 저장</button>
+            </div>
+          </div>
+
+          <!-- Accordion section -->
+          <div style="margin-top: 8px; border-top: 1px dashed var(--border); padding-top: 8px;">
+            <div onclick="toggleApiDetails()" style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; font-size: 10.5px; color: var(--text3); user-select: none;">
+              <span>ℹ️ API 상세 구성 및 암호화 안내</span>
+              <span id="apiAccordionArrow">❯</span>
+            </div>
+            <div id="apiDetailsPanel" style="display: none; margin-top: 6px; font-size: 10px; color: var(--text3); line-height: 1.45;">
+              개인 API 키를 사용하면 Vibe Clinic의 맞춤형 의사 소견 피드백 및 코드 진단 AI 스캐닝 기능을 직접 활성화할 수 있습니다. 
+              Vibe Clinic은 안전한 로컬 저장소를 사용하며, 입력하신 API 키는 암호화되어 로컬 프로젝트 구성 파일(<code style="background:var(--surface3); padding:1px 3px; border-radius:2px;">.vibe-clinic/config.json</code>)의 <code style="background:var(--surface3); padding:1px 3px; border-radius:2px;">.gitignore</code> 규칙을 통해 보호됩니다.
+            </div>
+          </div>
         </div>
       </div>
 
-      <div class="byok-bar" id="byokBar" style="margin-bottom: 0;">
-        <label>🤖 Gemini API 설정</label>
-        <input type="password" id="byokApiKey" placeholder="Gemini API 키 입력" autocomplete="off" style="width: 100%; margin-bottom: 8px;">
-        <input type="text" id="byokModel" class="byok-model" placeholder="모델명 (기본: gemini-3.5-flash)" style="width: 100%; margin-bottom: 8px;">
-        <button class="btn-save" id="btnSave" onclick="saveByokConfig()" style="width: 100%;">💾 API 설정 저장</button>
-        <span class="byok-feedback" id="byokFeedback" style="margin-top: 4px; display: block;"></span>
-      </div>
-
-      <div class="project-explain-panel" id="projectExplainPanel" style="display: none;">
-        <div class="project-explain-header">
-          <span>🤖</span> AI 프로젝트 스캐너
+      <div class="project-explain-panel" id="projectExplainPanel" style="display: none; border: 1px solid var(--border); box-shadow: 0 0 10px rgba(88, 166, 255, 0.05);">
+        <div class="project-explain-header" style="font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+          <span>🤖</span> AI 프로젝트 스캐너 (AI Project Scanner)
         </div>
-        <div class="project-explain-body" id="projectExplainBody">
+        <div class="project-explain-body" id="projectExplainBody" style="padding-top: 10px;">
           <!-- 동적 주입 -->
         </div>
       </div>
     </div>
 
     <div class="canvas-right">
-      <div class="toolbar" style="margin-bottom: 20px;">
-        <button class="btn-run" id="btnRun" onclick="runDiagnostics()">
-          <span class="btn-icon">🔍</span>
-          <span class="spinner"></span>
-          진단 실행
-        </button>
-        
-        <div class="filter-group">
-          <button class="filter-btn active" id="btnFilterAll" onclick="setFilter('all')">
-            전체 검사 <span id="countAll">0</span>
+      <div class="toolbar-section" style="margin-bottom: 20px;">
+        <div style="font-size: 12px; font-weight: 700; color: var(--text3); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">진단 제어 툴바 (Diagnostic toolbar)</div>
+        <div class="toolbar">
+          <button class="btn-run-diag" id="btnRun" onclick="runDiagnostics()">
+            <span class="spinner"></span>
+            <span class="btn-text">진단 실행 🩺</span>
           </button>
-          <button class="filter-btn" id="btnFilterOk" onclick="setFilter('ok')" style="border-color:var(--ok); color:var(--ok);">
+          
+          <button class="toolbar-filter-btn filter-all active" id="btnFilterAll" onclick="setFilter('all')">
+            ⚙️ 전체 진단 <span id="countAll">0</span>
+          </button>
+          <button class="toolbar-filter-btn filter-ok" id="btnFilterOk" onclick="setFilter('ok')">
             🟢 완치(정상) <span id="countOk">0</span>
           </button>
-          <button class="filter-btn" id="btnFilterWarning" onclick="setFilter('warning')" style="border-color:var(--warn); color:var(--warn);">
+          <button class="toolbar-filter-btn filter-warn" id="btnFilterWarning" onclick="setFilter('warning')">
             🟡 주의 관찰 <span id="countWarn">0</span>
           </button>
-          <button class="filter-btn" id="btnFilterError" onclick="setFilter('error')" style="border-color:var(--err); color:var(--err);">
+          <button class="toolbar-filter-btn filter-err" id="btnFilterError" onclick="setFilter('error')">
             🔴 치료 시급 <span id="countErr">0</span>
           </button>
         </div>
       </div>
 
-      <div class="section-title" style="margin-bottom: 12px; margin-top: 4px;">정밀 진단 차트 <span class="count" id="diagCount">0</span></div>
-      
-      <div class="cards-grid" id="cardsGrid">
-        <div class="empty" style="grid-column: 1 / -1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); text-align:center;">
-          <div class="icon" style="font-size:32px; margin-bottom:12px;">📋</div>
-          <p style="color:var(--text2);">진단 항목을 불러오는 중...</p>
+      <div class="canvas-right-main-layout" style="display: grid; grid-template-columns: 1.6fr 1.1fr; gap: 24px; align-items: start; margin-top: 12px;">
+        <!-- Left Sub-column: Diagnostics Cards Grid -->
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <div class="section-title">정밀 진단 차트 <span class="count" id="diagCount">0</span></div>
+          <div class="cards-grid" id="cardsGrid" style="margin-bottom: 0;">
+            <div class="empty" style="grid-column: 1 / -1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); text-align:center;">
+              <div class="icon" style="font-size:32px; margin-bottom:12px;">📋</div>
+              <p style="color:var(--text2);">진단 항목을 불러오는 중...</p>
+            </div>
+          </div>
         </div>
-      </div>
-
-      <div class="errors-section">
-        <div class="section-title" style="margin-bottom: 8px;">검출된 오류 파일 패턴 <span class="count" id="errorCount">0</span></div>
-        <ul class="error-list" id="errorList"></ul>
+        
+        <!-- Right Sub-column: Detected Error File Patterns -->
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <div class="section-title">검출된 오류 파일 패턴 <span class="count" id="errorCount">0</span></div>
+          <div class="errors-section" style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; min-height: 380px; margin-top: 0;">
+            <ul class="error-list" id="errorList" style="margin: 0; padding: 0; list-style: none;"></ul>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -784,7 +983,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:20p
         <div class="help-step-number">1</div>
         <div class="help-step-body">
           <h4>프로젝트 선택 및 이동</h4>
-          <p>좌측 패널에서 대상 프로젝트 폴더를 선택하고 이동을 누릅니다. .vibe-clinic 폴더가 없는 경우 초기화 버튼을 눌러 스캐폴딩을 만드세요.</p>
+          <p>좌측 패널에서 대상 프로젝트 폴더를 선택하고 이동을 누릅니다. 만약 진단 폴더(.vibe-clinic)가 없는 경우 <b>진단 도구 설치 (초기화)</b> 버튼을 눌러 검진 기본 환경을 구축하세요.</p>
         </div>
       </div>
       <div class="help-step-item">
@@ -813,10 +1012,44 @@ header{display:flex;align-items:center;justify-content:space-between;padding:20p
   </div>
 </div>
 
+<div class="modal-overlay" id="createDiagModalOverlay" onclick="closeCreateDiagModal(event)">
+  <div class="modal" style="max-width: 500px; width: 90%;">
+    <button class="close" onclick="closeCreateDiagModalDirect()">&times;</button>
+    <h3 style="display:flex; align-items:center; gap:8px;">➕ 새 진단 항목 추가</h3>
+    <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 16px;">
+      <div>
+        <label style="font-size: 11px; font-weight: 600; color: var(--text2); display: block; margin-bottom: 4px;">진단 ID (영문, 숫자, 하이픈, 언더바)</label>
+        <input type="text" id="newDiagId" placeholder="예: func-api-validator" style="width: 100%; padding: 8px; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; color: var(--text); outline: none;">
+      </div>
+      <div>
+        <label style="font-size: 11px; font-weight: 600; color: var(--text2); display: block; margin-bottom: 4px;">진단 이름</label>
+        <input type="text" id="newDiagName" placeholder="예: API 파라미터 유효성 검사" style="width: 100%; padding: 8px; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; color: var(--text); outline: none;">
+      </div>
+      <div>
+        <label style="font-size: 11px; font-weight: 600; color: var(--text2); display: block; margin-bottom: 4px;">진단 영역 (Layer)</label>
+        <select id="newDiagLayer" style="width: 100%; padding: 8px; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; color: var(--text); outline: none; cursor: pointer;">
+          <option value="SYSTEM">시스템 환경 검사 (SYSTEM)</option>
+          <option value="TASK">핵심 업무 흐름 검사 (TASK)</option>
+          <option value="FUNCTION" selected>개별 기능 단위 검사 (FUNCTION)</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-size: 11px; font-weight: 600; color: var(--text2); display: block; margin-bottom: 4px;">상세 설명 및 의사 소견</label>
+        <textarea id="newDiagDesc" placeholder="진단 목적 및 검증 대상에 대해 설명해주세요." style="width: 100%; height: 80px; padding: 8px; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; color: var(--text); outline: none; resize: vertical;"></textarea>
+      </div>
+    </div>
+    <div class="modal-actions" style="margin-top: 20px;">
+      <button class="btn-secondary" onclick="closeCreateDiagModalDirect()">취소</button>
+      <button class="btn-save" onclick="submitCreateDiagnostic()">진단 생성</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
-const API = '';
+const API = window.location.protocol === 'file:' ? 'http://localhost:7700' : '';
+
 
 let diagnosticsList = [];
 let lastResults = {};
@@ -902,7 +1135,7 @@ function openSideDrawer(diagId) {
   if (diagId === '_no_diagnostics') {
     repairActionHtml = `
       <button class="btn-repair" onclick="initProjectOnDashboard()" style="background:var(--text); color:#000; width:100%; border:none; padding:10px; border-radius:4px; font-weight:600; cursor:pointer; font-size:12.5px;">
-        🩺 Vibe Clinic 초기화 실행
+        🩺 Vibe Clinic 진단 도구 설치 (초기화)
       </button>
     `;
   } else if (needsRepair && byokConfigured) {
@@ -985,10 +1218,28 @@ async function fetchErrorContent(filename) {
 }
 
 function updateHealthRing(percent) {
-  const circ = 188.5;
-  const offset = circ - (circ * percent / 100);
+  const circ = 138.2;
+  const isUninitialized = lastResults && lastResults['_no_diagnostics'];
+  
   const ring = document.getElementById('ringFg');
   const text = document.getElementById('healthText');
+  
+  if (!ring || !text) return;
+
+  if (isUninitialized) {
+    ring.style.strokeDashoffset = circ;
+    ring.style.stroke = 'var(--border)';
+    text.textContent = '대기';
+    
+    const badge = document.getElementById('overallStatusBadge');
+    if (badge) {
+      badge.textContent = '진단 도구 미설치 (대기)';
+      badge.style.color = 'var(--text3)';
+    }
+    return;
+  }
+
+  const offset = circ - (circ * percent / 100);
   ring.style.strokeDashoffset = offset;
   text.textContent = percent + '%';
 
@@ -1035,14 +1286,23 @@ function createCard(diag, result) {
 
   // 🩺 의사의 처방/소견 텍스트 생성
   let doctorNote = '';
-  if (status === 'ok') {
-    doctorNote = '🩺 <b>의사 소견:</b> 진단 결과 모든 기능이 지극히 건강합니다. 추가 처방이 필요 없습니다.';
-  } else if (status === 'warning') {
-    doctorNote = `🩺 <b>의사 소견:</b> 경고가 발견되었습니다. (${details}). 치료를 실행하는 것을 권장합니다.`;
-  } else if (status === 'error') {
-    doctorNote = `🩺 <b>의사 소견:</b> 작동을 방해하는 명백한 결함이 검출되었습니다. (${details}). 즉각 치료가 시급합니다!`;
+  let statusNameDisplay = statusName;
+  let detailsDisplay = details;
+
+  if (diag.id === '_no_diagnostics') {
+    statusNameDisplay = '⚪ 진단 도구 미설치';
+    detailsDisplay = 'Vibe Clinic 구성 파일이 존재하지 않습니다.';
+    doctorNote = '🩺 <b>의사 소견:</b> 대상 프로젝트 내에 진단을 수행할 검진용 도구 파일들이 설치되지 않았습니다. 코드 품질 자가진단 및 AI 정밀 치료 기능을 기동하기 위해 아래의 <b>진단 도구 설치 (초기화)</b> 단추를 클릭해 주세요.';
   } else {
-    doctorNote = '🩺 <b>의사 소견:</b> 정밀 진단 검사를 아직 시작하지 않았습니다. 우측 상단의 진단 실행을 클릭하세요.';
+    if (status === 'ok') {
+      doctorNote = '🩺 <b>의사 소견:</b> 진단 결과 모든 기능이 지극히 건강합니다. 추가 처방이 필요 없습니다.';
+    } else if (status === 'warning') {
+      doctorNote = `🩺 <b>의사 소견:</b> 경고가 발견되었습니다. (${details}). 치료를 실행하는 것을 권장합니다.`;
+    } else if (status === 'error') {
+      doctorNote = `🩺 <b>의사 소견:</b> 작동을 방해하는 명백한 결함이 검출되었습니다. (${details}). 즉각 치료가 시급합니다!`;
+    } else {
+      doctorNote = '🩺 <b>의사 소견:</b> 정밀 진단 검사를 아직 시작하지 않았습니다. 우측 상단의 진단 실행을 클릭하세요.';
+    }
   }
 
   let repairHtml = '';
@@ -1050,7 +1310,7 @@ function createCard(diag, result) {
     repairHtml = `
       <div class="card-actions" onclick="event.stopPropagation()">
         <button class="btn-repair" onclick="initProjectOnDashboard()" style="background:var(--accent); border-color:var(--accent); color:#fff; display:flex; align-items:center; gap:6px; font-weight:600;">
-          <span class="repair-icon">🩺</span> 바이브 클리닉 처방 실행
+          <span class="repair-icon">🩺</span> Vibe Clinic 진단 도구 설치 (초기화)
         </button>
       </div>
     `;
@@ -1124,7 +1384,7 @@ function createCard(diag, result) {
 
       <div class="card-status" style="margin-top:12px;">
         <span class="status-dot ${status}"></span>
-        <span class="card-details card-details-trigger" style="font-weight:600;">${statusName}</span>
+        <span class="card-details card-details-trigger" style="font-weight:600;">${statusNameDisplay}</span>
         <span class="card-duration">${duration}</span>
       </div>
       ${repairHtml}
@@ -1161,24 +1421,28 @@ async function loadErrors() {
       ? Object.values(lastResults).filter(r => r && r.status !== 'OK').map(r => r.id.toLowerCase())
       : [];
 
-    // 실패 노드 ID가 포함된 파일 이름만 동적 필터링
-    const filteredErrors = errors.filter(filename => {
-      const lower = filename.toLowerCase();
-      return failedIds.some(id => lower.includes(id));
-    });
+    // 실패 노드 ID가 포함된 파일 이름만 매핑 강조하고, 전체 에러 패턴 리스트 출력
+    document.getElementById('errorCount').textContent = errors.length;
 
-    document.getElementById('errorCount').textContent = filteredErrors.length;
-
-    if (filteredErrors.length === 0) {
-      list.innerHTML = '<li class="error-item"><span class="icon">✨</span> 현재 발생했거나 매핑된 에러 패턴이 없습니다.</li>';
+    if (errors.length === 0) {
+      list.innerHTML = '<li class="error-item" style="cursor: default;"><span class="icon">✨</span> 수집된 에러 패턴 문서가 없습니다.</li>';
       return;
     }
 
-    list.innerHTML = filteredErrors.map(f =>
-      `<li class="error-item" onclick="showError('${f}')">
-        <span class="icon">📄</span> ${f}
-      </li>`
-    ).join('');
+    list.innerHTML = errors.map(f => {
+      const lower = f.toLowerCase();
+      // 실패 노드 ID 매핑 여부 검증
+      const isCurrentFailure = failedIds.some(id => lower.includes(id));
+      const icon = isCurrentFailure ? '⚠️' : '📄';
+      const style = isCurrentFailure ? 'border-color: var(--err); background: rgba(239, 68, 68, 0.05); color: var(--text);' : '';
+      const badge = isCurrentFailure ? '<span style="font-size:9px; background:var(--err); color:#fff; padding:2px 5px; border-radius:3px; margin-left:8px; font-weight:700; display:inline-block; vertical-align:middle;">감지됨</span>' : '';
+      
+      return `<li class="error-item" onclick="showError('${f}')" style="${style} display:flex; align-items:center; gap:8px;">
+        <span class="icon">${icon}</span>
+        <span style="flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${f}</span>
+        ${badge}
+      </li>`;
+    }).join('');
   } catch (err) {
     console.error(err);
   }
@@ -1205,9 +1469,9 @@ function renderCards() {
     grid.innerHTML = `
       <div class="empty" style="grid-column: 1 / -1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); text-align:center;">
         <div class="icon" style="font-size:32px; margin-bottom:12px;">📋</div>
-        <p style="color:var(--text2);">진단 항목이 없습니다. .vibe-clinic/diagnostics/ 디렉토리에 .clinic.js 파일을 생성하거나 초기화해주세요.</p>
+        <p style="color:var(--text2);">진단 항목이 없습니다. .vibe-clinic/diagnostics/ 디렉토리에 진단 스크립트 파일을 생성하거나 아래의 버튼을 눌러 도구를 설치해 주세요.</p>
         <button class="btn-run" onclick="initProjectOnDashboard()" style="margin: 20px auto 0 auto; display: inline-flex; background: var(--accent); box-shadow: 0 4px 20px rgba(6,182,212,.3);">
-          🩺 Vibe Clinic 초기화하기 (Initialize)
+          🩺 Vibe Clinic 진단 도구 설치 (초기화)
         </button>
       </div>
     `;
@@ -1236,6 +1500,14 @@ function renderCards() {
   listToRender.forEach(d => {
     grid.innerHTML += createCard(d, lastResults[d.id]);
   });
+
+  // '+' 추가 카드 추가
+  grid.innerHTML += `
+    <div class="card add-card" onclick="openCreateDiagnosticModal(event)" style="border: 2px dashed var(--border); background: transparent; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 180px; cursor: pointer; transition: all .2s; border-radius: var(--radius); height: 100%; box-shadow: none;">
+      <div style="font-size: 32px; color: var(--text3); font-weight: 300;">+</div>
+      <div style="font-size: 12px; color: var(--text3); margin-top: 8px;">새 진단 항목 추가</div>
+    </div>
+  `;
 }
 
 async function runDiagnostics() {
@@ -1253,6 +1525,18 @@ async function runDiagnostics() {
     const res = await fetch(API + '/api/run', { method: 'POST' });
     const data = await res.json();
 
+    if (data.error) {
+      showToast('❌ 진단 실행 실패: ' + data.error, 'error');
+      await loadDiagnostics();
+      return;
+    }
+
+    if (!data.results) {
+      showToast('❌ 진단 실행 실패: 진단 결과를 수신하지 못했습니다.', 'error');
+      await loadDiagnostics();
+      return;
+    }
+
     lastResults = {};
     data.results.forEach(r => {
       lastResults[r.id] = r;
@@ -1261,23 +1545,28 @@ async function runDiagnostics() {
       addDiagnosticHistory(r.id, type, msg);
     });
 
-    document.getElementById('statTotal').textContent = data.summary.total;
-    document.getElementById('statOk').textContent = data.summary.ok;
-    document.getElementById('statWarn').textContent = data.summary.warning;
-    document.getElementById('statErr').textContent = data.summary.error;
+    if (document.getElementById('countAll')) {
+      document.getElementById('countAll').textContent = data.summary.total;
+      document.getElementById('countOk').textContent = data.summary.ok;
+      document.getElementById('countWarn').textContent = data.summary.warning;
+      document.getElementById('countErr').textContent = data.summary.error;
+    }
 
     updateHealthRing(data.healthPercent);
     renderCards();
 
     await loadDiagnostics();
 
-    if (data.overallStatus === 'OK') {
+    if (data.results && data.results.some(r => r.id === '_no_diagnostics')) {
+      showToast('💡 Vibe Clinic 진단 도구 설치가 필요합니다.', 'warning');
+    } else if (data.overallStatus === 'OK') {
       showToast('✅ 모든 진단을 통과했습니다! 건강도 ' + data.healthPercent + '%', 'success');
     } else {
       showToast('⚠️ 문제가 감지되었습니다 — 건강도 ' + data.healthPercent + '%', 'error');
     }
   } catch (err) {
-    showToast('❌ 진단 실행에 실패했습니다.', 'error');
+    showToast('❌ 진단 실행에 실패했습니다: ' + err.message, 'error');
+    await loadDiagnostics();
   } finally {
     btn.classList.remove('running');
   }
@@ -1492,18 +1781,112 @@ function updateStatsFromResults() {
   const error = results.filter(r => r.status === 'ERROR').length;
   const healthPercent = total > 0 ? Math.round((ok / total) * 100) : 100;
 
-  document.getElementById('statTotal').textContent = total;
-  document.getElementById('statOk').textContent = ok;
-  document.getElementById('statWarn').textContent = warning;
-  document.getElementById('statErr').textContent = error;
-
   // 신설 필터 버튼 카운트 업데이트
-  document.getElementById('countAll').textContent = total;
-  document.getElementById('countOk').textContent = ok;
-  document.getElementById('countWarn').textContent = warning;
-  document.getElementById('countErr').textContent = error;
+  if (document.getElementById('countAll')) {
+    document.getElementById('countAll').textContent = total;
+    document.getElementById('countOk').textContent = ok;
+    document.getElementById('countWarn').textContent = warning;
+    document.getElementById('countErr').textContent = error;
+  }
 
   updateHealthRing(healthPercent);
+}
+
+function toggleByokInputs(checked) {
+  const container = document.getElementById('byokInputsContainer');
+  if (checked) {
+    container.style.display = 'flex';
+  } else {
+    container.style.display = 'none';
+  }
+}
+
+function toggleApiDetails() {
+  const panel = document.getElementById('apiDetailsPanel');
+  const arrow = document.getElementById('apiAccordionArrow');
+  if (panel.style.display === 'none') {
+    panel.style.display = 'block';
+    arrow.textContent = '▼';
+  } else {
+    panel.style.display = 'none';
+    arrow.textContent = '❯';
+  }
+}
+
+function openCreateDiagnosticModal(event) {
+  event.stopPropagation();
+  if (diagnosticsList.length === 0 && lastResults && lastResults['_no_diagnostics']) {
+    if (confirm('프로젝트에 진단 도구가 설치되어 있지 않습니다. 진단 도구 설치(초기화)를 먼저 진행하시겠습니까?')) {
+      initProjectOnDashboard();
+    }
+    return;
+  }
+  
+  document.getElementById('newDiagId').value = '';
+  document.getElementById('newDiagName').value = '';
+  document.getElementById('newDiagLayer').value = 'FUNCTION';
+  document.getElementById('newDiagDesc').value = '';
+  
+  document.getElementById('createDiagModalOverlay').classList.add('active');
+}
+
+function closeCreateDiagModal(event) {
+  if (event.target === document.getElementById('createDiagModalOverlay')) {
+    closeCreateDiagModalDirect();
+  }
+}
+
+function closeCreateDiagModalDirect() {
+  document.getElementById('createDiagModalOverlay').classList.remove('active');
+}
+
+async function submitCreateDiagnostic() {
+  const id = document.getElementById('newDiagId').value.trim();
+  const name = document.getElementById('newDiagName').value.trim();
+  const layer = document.getElementById('newDiagLayer').value;
+  const desc = document.getElementById('newDiagDesc').value.trim();
+
+  if (!id || !name) {
+    showToast('❌ 진단 ID와 이름을 입력해주세요.', 'error');
+    return;
+  }
+
+  try {
+    const res = await fetch(API + '/api/diagnostic/create', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id,
+        name,
+        layer,
+        testCode: `module.exports = {
+  id: '${id}',
+  name: '${name}',
+  layer: '${layer}',
+  timeout: 5000,
+  run: async (ctx) => {
+    // TODO: 진단 실행 코드를 작성하세요.
+    return {
+      status: 'OK',
+      details: '${desc || '정상 동작 중입니다.'}',
+    };
+  }
+};`
+      })
+    });
+
+    const data = await res.json();
+    if (data.success) {
+      showToast('✅ 진단 항목이 성공적으로 생성되었습니다!', 'success');
+      closeCreateDiagModalDirect();
+      await loadDiagnostics();
+      await runDiagnostics();
+    } else {
+      showToast('❌ 진단 생성 실패: ' + data.error, 'error');
+    }
+  } catch (err) {
+    showToast('❌ 진단 생성 오류: ' + err.message, 'error');
+  }
 }
 
 async function loadByokConfig() {
@@ -1511,14 +1894,28 @@ async function loadByokConfig() {
     const res = await fetch(API + '/api/byok/config');
     const data = await res.json();
 
-    if (data.byok) {
-      if (data.byok.apiKey) document.getElementById('byokApiKey').value = data.byok.apiKey;
-      if (data.byok.model) document.getElementById('byokModel').value = data.byok.model;
+    const toggle = document.getElementById('byokToggle');
+    const inputsContainer = document.getElementById('byokInputsContainer');
+    const apiKeyInput = document.getElementById('byokApiKey');
+    const modelInput = document.getElementById('byokModel');
 
-      byokConfigured = !!(data.byok.apiKey && data.byok.model);
-      updateAiStatus();
+    if (data.byok && data.byok.apiKey) {
+      apiKeyInput.value = data.byok.apiKey;
+      modelInput.value = data.byok.model || 'gemini-3.5-flash';
+      byokConfigured = true;
+      toggle.checked = true;
+      inputsContainer.style.display = 'flex';
+    } else {
+      apiKeyInput.value = '';
+      modelInput.value = 'gemini-3.5-flash';
+      byokConfigured = false;
+      toggle.checked = false;
+      inputsContainer.style.display = 'none';
     }
-  } catch {}
+    updateAiStatus();
+  } catch (err) {
+    console.error('API 키 로드 오류:', err);
+  }
 }
 
 async function saveByokConfig() {
@@ -1552,7 +1949,7 @@ async function saveByokConfig() {
       byokConfigured = true;
       updateAiStatus();
       renderCards();
-      loadProjectExplanation();
+      loadProjectExplanation(true);
     } else {
       feedback.textContent = '❌ ' + (data.error || '저장 실패');
       feedback.className = 'byok-feedback err';
@@ -1567,16 +1964,18 @@ async function saveByokConfig() {
 }
 
 function updateAiStatus() {
-  const status = document.getElementById('aiStatus');
-  const text = document.getElementById('aiStatusText');
-  const model = document.getElementById('byokModel').value || 'gemini-3.5-flash';
+  const badge = document.getElementById('overallStatusBadge');
+  const modelInput = document.getElementById('byokModel');
+  const model = (modelInput && modelInput.value) || 'gemini-3.5-flash';
 
-  if (byokConfigured) {
-    status.classList.add('connected');
-    text.textContent = 'Gemini · ' + model;
-  } else {
-    status.classList.remove('connected');
-    text.textContent = '미설정';
+  if (badge) {
+    if (byokConfigured) {
+      badge.textContent = 'Gemini · ' + model;
+      badge.style.color = 'var(--ok)';
+    } else {
+      badge.textContent = '개별 API 미설정';
+      badge.style.color = 'var(--text3)';
+    }
   }
 }
 
@@ -1629,6 +2028,8 @@ async function loadProjectList() {
     }
     
     customInput.value = data.currentProjectDir;
+    customInput.title = data.currentProjectDir;
+    setTimeout(() => { customInput.scrollLeft = customInput.scrollWidth; }, 50);
     document.getElementById('projectName').textContent = data.currentProjectDir.split(/[\\/]/).pop() || data.currentProjectDir;
   } catch (err) {
     showToast('❌ 프로젝트 목록 로드 실패', 'error');
@@ -1686,20 +2087,20 @@ async function selectFolder() {
 
 async function initProjectOnDashboard() {
   const grid = document.getElementById('cardsGrid');
-  grid.innerHTML = '<div class="empty" style="grid-column: 1 / -1;"><div class="explain-spinner" style="margin: 0 auto 12px auto; display: block; border: 2px solid rgba(255,255,255,0.1); border-top-color: var(--text); width: 16px; height: 16px; border-radius: 50%; animation: spin .6s linear infinite;"></div><p>Vibe Clinic 초기화 중...</p></div>';
+  grid.innerHTML = '<div class="empty" style="grid-column: 1 / -1;"><div class="explain-spinner" style="margin: 0 auto 12px auto; display: block; border: 2px solid rgba(255,255,255,0.1); border-top-color: var(--text); width: 16px; height: 16px; border-radius: 50%; animation: spin .6s linear infinite;"></div><p>Vibe Clinic 진단 도구 설치 중...</p></div>';
 
-  showToast('🩺 Vibe Clinic 초기화 진행 중...', 'success');
+  showToast('🩺 Vibe Clinic 진단 도구 설치 진행 중...', 'success');
   try {
     const res = await fetch(API + '/api/project/init', { method: 'POST' });
     const data = await res.json();
     if (data.success) {
-      showToast('✅ Vibe Clinic이 성공적으로 초기화되었습니다!', 'success');
+      showToast('✅ Vibe Clinic 진단 도구 설치가 완료되었습니다!', 'success');
       await loadProjectList();
       await loadDiagnostics();
       await loadErrors();
       await runDiagnostics();
     } else {
-      showToast('❌ 초기화 실패: ' + (data.error || '알 수 없는 오류'), 'error');
+      showToast('❌ 설치 실패: ' + (data.error || '알 수 없는 오류'), 'error');
       await init();
     }
   } catch (err) {
@@ -1708,7 +2109,7 @@ async function initProjectOnDashboard() {
   }
 }
 
-async function loadProjectExplanation() {
+async function loadProjectExplanation(force = false) {
   const panel = document.getElementById('projectExplainPanel');
   const body = document.getElementById('projectExplainBody');
 
@@ -1716,7 +2117,7 @@ async function loadProjectExplanation() {
     panel.style.display = 'block';
     body.innerHTML = `
       <div class="project-explain-summary" style="color:var(--text3);">프로젝트 분석 대기 중</div>
-      <p style="font-size:12.5px; color:var(--text3);">🤖 AI 요약 기능을 사용하려면 하단의 <b>Gemini API 설정</b>을 먼저 완료하고 저장해주세요.</p>
+      <p style="font-size:12.5px; color:var(--text3);">🤖 AI 요약 기능을 사용하려면 상단의 <b>API 키 개별 설정 (BYOK)</b>을 먼저 저장해주세요.</p>
     `;
     return;
   }
@@ -1730,14 +2131,14 @@ async function loadProjectExplanation() {
   `;
 
   try {
-    const res = await fetch(API + '/api/project/explain');
+    const res = await fetch(API + '/api/project/explain' + (force ? '?force=true' : ''));
     const data = await res.json();
 
     if (data.error) {
       body.innerHTML = `
         <div class="project-explain-summary" style="color:var(--err);">프로젝트 요약 실패</div>
         <p style="font-size:12.5px; color:var(--text3);">${data.error}</p>
-        <button class="btn-repair" onclick="loadProjectExplanation()" style="margin-top:10px; padding:4px 10px;">🔄 다시 요약하기</button>
+        <button class="btn-repair" onclick="loadProjectExplanation(true)" style="margin-top:10px; padding:4px 10px; width:100%; justify-content:center;">🔄 다시 요약하기</button>
       `;
       return;
     }
@@ -1749,22 +2150,50 @@ async function loadProjectExplanation() {
       let tagsHtml = (data.techStack || []).map(t => `<span class="project-explain-tag">${t}</span>`).join('');
       let featuresHtml = (data.keyFeatures || []).map(f => `<li>${f}</li>`).join('');
       
+      // GitHub 스타일 언어 분석 바 렌더링
+      let languagesHtml = '';
+      if (data.languages && data.languages.length > 0) {
+        let barSegments = data.languages.map(lang => 
+          `<div style="width: ${lang.percentage}%; background-color: ${lang.color}; height: 100%;" title="${lang.name}: ${lang.percentage}%"></div>`
+        ).join('');
+
+        let legendItems = data.languages.map(lang => `
+          <div style="display: flex; align-items: center; font-size: 11px; color: var(--text2);">
+            <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background-color: ${lang.color}; margin-right: 6px;"></span>
+            ${lang.name} <span style="color: var(--text3); margin-left: 4px;">${lang.percentage}%</span>
+          </div>
+        `).join('');
+
+        languagesHtml = `
+          <div class="languages-section" style="margin-top: 16px; border-top: 1px solid var(--border); padding-top: 12px;">
+            <div style="font-size: 11px; font-weight: 700; color: var(--text2); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">기술 스택 (Languages)</div>
+            <div class="languages-bar" style="display: flex; height: 8px; border-radius: 4px; overflow: hidden; background: var(--surface3); margin-bottom: 12px;">
+              ${barSegments}
+            </div>
+            <div class="languages-legend" style="display: flex; flex-wrap: wrap; gap: 8px 12px;">
+              ${legendItems}
+            </div>
+          </div>
+        `;
+      }
+
       body.innerHTML = `
         ${fallbackBadge}
-        <div class="project-explain-summary">${data.summary || '프로젝트 요약 정보'}</div>
-        <div style="font-size:13px; color:var(--text2); margin-bottom:12px;">${data.details || ''}</div>
-        ${data.implementationNotes ? `<div style="font-size:12.5px; color:var(--text2); margin-bottom:12px; padding:10px; background:var(--surface2); border:1px solid var(--border); border-radius:6px;"><span style="font-size:10px; font-weight:700; color:var(--accent); text-transform:uppercase; letter-spacing:.5px;">📐 구현 방식</span><div style="margin-top:4px;">${data.implementationNotes}</div></div>` : ''}
-        ${featuresHtml ? `<ul style="margin-left: 18px; font-size: 13px; color: var(--text2); display: flex; flex-direction: column; gap: 4px; margin-bottom:12px;">${featuresHtml}</ul>` : ''}
-        <div class="project-explain-meta">
-          ${tagsHtml}
-        </div>
+        <div class="project-explain-summary" style="font-size:14px; font-weight:700; color:var(--text); margin-bottom:8px;">${data.summary || '프로젝트 요약 정보'}</div>
+        <div style="font-size:12.5px; color:var(--text2); margin-bottom:12px; line-height:1.5;">${data.details || ''}</div>
+        ${data.implementationNotes ? `<div style="font-size:12px; color:var(--text2); margin-bottom:12px; padding:10px; background:var(--surface3); border:1px solid var(--border); border-radius:6px;"><span style="font-size:10px; font-weight:700; color:var(--accent); text-transform:uppercase; letter-spacing:.5px;">📐 구현 방식</span><div style="margin-top:4px; line-height:1.45;">${data.implementationNotes}</div></div>` : ''}
+        ${featuresHtml ? `<ul style="margin-left: 18px; font-size: 12.5px; color: var(--text2); display: flex; flex-direction: column; gap: 4px; margin-bottom:12px;">${featuresHtml}</ul>` : ''}
+        
+        ${languagesHtml}
+        
+        <button class="btn-repair" onclick="loadProjectExplanation(true)" style="margin-top:16px; width:100%; justify-content:center; font-weight:600;">🔄 다시 요약하기</button>
       `;
     }
   } catch (err) {
     body.innerHTML = `
       <div class="project-explain-summary" style="color:var(--err);">네트워크 오류</div>
       <p style="font-size:12.5px; color:var(--text3);">프로젝트 분석 데이터를 가져오지 못했습니다.</p>
-      <button class="btn-repair" onclick="loadProjectExplanation()" style="margin-top:10px; padding:4px 10px;">🔄 다시 시도</button>
+      <button class="btn-repair" onclick="loadProjectExplanation(true)" style="margin-top:10px; padding:4px 10px; width:100%; justify-content:center;">🔄 다시 시도</button>
     `;
   }
 }

@@ -58,6 +58,12 @@ test('dashboard accepts only direct or same-origin requests', () => {
   assert.strictEqual(isAllowedDashboardOrigin(undefined, 7700), true);
   assert.strictEqual(isAllowedDashboardOrigin('http://localhost:7700', 7700), true);
   assert.strictEqual(isAllowedDashboardOrigin('http://127.0.0.1:7700', 7700), true);
+  // 'null' origin (file:// pages, sandboxed iframes) must be blocked:
+  // a local HTML file must not be able to POST to the dashboard APIs.
+  assert.strictEqual(isAllowedDashboardOrigin('null', 7700), false);
+  assert.strictEqual(isAllowedDashboardOrigin('vscode-webview://', 7700), true);
+  assert.strictEqual(isAllowedDashboardOrigin('vscode-file://', 7700), true);
+  assert.strictEqual(isAllowedDashboardOrigin('https://test.vscode-cdn.net', 7700), true);
   assert.strictEqual(isAllowedDashboardOrigin('https://example.com', 7700), false);
   assert.strictEqual(isAllowedDashboardOrigin('http://localhost:9999', 7700), false);
 });
@@ -242,6 +248,20 @@ test('folder picker output parser returns only selected paths', () => {
   assert.strictEqual(parseFolderPickerOutput('SELECTED:C:\\workspace\\app\n'), 'C:\\workspace\\app');
   assert.strictEqual(parseFolderPickerOutput(''), null);
   assert.strictEqual(parseFolderPickerOutput('DRYRUN_OK\n'), null);
+});
+
+// Real PowerShell smoke test: the mocked runner tests above can never catch
+// script-level parse errors (e.g. statements placed before param()), so run
+// the actual script once in -DryRun mode. No UI is shown in DryRun.
+test('folder picker script passes a real -DryRun smoke check', { skip: process.platform !== 'win32' }, () => {
+  const { execFileSync } = require('child_process');
+  const script = path.join(__dirname, '..', 'src', 'folder-picker.ps1');
+  const stdout = execFileSync(
+    'powershell',
+    ['-NoProfile', '-STA', '-ExecutionPolicy', 'Bypass', '-File', script, '-DryRun'],
+    { encoding: 'utf8', timeout: 30000, windowsHide: true }
+  );
+  assert.match(stdout, /DRYRUN_OK/);
 });
 
 test('folder picker runner handles selection, cancellation, and errors', async () => {
@@ -503,3 +523,114 @@ test('dashboard handles /api/project/explain GET request and returns AI explanat
     console.log = originalLog;
   }
 });
+
+test('dashboard handles /api/diagnostic/create POST request to write new clinic file', async () => {
+  const originalLog = console.log;
+  console.log = () => {};
+  const temporaryDir = fs.mkdtempSync(path.join(os.tmpdir(), 'vibe-dashboard-diag-create-'));
+  
+  // Initialize vibe clinic structure first
+  const diagRoot = path.join(temporaryDir, '.vibe-clinic');
+  const diagnosticsDir = path.join(diagRoot, 'diagnostics');
+  fs.mkdirSync(diagnosticsDir, { recursive: true });
+
+  const server = startDashboard(temporaryDir, 0, { openBrowser: false });
+
+  try {
+    if (!server.listening) {
+      await new Promise(resolve => server.once('listening', resolve));
+    }
+    const port = server.address().port;
+
+    const response = await requestDashboard(port, {
+      path: '/api/diagnostic/create',
+      method: 'POST',
+      body: {
+        id: 'func-test-new-api',
+        name: 'New Api Check',
+        layer: 'FUNCTION',
+        testCode: 'module.exports = { id: "func-test-new-api", run: async () => ({ status: "OK", details: "Success" }) };'
+      }
+    });
+
+    assert.strictEqual(response.statusCode, 200);
+    assert.strictEqual(response.body.success, true);
+    
+    const createdPath = path.join(diagnosticsDir, 'func-test-new-api.clinic.js');
+    assert.ok(fs.existsSync(createdPath));
+    const content = fs.readFileSync(createdPath, 'utf-8');
+    assert.ok(content.includes('func-test-new-api'));
+  } finally {
+    await new Promise(resolve => server.close(resolve));
+    fs.rmSync(temporaryDir, { recursive: true, force: true });
+    console.log = originalLog;
+  }
+});
+
+test('runDiagnostics correctly loads and executes .clinic.cjs diagnostic files', async () => {
+  const temporaryDir = fs.mkdtempSync(path.join(os.tmpdir(), 'vibe-cjs-loader-test-'));
+  const diagnosticsDir = path.join(temporaryDir, '.vibe-clinic', 'diagnostics');
+  fs.mkdirSync(diagnosticsDir, { recursive: true });
+
+  const testFile = path.join(diagnosticsDir, 'test-module.clinic.cjs');
+  fs.writeFileSync(testFile, `
+    module.exports = {
+      id: 'test-module',
+      name: 'CommonJS Test Module',
+      layer: 'FUNCTION',
+      run: async () => ({ status: 'OK', details: 'CJS Loader Works' })
+    };
+  `, 'utf-8');
+
+  try {
+    const results = await runDiagnostics(temporaryDir);
+    assert.strictEqual(results.length, 1);
+    assert.strictEqual(results[0].id, 'test-module');
+    assert.strictEqual(results[0].status, 'OK');
+    assert.strictEqual(results[0].details, 'CJS Loader Works');
+  } finally {
+    fs.rmSync(temporaryDir, { recursive: true, force: true });
+  }
+});
+
+test('createRepairProposal falls back to local repair proposal for ESM loading errors', async () => {
+  const { createRepairProposal } = require('../src/repairer');
+  const temporaryDir = fs.mkdtempSync(path.join(os.tmpdir(), 'vibe-esm-repair-test-'));
+  const diagnosticsDir = path.join(temporaryDir, '.vibe-clinic', 'diagnostics');
+  fs.mkdirSync(diagnosticsDir, { recursive: true });
+
+  const testFile = path.join(diagnosticsDir, 'esm-module.clinic.js');
+  fs.writeFileSync(testFile, 'module.exports = {};', 'utf-8');
+
+  const diagResult = {
+    id: 'esm-module',
+    name: 'esm-module.clinic.js',
+    layer: 'UNKNOWN',
+    status: 'ERROR',
+    details: 'Failed to load: module is not defined in ES module scope...',
+    errorMessage: 'ReferenceError: module is not defined in ES module scope...'
+  };
+
+  try {
+    // Propose repair under quota failure (no config)
+    const proposal = await createRepairProposal(temporaryDir, diagResult, {
+      getByok: () => ({}) // Empty config to trigger local fallback
+    });
+
+    assert.strictEqual(proposal.success, true);
+    assert.strictEqual(proposal.diagId, 'esm-module');
+    assert.ok(proposal.summary.includes('CommonJS') || proposal.summary.includes('cjs'));
+    
+    // Propose renaming files
+    const deleteOp = proposal.repairedFiles.find(f => f.path.endsWith('.js'));
+    const createOp = proposal.repairedFiles.find(f => f.path.endsWith('.cjs'));
+
+    assert.ok(deleteOp);
+    assert.strictEqual(deleteOp.delete, true);
+    assert.ok(createOp);
+    assert.strictEqual(createOp.content, 'module.exports = {};');
+  } finally {
+    fs.rmSync(temporaryDir, { recursive: true, force: true });
+  }
+});
+

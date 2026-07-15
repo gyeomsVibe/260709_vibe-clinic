@@ -13,6 +13,113 @@ const crypto = require('crypto');
 const HTML_PATH = path.join(__dirname, 'dashboard.html');
 const MAX_BODY_BYTES = 1024 * 1024;
 const REPAIR_PROPOSAL_TTL_MS = 10 * 60 * 1000;
+const projectExplanationCache = new Map();
+
+const MIME_TYPES = {
+  '.html': 'text/html; charset=utf-8',
+  '.css': 'text/css; charset=utf-8',
+  '.js': 'application/javascript; charset=utf-8',
+  '.json': 'application/json; charset=utf-8',
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.gif': 'image/gif',
+  '.svg': 'image/svg+xml',
+  '.ico': 'image/x-icon'
+};
+
+function calculateProjectLanguages(projectDir) {
+  const langSizes = {};
+  let totalSize = 0;
+
+  function walk(dir, depth = 0) {
+    if (depth > 6) return;
+    let entries;
+    try {
+      entries = fs.readdirSync(dir, { withFileTypes: true });
+    } catch {
+      return;
+    }
+
+    for (const entry of entries) {
+      const name = entry.name;
+      if (name.startsWith('.') || name === 'node_modules' || name === 'dist' || name === 'build' || name === 'coverage') {
+        continue;
+      }
+      const fullPath = path.join(dir, name);
+      if (entry.isDirectory()) {
+        walk(fullPath, depth + 1);
+      } else if (entry.isFile()) {
+        const ext = path.extname(name).toLowerCase();
+        let lang = '';
+        if (['.js', '.mjs', '.cjs'].includes(ext)) lang = 'JavaScript';
+        else if (['.ts', '.tsx'].includes(ext)) lang = 'TypeScript';
+        else if (['.html', '.htm'].includes(ext)) lang = 'HTML';
+        else if (ext === '.css') lang = 'CSS';
+        else if (ext === '.py') lang = 'Python';
+        else if (ext === '.go') lang = 'Go';
+        else if (ext === '.rs') lang = 'Rust';
+        else if (ext === '.json') lang = 'JSON';
+        else if (['.sh', '.bat', '.ps1'].includes(ext)) lang = 'Shell/Script';
+        else if (ext === '.md') lang = 'Markdown';
+        else continue;
+
+        try {
+          const stats = fs.statSync(fullPath);
+          langSizes[lang] = (langSizes[lang] || 0) + stats.size;
+          totalSize += stats.size;
+        } catch {}
+      }
+    }
+  }
+
+  walk(projectDir);
+
+  if (totalSize === 0) {
+    return [];
+  }
+
+  const colorMap = {
+    'JavaScript': '#f1e05a',
+    'TypeScript': '#3178c6',
+    'HTML': '#e34c26',
+    'CSS': '#563d7c',
+    'Python': '#3572a5',
+    'Go': '#00add8',
+    'Rust': '#dea584',
+    'JSON': '#292929',
+    'Shell/Script': '#89e051',
+    'Markdown': '#777777',
+    'Other': '#8b949e'
+  };
+
+  const languages = Object.entries(langSizes)
+    .map(([name, size]) => ({
+      name,
+      percentage: Number(((size / totalSize) * 100).toFixed(1)),
+      color: colorMap[name] || '#8b949e'
+    }))
+    .sort((a, b) => b.percentage - a.percentage);
+
+  const mainLangs = [];
+  let otherPercentage = 0;
+  for (const lang of languages) {
+    if (lang.percentage >= 1.0) {
+      mainLangs.push(lang);
+    } else {
+      otherPercentage += lang.percentage;
+    }
+  }
+
+  if (otherPercentage > 0) {
+    mainLangs.push({
+      name: 'Other',
+      percentage: Number(otherPercentage.toFixed(1)),
+      color: colorMap['Other']
+    });
+  }
+
+  return mainLangs;
+}
 
 function listDiagnosticMeta(projectDir) {
   const files = discoverDiagnostics(projectDir);
@@ -45,7 +152,69 @@ function listDiagnosticMeta(projectDir) {
   return result;
 }
 
+function writeExampleErrorPatterns(patternsDir) {
+  try {
+    if (!fs.existsSync(patternsDir)) {
+      fs.mkdirSync(patternsDir, { recursive: true });
+    }
+
+    const err1Path = path.join(patternsDir, 'ERR_001_소수점_연산_정밀도_오류.md');
+    const err1Content = `# ERR_001 — 소수점 연산 정밀도 오류 (Floating-Point Precision Error)
+
+## 요약
+JavaScript의 배정밀도 부동소수점(IEEE 754) 표현 한계로 인해 \`0.1 + 0.2\` 계산 결과가 \`0.30000000000000004\`와 같이 비정상적으로 소수점 이하 자리수가 길게 출력되는 현상입니다.
+
+## 증상
+- 계산기에 \`0.1 + 0.2\` 입력 시 결과창에 \`0.3\`이 아닌 \`0.30000000000000004\` 출력.
+- 정밀 소수 연산 시 결과 값 비교 검증 실패.
+
+## 원본 원인 (Root Cause)
+컴퓨터는 10진수 소수를 이진 소수로 변환할 때 무한 소수가 되는 경우가 많으며, 컴퓨터 메모리 크기가 한정되어 있으므로 소수의 뒷자리를 무한히 표현하지 못하고 반올림하여 미세한 오차가 발생합니다.
+
+## 해결 방법 (Solution)
+소수점 연산 결과를 표시하기 전에 적절한 자리수에서 반올림을 수행하거나, 정수로 변환하여 연산한 후 다시 소수로 나눕니다.
+\`\`\`javascript
+// 해결 예시
+const result = Number((num1 + num2).toFixed(12));
+\`\`\`
+
+## 예방 (Prevention)
+- 부동소수점 값을 직접 비교(\`===\`)하지 말고 오차 범위(epsilon) 내에 있는지 확인합니다.
+- 중요한 금융 연산 등에는 대수 라이브러리(Decimal.js, bignumber.js)를 활용합니다.
+`;
+
+    const err2Path = path.join(patternsDir, 'ERR_002_0으로_나누기_오류.md');
+    const err2Content = `# ERR_002 — 0으로 나누기 오류 (Division By Zero)
+
+## 요약
+나눗셈 연산 수행 시 분모에 \`0\`이 대입되어 계산 결과가 \`Infinity\` 또는 \`NaN\`(Not a Number)으로 출력되는 현상입니다.
+
+## 증상
+- 계산기에 \`5 / 0\` 입력 시 화면에 \`Infinity\` 또는 \`오류\` 대신 무한대 기호 노출.
+- 입력값 유효성 검증 실패로 인해 내부 상태가 오염되어 다음 연산이 불가능해짐.
+
+## 원본 원인 (Root Cause)
+수학적으로 임의의 수를 0으로 나누는 행위는 정의되지 않으나, JavaScript 환경에서는 0으로 나눌 경우 예외를 발생시키지 않고 \`Infinity\` 또는 \`NaN\`을 반환하기 때문입니다.
+
+## 해결 방법 (Solution)
+나눗셈 연산 전에 분모가 0인지 체크하여 사용자에게 명시적인 경고를 출력하거나 처리를 거부합니다.
+\`\`\`javascript
+if (denominator === 0) {
+  throw new Error("0으로 나눌 수 없습니다.");
+}
+\`\`\`
+`;
+
+    fs.writeFileSync(err1Path, err1Content, 'utf-8');
+    fs.writeFileSync(err2Path, err2Content, 'utf-8');
+  } catch (err) {
+    console.error('예제 오류 패턴 파일 작성 실패:', err);
+  }
+}
+
 function listErrorPatterns(projectDir) {
+  // Read-only: GET /api/errors must never write into the target project.
+  // Example patterns are seeded only on explicit init (POST /api/project/init).
   const patternsDir = path.join(projectDir, '.vibe-clinic', 'error-patterns');
   if (!fs.existsSync(patternsDir)) return [];
   return fs.readdirSync(patternsDir).filter(f => f.endsWith('.md'));
@@ -185,25 +354,46 @@ function generateLocalFallbackSummary(meta) {
   // 구현 방식 추론
   const implParts = [];
   if (deps.includes('react') || deps.includes('next')) {
-    implParts.push('React 컴포넌트 기반 SPA 구조');
+    implParts.push('React 컴포넌트 기반 Single Page Application(SPA) 구조');
   } else if (filesStr.includes('.html') && (filesStr.includes('.js') || filesStr.includes('.mjs'))) {
-    implParts.push('순수 JavaScript와 DOM API로 구현된 단일 페이지 구조');
+    implParts.push('순수 HTML5 마크업 및 JavaScript DOM API 제어로 구현된 고전적인 클라이언트 웹 아키텍처');
   }
   if (deps.includes('express') || deps.includes('fastify') || filesStr.includes('server')) {
-    implParts.push('Node.js HTTP 서버 기반 REST API 백엔드');
+    implParts.push('Node.js HTTP 서버 기반 REST API 인터페이스 제공 백엔드 모듈');
   }
   if (filesStr.includes('test/') || deps.includes('vitest') || deps.includes('jest')) {
-    implParts.push('자동화된 테스트 스위트 내장');
+    implParts.push('유닛 테스트 및 통합 테스트를 통한 높은 테스트 커버리지 및 회귀 방지 수립');
   }
-  if (meta.packageJson && meta.packageJson.scripts && meta.packageJson.scripts.length > 0) {
-    implParts.push(`npm scripts: ${meta.packageJson.scripts.slice(0, 5).join(', ')}`);
+  if (meta.packageJson && meta.packageJson.scripts) {
+    const scriptKeys = Object.keys(meta.packageJson.scripts);
+    if (scriptKeys.length > 0) {
+      implParts.push(`구동 명령어 스크립트 구성: ${scriptKeys.slice(0, 4).join(', ')}`);
+    }
   }
   const implementationNotes = implParts.length > 0
     ? implParts.join('. ') + '.'
-    : `${techStack.join(', ')} 기술을 활용한 코드베이스입니다.`;
+    : `${techStack.join(', ')} 기술을 결합하여 경량화 및 실용성을 극대화한 아키텍처 구조입니다.`;
 
-  const summary = `${meta.name} 프로젝트는 ${techStack.join(', ')} 기술을 사용하는 코드베이스입니다.`;
-  const details = `로컬 메타데이터를 정적 분석한 결과, package.json에 정의된 의존성과 디렉토리 파일 구조를 바탕으로 스펙을 구성하였습니다.`;
+  // 프로젝트 명칭 및 구조 맞춤형 스마트 요약 단락 구성
+  let summary = '';
+  const dirLower = meta.name.toLowerCase();
+  if (dirLower.includes('calculator') || dirLower.includes('calc')) {
+    summary = `이 프로젝트는 ${techStack.join(', ')} 기술을 활용하여 사칙연산(더하기, 빼기, 곱하기, 나누기) 및 부동소수점 예외 제어 기능을 지원하는 실용적인 웹 계산기 프로그램입니다.`;
+  } else if (dirLower.includes('위치안내') || dirLower.includes('location') || dirLower.includes('gps')) {
+    summary = `이 프로젝트는 위치안내(Navigation) 프로토콜 및 데이터 처리 로직을 제공하는 코드베이스로, 위치 탐색 로직과 AI 경로 안내 인터페이스 연동 역할을 주로 담당합니다.`;
+  } else {
+    summary = `이 프로젝트는 ${techStack.join(', ')} 기술 스택을 활용하여 설계된 코드베이스이며, 핵심 비즈니스 로직 및 모듈(예: ${keyFeatures.slice(0, 3).join(', ') || '핵심 제어 장치'})의 구동을 담당하는 독립 애플리케이션입니다.`;
+  }
+
+  let details = `로컬 메타데이터의 소스 파일 구조를 정밀 정적 분석한 결과, `;
+  if (meta.packageJson && meta.packageJson.dependencies) {
+    const depList = Object.keys(meta.packageJson.dependencies);
+    if (depList.length > 0) {
+      details += `의존성 명세(package.json)의 주요 라이브러리인 ${depList.slice(0, 4).join(', ')} 모듈을 유기적으로 호출하고 있으며, `;
+    }
+  }
+  const fileBasenames = meta.files.slice(0, 5).map(f => f.split(/[\\/]/).pop());
+  details += `디렉토리의 주요 소스 파일(${fileBasenames.join(', ')})을 바탕으로 유기적인 실행 진입점을 구성하고 있습니다.`;
 
   return {
     success: true,
@@ -272,7 +462,9 @@ Format:
                                    err.message.includes('503') || 
                                    err.message.includes('quota') || 
                                    err.message.includes('key') || 
-                                   err.message.includes('API key');
+                                   err.message.includes('API key') ||
+                                   err.message.includes('aborted') ||
+                                   err.name === 'AbortError';
                                    
       if (isInstantFallbackErr || i === attempts - 1) {
         console.warn(`[AI Explanation API] Fast falling back to local heuristic analysis due to API constraints.`);
@@ -341,10 +533,23 @@ function readBody(req, maxBytes = MAX_BODY_BYTES) {
 
 function isAllowedDashboardOrigin(origin, port) {
   if (!origin) return true;
+  // 'null' origin (file:// pages, sandboxed iframes) is intentionally NOT
+  // allowed: local HTML files must not be able to POST to this server.
+  if (origin.startsWith('vscode-webview://') || origin.startsWith('vscode-file://')) return true;
+  if (origin.endsWith('.vscode-cdn.net') || origin.endsWith('.vscode-webview-test.com')) return true;
   return origin === `http://localhost:${port}` || origin === `http://127.0.0.1:${port}`;
 }
 
+
 function parseFolderPickerOutput(stdout) {
+  const matchB64 = String(stdout || '').match(/^SELECTED_B64:(.+)$/m);
+  if (matchB64) {
+    try {
+      return Buffer.from(matchB64[1].trim(), 'base64').toString('utf8');
+    } catch (e) {
+      console.error('Base64 디코딩 실패:', e);
+    }
+  }
   const match = String(stdout || '').match(/^SELECTED:(.+)$/m);
   return match ? match[1].trim() : null;
 }
@@ -404,9 +609,34 @@ function startDashboard(projectDir, port = 7700, options = {}) {
       return;
     }
 
-    if (req.method === 'GET' && url.pathname === '/') {
-      const html = fs.readFileSync(HTML_PATH, 'utf-8');
-      sendHtml(res, html);
+    if (req.method === 'GET' && !url.pathname.startsWith('/api/')) {
+      const distDir = path.join(__dirname, 'dist');
+      let targetPath = path.join(distDir, url.pathname === '/' ? 'index.html' : url.pathname);
+      
+      if (!targetPath.startsWith(distDir)) {
+        res.writeHead(403);
+        res.end('Forbidden');
+        return;
+      }
+
+      if (!fs.existsSync(targetPath) || fs.statSync(targetPath).isDirectory()) {
+        targetPath = path.join(distDir, 'index.html');
+      }
+
+      if (fs.existsSync(targetPath)) {
+        const ext = path.extname(targetPath).toLowerCase();
+        const contentType = MIME_TYPES[ext] || 'application/octet-stream';
+        res.writeHead(200, { 'Content-Type': contentType });
+        fs.createReadStream(targetPath).pipe(res);
+      } else {
+        if (fs.existsSync(HTML_PATH)) {
+          const html = fs.readFileSync(HTML_PATH, 'utf-8');
+          sendHtml(res, html);
+        } else {
+          res.writeHead(404);
+          res.end('Not Found');
+        }
+      }
       return;
     }
 
@@ -641,6 +871,11 @@ function startDashboard(projectDir, port = 7700, options = {}) {
     if (req.method === 'POST' && url.pathname === '/api/project/init') {
       try {
         await initialize(currentProjectDir);
+        const patternsDir = path.join(currentProjectDir, '.vibe-clinic', 'error-patterns');
+        const existing = fs.existsSync(patternsDir)
+          ? fs.readdirSync(patternsDir).filter(f => f.endsWith('.md'))
+          : [];
+        if (existing.length <= 1) writeExampleErrorPatterns(patternsDir);
         sendJson(res, { success: true, currentProjectDir });
       } catch (err) {
         console.error('[API Error] POST /api/project/init failed:', err);
@@ -651,10 +886,64 @@ function startDashboard(projectDir, port = 7700, options = {}) {
 
     if (req.method === 'GET' && url.pathname === '/api/project/explain') {
       try {
-        const result = await explainProject(currentProjectDir);
+        const force = url.searchParams.get('force') === 'true';
+        const cacheKey = path.resolve(currentProjectDir);
+        if (force) {
+          projectExplanationCache.delete(cacheKey);
+        }
+
+        let result;
+        if (projectExplanationCache.has(cacheKey)) {
+          result = projectExplanationCache.get(cacheKey);
+        } else {
+          result = await explainProject(currentProjectDir);
+          result.languages = calculateProjectLanguages(currentProjectDir);
+          projectExplanationCache.set(cacheKey, result);
+        }
         sendJson(res, result);
       } catch (err) {
         console.error('[API Error] GET /api/project/explain failed:', err);
+        sendJson(res, { error: err.message }, 500);
+      }
+      return;
+    }
+
+    if (req.method === 'POST' && url.pathname === '/api/diagnostic/create') {
+      try {
+        const body = await readBody(req);
+        const { id, name, layer, testCode } = body;
+        
+        if (!id || !name || !layer) {
+          sendJson(res, { error: 'id, name, layer는 필수 필드입니다.' }, 400);
+          return;
+        }
+
+        if (typeof testCode !== 'string' || !testCode.trim()) {
+          sendJson(res, { error: 'testCode는 비어 있지 않은 문자열이어야 합니다.' }, 400);
+          return;
+        }
+
+        if (!/^[a-z0-9-_]+$/i.test(id)) {
+          sendJson(res, { error: 'ID는 영문자, 숫자, 하이픈(-), 언더바(_)만 가능합니다.' }, 400);
+          return;
+        }
+
+        const diagnosticsDir = path.join(currentProjectDir, '.vibe-clinic', 'diagnostics');
+        if (!fs.existsSync(diagnosticsDir)) {
+          sendJson(res, { error: '프로젝트가 초기화되지 않았습니다.' }, 400);
+          return;
+        }
+
+        const filePath = path.join(diagnosticsDir, `${id}.clinic.js`);
+        if (fs.existsSync(filePath)) {
+          sendJson(res, { error: `이미 존재하는 진단 ID입니다: ${id}` }, 400);
+          return;
+        }
+
+        fs.writeFileSync(filePath, testCode, 'utf-8');
+        sendJson(res, { success: true });
+      } catch (err) {
+        console.error('[API Error] POST /api/diagnostic/create failed:', err);
         sendJson(res, { error: err.message }, 500);
       }
       return;

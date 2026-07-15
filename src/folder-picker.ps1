@@ -9,11 +9,15 @@
 # under Windows PowerShell 5.1 (CP949) and PowerShell 7 regardless of BOM.
 #
 # Output contract (stdout):
-#   SELECTED:<absolute path>   when the user picks a folder
-#   (nothing)                  when the user cancels
+#   SELECTED_B64:<base64 of UTF-8 absolute path>   when the user picks a folder
+#   (nothing)                                      when the user cancels
 #   DRYRUN_OK                  with -DryRun (verifies reflection chain, no UI)
 #
 # Requires -STA (caller must pass:  powershell -NoProfile -STA -File <this>)
+#
+# NOTE: param() MUST stay the first executable statement of this script.
+# The selected path is emitted Base64-encoded (SELECTED_B64:, pure ASCII),
+# so no console-encoding overrides are needed here.
 
 param(
   [switch]$DryRun
@@ -92,7 +96,9 @@ try {
       $getDisplayName.Invoke($shellItem, $dnArgs)
       $selectedPath = $dnArgs[1]
       if ($selectedPath) {
-        Write-Host "SELECTED:$selectedPath"
+        $bytes = [System.Text.Encoding]::UTF8.GetBytes($selectedPath)
+        $base64 = [System.Convert]::ToBase64String($bytes)
+        Write-Host "SELECTED_B64:$base64"
       }
     }
   }
