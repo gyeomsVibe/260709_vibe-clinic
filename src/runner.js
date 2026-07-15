@@ -46,6 +46,9 @@ async function runSingleAttempt(mod, projectDir, startTime) {
       linkedTask: mod.linkedTask || null,
       status: result.status,
       details: result.details || '',
+      // 진단이 스스로 아는 조치 방법(행동 처방). 파일 수정으로 고칠 수 없는
+      // 상태(예: 지갑 잔액 부족)는 이 필드가 수동 처방전의 1순위 근거가 된다.
+      ...(result.prescription ? { prescription: result.prescription } : {}),
       duration: Date.now() - startTime,
     };
   } catch (err) {

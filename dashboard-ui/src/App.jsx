@@ -127,6 +127,7 @@ function App() {
   const [selectedDiagId, setSelectedDiagId] = useState(null);
   const [repairStates, setRepairStates] = useState({});
   const [pendingProposal, setPendingProposal] = useState(null);
+  const [manualRx, setManualRx] = useState(null); // 수동 처방전 (행동 처방)
 
   // States for UI widgets
   const [isDrawerActive, setIsDrawerActive] = useState(false);
@@ -368,7 +369,15 @@ function App() {
         body: JSON.stringify({ diagId })
       });
       const data = await res.json();
-      if (data.success) {
+      if (data.success && data.kind === 'MANUAL') {
+        // 파일 수정으로 못 고치는 병 — 행동 처방전을 띄우고 재진단으로 완치 확인.
+        setManualRx(data);
+        setRepairStates(prev => ({
+          ...prev,
+          [diagId]: { ...prev[diagId], status: 'idle' }
+        }));
+        showToast('🩺 수동 처방전이 발급되었습니다.', 'success');
+      } else if (data.success) {
         setPendingProposal(data);
         setRepairStates(prev => ({
           ...prev,
@@ -1017,6 +1026,40 @@ function App() {
                   <span className="spinner" style={{ width: '12px', height: '12px', border: '2px solid rgba(0,0,0,0.2)', borderTopColor: '#090e14', borderRadius: '50%', animation: 'spin .6s linear infinite' }}></span>
                 )}
                 처방 적용 및 자동 빌드
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Manual Prescription (행동 처방전) */}
+      {manualRx && (
+        <div className="modal-overlay active" onClick={() => setManualRx(null)}>
+          <div className="modal glass" onClick={e => e.stopPropagation()} style={{ maxWidth: '560px', width: '92%' }}>
+            <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '15px', color: 'var(--warn)' }}>
+              📋 수동 처방전 — {manualRx.diagId}
+            </h3>
+            <p style={{ margin: '12px 0', fontSize: '13px', lineHeight: '1.6', color: 'var(--text2)' }}>
+              {manualRx.summary}
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '8px' }}>
+              {(manualRx.prescription || []).map((step, i) => (
+                <div key={i} style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', background: 'var(--surface3)', border: '1px solid var(--border)', borderRadius: '8px', padding: '10px 12px' }}>
+                  <span style={{ minWidth: '20px', height: '20px', background: 'var(--warn-bg)', border: '1px solid var(--warn-border)', color: 'var(--warn)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: 700 }}>{i + 1}</span>
+                  <span style={{ fontSize: '12.5px', lineHeight: '1.6', color: 'var(--text2)', wordBreak: 'break-all' }}>{step}</span>
+                </div>
+              ))}
+            </div>
+            <div className="modal-actions" style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '20px' }}>
+              <button className="btn-secondary" onClick={() => setManualRx(null)} style={{ padding: '8px 16px', borderRadius: '6px', fontSize: '13px' }}>
+                닫기
+              </button>
+              <button
+                className="btn-primary"
+                onClick={() => { setManualRx(null); runDiagnostics(); }}
+                style={{ padding: '8px 20px', borderRadius: '6px', fontSize: '13px' }}
+              >
+                🩺 조치 완료 — 재진단 실행
               </button>
             </div>
           </div>

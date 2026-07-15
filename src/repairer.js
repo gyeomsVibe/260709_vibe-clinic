@@ -380,6 +380,54 @@ module.exports = {
   return null;
 }
 
+// 수동 처방전(행동 처방): 파일 수정으로 고칠 수 없는 병(외부 상태·환경·운영
+// 조치가 필요한 경우)을 위한 치료 경로. 우선순위:
+//   1) 진단 스스로 제공한 result.prescription (진단 작성자가 조치를 앎)
+//   2) triage 원인 후보 기반의 일반 조치 가이드
+// 반환이 있으면 처방은 kind:'MANUAL' — 적용(파일 변경) 없이 조치 안내 + 재진단.
+function generateManualPrescription(projectDir, diagResult) {
+  const steps = [];
+
+  if (diagResult.prescription) {
+    const own = Array.isArray(diagResult.prescription) ? diagResult.prescription : [String(diagResult.prescription)];
+    steps.push(...own);
+  } else {
+    const hypotheses = Array.isArray(diagResult.causeHypotheses)
+      ? diagResult.causeHypotheses
+      : triage.analyze(projectDir, diagResult);
+    for (const h of hypotheses) {
+      switch (h.cause) {
+        case triage.CAUSES.NETWORK_OR_QUOTA:
+          steps.push('네트워크 연결과 대상 서버(RPC/API) 상태를 확인하세요. 429/503(쿼터 초과)라면 잠시 후 재진단하거나 API 한도를 확인하세요.');
+          break;
+        case triage.CAUSES.TIMEOUT:
+          steps.push('진단이 제한 시간을 초과했습니다. 네트워크 지연 여부를 확인하고, 정상적으로 오래 걸리는 작업이라면 진단 파일에 timeout 값을 늘려 주세요.');
+          break;
+        case triage.CAUSES.MISSING_DEPENDENCY: {
+          const mod = (h.signal.match(/'([^']+)'/) || [])[1];
+          steps.push(`의존 모듈${mod ? ` '${mod}'` : ''}이(가) 설치되어 있지 않습니다. 프로젝트 루트에서 npm install${mod ? ` ${mod}` : ''}을 실행한 뒤 재진단하세요.`);
+          break;
+        }
+        default:
+          break;
+      }
+    }
+  }
+
+  if (steps.length === 0) return null;
+
+  return {
+    success: true,
+    kind: 'MANUAL',
+    diagId: diagResult.id,
+    summary: `이 증상은 파일 수정이 아니라 수동 조치가 필요한 병입니다. 아래 처방전의 조치를 수행한 뒤 재진단으로 완치 여부를 확인하세요.`,
+    prescription: steps,
+    projectDir: path.resolve(projectDir),
+    originalFiles: [],
+    repairedFiles: [],
+  };
+}
+
 // P2 처방 평가: 사용자가 후보를 비교·승인할 때 보는 판단 근거.
 function assessProposal(proposal) {
   const files = proposal.repairedFiles || [];
@@ -440,6 +488,12 @@ async function createRepairProposal(projectDir, diagResult, dependencies = {}) {
       if (finalized.success && byokReady) finalized.alternatives = ['ai'];
       return finalized;
     }
+
+    // 후보 A′ — 수동 처방전: 진단 자체 처방 또는 원인 기반 조치 가이드가
+    // 있으면 파일 수정 없이 행동 처방으로 치료 경로를 연다.
+    const manual = generateManualPrescription(projectDir, diagResult);
+    if (manual) return manual;
+
     if (strategy === 'local') {
       return createFailureResult(diagResult.id, '이 증상에 맞는 로컬 처방 규칙이 없습니다. AI 처방(strategy: "ai")으로 다시 요청하세요.');
     }
@@ -472,10 +526,16 @@ async function createRepairProposal(projectDir, diagResult, dependencies = {}) {
     const parsed = parseAiResponse(raw);
 
     if (parsed.files.length === 0) {
+      // AI가 "파일 수정으로 못 고친다"고 판단 → 수동 처방전으로 치료 경로 유지.
+      const manual = generateManualPrescription(projectDir, diagResult);
+      if (manual) {
+        if (parsed.summary) manual.prescription = [...manual.prescription, `AI 소견: ${parsed.summary}`];
+        return manual;
+      }
       return createFailureResult(diagResult.id, 'AI determined no file changes could fix this issue.', parsed.summary);
     }
 
-    return finalizeProposal(projectDir, diagResult, {
+    const finalized = finalizeProposal(projectDir, diagResult, {
       success: true,
       diagId: diagResult.id,
       summary: parsed.summary,
@@ -483,9 +543,21 @@ async function createRepairProposal(projectDir, diagResult, dependencies = {}) {
       originalFiles: parsed.files.map(file => readFileSnapshot(projectDir, file.path)),
       repairedFiles: parsed.files,
     }, 'ai');
+
+    // 약화 차단된 AI 처방 → 수동 처방전으로 안전하게 대체.
+    if (!finalized.success && finalized.errorCode === 'BLOCKED_WEAKENING') {
+      const manual = generateManualPrescription(projectDir, diagResult);
+      if (manual) {
+        manual.summary = `AI 처방이 진단 기대값을 완화하려다 차단되어(BLOCKED_WEAKENING) 수동 처방전으로 대체합니다. ${manual.summary}`;
+        return manual;
+      }
+    }
+    return finalized;
   } catch (err) {
     const localProposal = generateLocalRepairProposal(projectDir, diagResult);
     if (localProposal) return finalizeProposal(projectDir, diagResult, localProposal, 'local');
+    const manual = generateManualPrescription(projectDir, diagResult);
+    if (manual) return manual;
     return createFailureResult(diagResult.id, err.message);
   }
 }

@@ -729,6 +729,19 @@ function startDashboard(projectDir, port = 7700, options = {}) {
           return;
         }
 
+        // 수동 처방전(행동 처방): 파일 변경이 없으므로 승인·적용 절차 없이
+        // 조치 안내만 반환한다. 완치 확인은 사용자의 재진단으로 이루어진다.
+        if (proposal.kind === 'MANUAL') {
+          sendJson(res, {
+            success: true,
+            kind: 'MANUAL',
+            diagId: proposal.diagId,
+            summary: proposal.summary,
+            prescription: proposal.prescription,
+          });
+          return;
+        }
+
         removeExpiredRepairProposals();
         const proposalId = crypto.randomUUID();
         repairProposals.set(proposalId, {

@@ -747,6 +747,47 @@ test('triage maps failure signatures to cause hypotheses', () => {
   }
 });
 
+test('a diagnostic-provided prescription becomes a MANUAL proposal without AI or BYOK', async () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'vibe-manual-'));
+  try {
+    const diagResult = {
+      id: 'wallet-balance',
+      status: 'WARNING',
+      details: '온체인 조회는 성공했지만 매니저 SUT 잔액이 0입니다.',
+      prescription: ['매니저 지갑에 SUT 토큰을 입금하세요.', '입금 후 재진단을 실행하세요.'],
+    };
+
+    const proposal = await createRepairProposal(dir, diagResult, {
+      getByok: () => ({ provider: '', apiKey: '', model: '' }),
+    });
+
+    assert.strictEqual(proposal.success, true);
+    assert.strictEqual(proposal.kind, 'MANUAL');
+    assert.strictEqual(proposal.prescription.length, 2);
+    assert.ok(proposal.prescription[0].includes('SUT'));
+    assert.deepStrictEqual(proposal.repairedFiles, []);
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('cause-based manual prescription is generated for network/quota failures', async () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'vibe-manual-net-'));
+  try {
+    const diagResult = { id: 'net-check', status: 'ERROR', details: 'fetch failed: ECONNREFUSED 127.0.0.1:9999' };
+
+    const proposal = await createRepairProposal(dir, diagResult, {
+      getByok: () => ({ provider: '', apiKey: '', model: '' }),
+    });
+
+    assert.strictEqual(proposal.success, true);
+    assert.strictEqual(proposal.kind, 'MANUAL');
+    assert.ok(proposal.prescription.some(s => s.includes('네트워크')));
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
 // ─── MIA P3: Regression Gate & Auto Rollback ───────────────────────────────
 
 function makeRegressionFixture() {
