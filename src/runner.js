@@ -37,10 +37,10 @@ async function runDiagnostics(projectDir) {
   if (files.length === 0) {
     return [{
       id: '_no_diagnostics',
-      name: 'No Diagnostics Found',
+      name: '진단 파일 없음 (No Diagnostics Found)',
       layer: 'SYSTEM',
       status: 'WARNING',
-      details: `No .clinic.js or .clinic.cjs files found in ${DIAG_DIR}/`,
+      details: `${DIAG_DIR}/ 안에 진단 파일(.clinic.js / .clinic.cjs)이 없습니다 — 진단 도구 설치(초기화)가 필요합니다.`,
       duration: 0,
     }];
   }

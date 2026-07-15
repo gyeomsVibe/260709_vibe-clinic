@@ -107,6 +107,7 @@ function App() {
   const [byok, setByok] = useState({ provider: 'gemini', apiKey: '', model: 'gemini-3.5-flash' });
   const [providers, setProviders] = useState([]);
   const [byokEnabled, setByokEnabled] = useState(false);
+  const [hasSavedKey, setHasSavedKey] = useState(false);
   const [byokFeedback, setByokFeedback] = useState({ type: '', text: '' });
   const [apiAccordionOpen, setApiAccordionOpen] = useState(false);
 
@@ -133,6 +134,7 @@ function App() {
   const [isDiagRunning, setIsDiagRunning] = useState(false);
   const [isRepairProposing, setIsRepairProposing] = useState(false);
   const [isRepairApplying, setIsRepairApplying] = useState(false);
+  const [isInitializing, setIsInitializing] = useState(false);
 
   const [toast, setToast] = useState({ show: false, type: 'success', message: '' });
 
@@ -200,11 +202,14 @@ function App() {
       const res = await fetch('/api/byok/config');
       const data = await res.json();
       if (data.byok) {
+        // data.byok.apiKey is MASKED (e.g. "AQ.A****lash") — never put it in
+        // the input: saving it back would overwrite the real key (401 원인).
         setByok({
           provider: data.byok.provider || 'gemini',
-          apiKey: data.byok.apiKey || '',
+          apiKey: '',
           model: data.byok.model || 'gemini-3.5-flash'
         });
+        setHasSavedKey(!!data.byok.apiKey);
         setByokEnabled(!!data.byok.apiKey);
       }
       if (data.providers) {
@@ -331,7 +336,26 @@ function App() {
     }
   };
 
+  const initProject = async () => {
+    setIsInitializing(true);
+    try {
+      const res = await fetch('/api/project/init', { method: 'POST' });
+      const data = await res.json();
+      if (data.success) {
+        showToast('🩺 진단 도구 설치(초기화)가 완료되었습니다.', 'success');
+        await Promise.all([fetchDiagnostics(), fetchErrorPatterns()]);
+      } else {
+        showToast(data.error || '진단 도구 설치에 실패했습니다.', 'error');
+      }
+    } catch (err) {
+      showToast('진단 도구 설치 중 통신 오류가 발생했습니다.', 'error');
+    } finally {
+      setIsInitializing(false);
+    }
+  };
+
   const requestRepair = async (diagId) => {
+    showToast('🧠 AI가 코드를 분석하고 있습니다… 최대 25초 정도 걸릴 수 있습니다.', 'success');
     setIsRepairProposing(true);
     setRepairStates(prev => ({
       ...prev,
@@ -545,7 +569,7 @@ function App() {
           <div className="bento-card glass">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
               <h3 style={{ fontSize: '13px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <Settings size={14} /> AI API 키 개별 설정 (BYOK)
+                <Settings size={14} /> 내 AI 키 직접 연결 <span style={{ fontSize: '10px', color: 'var(--text3)', fontWeight: 400 }}>Bring Your Own Key</span>
               </h3>
               <label className="switch">
                 <input 
@@ -561,11 +585,11 @@ function App() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '12px' }}>
                 <div>
                   <label style={{ fontSize: '10px', color: 'var(--text3)', display: 'block', marginBottom: '4px' }}>AI API KEY (Gemini)</label>
-                  <input 
-                    type="password" 
-                    value={byok.apiKey} 
+                  <input
+                    type="password"
+                    value={byok.apiKey}
                     onChange={(e) => setByok(prev => ({ ...prev, apiKey: e.target.value }))}
-                    placeholder="로컬 API 키 입력" 
+                    placeholder={hasSavedKey ? '🔒 저장된 키 사용 중 — 변경할 때만 새 키 입력' : '로컬 API 키 입력'}
                     style={{ width: '100%', padding: '8px 10px', background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--text)', fontSize: '12px' }}
                   />
                 </div>
@@ -677,7 +701,7 @@ function App() {
                   프로젝트 분석 대기 중
                 </div>
                 <p style={{ fontSize: '11px', color: 'var(--text3)' }}>
-                  🤖 AI 요약 및 깃허브 스타일 스택 분석을 활성화하려면 상단의 <b>API 키 개별 설정 (BYOK)</b>을 등록하고 저장해 주세요.
+                  🤖 AI 요약 및 깃허브 스타일 스택 분석을 활성화하려면 상단의 <b>내 AI 키 직접 연결</b>에서 키를 등록하고 저장해 주세요.
                 </p>
                 {projectExplain?.error && (
                   <p style={{ fontSize: '10px', color: 'var(--err)', marginTop: '8px' }}>
@@ -793,8 +817,20 @@ function App() {
 
               <div className="cards-grid">
                 {filteredDiagnostics.length === 0 ? (
-                  <div style={{ gridColumn: '1 / -1', textAlign: 'center', color: 'var(--text3)', padding: '40px 0' }}>
-                    항목이 비어있거나 불러오는 중입니다.
+                  <div style={{ gridColumn: '1 / -1', textAlign: 'center', color: 'var(--text3)', padding: '40px 0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '14px' }}>
+                    <span>이 프로젝트에 아직 진단 도구가 설치되지 않았습니다.</span>
+                    <button
+                      className="btn-primary"
+                      onClick={initProject}
+                      disabled={isInitializing}
+                      style={{ padding: '10px 20px', borderRadius: '6px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '8px' }}
+                    >
+                      {isInitializing && (
+                        <span className="spinner" style={{ width: '12px', height: '12px', border: '2px solid rgba(0,0,0,0.2)', borderTopColor: '#090e14', borderRadius: '50%', animation: 'spin .6s linear infinite' }}></span>
+                      )}
+                      🩺 Vibe Clinic 진단 도구 설치 (초기화)
+                    </button>
+                    <span style={{ fontSize: '11px' }}>설치하면 .vibe-clinic 폴더와 예제 진단 파일이 생성됩니다.</span>
                   </div>
                 ) : (
                   filteredDiagnostics.map(diag => (
@@ -952,14 +988,17 @@ function App() {
 
             <h4 style={{ fontSize: '12px', margin: '14px 0 6px 0', color: 'var(--text)' }}>수정 예정 코드 내역 (Diff)</h4>
             <div className="terminal-view" style={{ maxHeight: '350px', background: '#080c10' }}>
-              {Object.keys(pendingProposal.repairedFiles || {}).map(file => (
-                <div key={file} style={{ marginBottom: '16px' }}>
-                  <div style={{ fontSize: '11px', color: 'var(--text3)', borderBottom: '1px solid var(--border)', paddingBottom: '4px', marginBottom: '6px' }}>
-                    📄 {file}
+              {/* repairedFiles is an ARRAY of { path, content, delete? } from /api/repair/propose */}
+              {(pendingProposal.repairedFiles || []).map(file => (
+                <div key={file.path} style={{ marginBottom: '16px' }}>
+                  <div style={{ fontSize: '11px', color: file.delete ? 'var(--err)' : 'var(--text3)', borderBottom: '1px solid var(--border)', paddingBottom: '4px', marginBottom: '6px' }}>
+                    📄 {file.path}{file.delete ? ' — 🗑️ 삭제 예정 파일' : ''}
                   </div>
-                  <pre style={{ margin: 0, fontSize: '11.5px', fontFamily: 'monospace', whiteSpace: 'pre-wrap', lineHeight: '1.5' }}>
-                    {pendingProposal.repairedFiles[file]}
-                  </pre>
+                  {!file.delete && (
+                    <pre style={{ margin: 0, fontSize: '11.5px', fontFamily: 'monospace', whiteSpace: 'pre-wrap', lineHeight: '1.5' }}>
+                      {file.content}
+                    </pre>
+                  )}
                 </div>
               ))}
             </div>

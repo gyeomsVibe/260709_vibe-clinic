@@ -39,9 +39,25 @@ function saveConfig(projectDir, config) {
   fs.writeFileSync(filePath, JSON.stringify(config, null, 2) + '\n', 'utf-8');
 }
 
+// A masked key looks like "AQ.A****lash" (slice(0,4) + '****' + slice(-4))
+// or plain '****' — see getByokConfig(). The dashboard shows masked keys, so
+// one must never be written back as if it were the real credential.
+function isMaskedApiKey(key) {
+  return typeof key === 'string' && (key === '****' || /^.{4}\*{4}.{4}$/.test(key));
+}
+
 function saveByokConfig(projectDir, byok) {
   const config = loadConfig(projectDir);
-  config.byok = { ...config.byok, ...byok };
+  const incoming = { ...byok };
+
+  // Preserve the previously stored key when the caller sends an empty value
+  // or a masked placeholder — otherwise a "save settings" click on a form
+  // prefilled with the masked key would destroy the real credential.
+  if (!incoming.apiKey || isMaskedApiKey(incoming.apiKey)) {
+    delete incoming.apiKey;
+  }
+
+  config.byok = { ...config.byok, ...incoming };
   saveConfig(projectDir, config);
   ensureGitignore(projectDir);
   return config;

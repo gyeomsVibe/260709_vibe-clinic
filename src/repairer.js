@@ -215,7 +215,29 @@ async function rerunSingleDiagnostic(projectDir, diagId, modifiedFiles = []) {
   try {
     clearModuleCache(projectDir, modifiedFiles);
     const results = await runDiagnostics(projectDir);
-    return results.find(r => r.id === diagId) || null;
+
+    const exact = results.find(r => r.id === diagId);
+    if (exact) return exact;
+
+    // A load-failed diagnostic reports its FILE basename as id (the module
+    // never loaded), but once repaired it reports its own module id. Resolve
+    // the repaired file's real id so a successful fix is not reported as a
+    // failure just because the id changed (e.g. 'example' -> 'example-diagnostic').
+    for (const rel of modifiedFiles) {
+      if (!/\.clinic\.(js|cjs)$/.test(rel)) continue;
+      try {
+        const absPath = path.resolve(projectDir, rel);
+        if (!fs.existsSync(absPath)) continue;
+        delete require.cache[require.resolve(absPath)];
+        const mod = require(absPath);
+        if (mod && mod.id) {
+          const byModuleId = results.find(r => r.id === mod.id);
+          if (byModuleId) return byModuleId;
+        }
+      } catch {}
+    }
+
+    return null;
   } catch {
     return null;
   }
@@ -227,7 +249,19 @@ function generateLocalRepairProposal(projectDir, diagResult) {
   const errMsg = diagResult.errorMessage || '';
 
   // 1. package.json의 "type": "module" 설정으로 인한 CommonJS 진단 도구 로드 오류 (.js -> .cjs 자동 변환)
-  if (errMsg.includes('ES module scope') || details.includes('ES module scope') || errMsg.includes('module is not defined')) {
+  // Node 버전에 따라 같은 원인이 다른 증상으로 나타난다:
+  //  - 구버전: require()가 "module is not defined in ES module scope"로 즉시 실패
+  //  - Node 22+ (require-esm): 로드는 되지만 module.exports가 비어 Schema violation으로 보고
+  // 따라서 문자열 매칭 외에 "ESM 프로젝트 + .clinic.js 로드/스키마 실패" 구조 신호로도 감지한다.
+  const isEsmProject = (() => {
+    try {
+      const pkg = JSON.parse(fs.readFileSync(path.join(projectDir, 'package.json'), 'utf-8'));
+      return pkg.type === 'module';
+    } catch { return false; }
+  })();
+  const esmTextSignal = errMsg.includes('ES module scope') || details.includes('ES module scope') || errMsg.includes('module is not defined');
+  const esmStructuralSignal = isEsmProject && (details.includes('Schema violation') || details.includes('Failed to load'));
+  if (esmTextSignal || esmStructuralSignal) {
     const diagDir = path.join(projectDir, '.vibe-clinic', 'diagnostics');
     const jsPath = path.join(diagDir, `${diagId}.clinic.js`);
     if (fs.existsSync(jsPath)) {

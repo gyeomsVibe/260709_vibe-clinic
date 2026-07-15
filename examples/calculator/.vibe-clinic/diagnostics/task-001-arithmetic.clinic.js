@@ -17,10 +17,10 @@ module.exports = {
     for (const t of tests) {
       const result = calc[t.fn](...t.args);
       if (result !== t.expected) {
-        return { status: 'ERROR', details: `${t.fn}(${t.args}) = ${result}, expected ${t.expected}` };
+        return { status: 'ERROR', details: `${t.fn}(${t.args}) = ${result}, 기대값 ${t.expected} (expected)` };
       }
     }
 
-    return { status: 'OK', details: 'All 4 operations verified' };
+    return { status: 'OK', details: '사칙연산 4종 모두 검증 통과 (all 4 operations verified)' };
   }
 };

@@ -20,11 +20,11 @@ module.exports = {
       if (diff > TOLERANCE) {
         return {
           status: 'WARNING',
-          details: `${t.fn}(${t.args}) = ${result}, expected ~${t.expected} (diff: ${diff})`,
+          details: `${t.fn}(${t.args}) = ${result}, 기대값 ~${t.expected} (expected, diff: ${diff})`,
         };
       }
     }
 
-    return { status: 'OK', details: `Float precision within ±${TOLERANCE}` };
+    return { status: 'OK', details: `부동소수점 정밀도 ±${TOLERANCE} 이내 정상 (float precision OK)` };
   }
 };

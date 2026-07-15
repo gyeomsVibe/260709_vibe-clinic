@@ -453,6 +453,26 @@ test('getByokConfig masks the API key', () => {
   }
 });
 
+test('saveByokConfig never overwrites a real key with a masked or empty value', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'vibe-maskguard-'));
+  try {
+    saveByokConfig(dir, { provider: 'gemini', apiKey: 'real-secret-key-123', model: 'gemini-3.5-flash' });
+
+    // Re-saving the masked display value (what the dashboard shows) must keep the real key.
+    const masked = getByokConfig(dir, { maskKey: true }).apiKey;
+    saveByokConfig(dir, { provider: 'gemini', apiKey: masked, model: 'gemini-3.5-flash' });
+    assert.strictEqual(getByokConfig(dir).apiKey, 'real-secret-key-123');
+
+    // Saving with an empty key (form left blank) must also keep the real key.
+    saveByokConfig(dir, { provider: 'gemini', apiKey: '', model: 'gemini-2.5-pro' });
+    const after = getByokConfig(dir);
+    assert.strictEqual(after.apiKey, 'real-secret-key-123');
+    assert.strictEqual(after.model, 'gemini-2.5-pro');
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
 test('dashboard handles /api/project/init POST request to initialize current project', async () => {
   const originalLog = console.log;
   console.log = () => {};
