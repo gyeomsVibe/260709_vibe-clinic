@@ -2,6 +2,15 @@
 
 > Project-scoped adapter for the `vibe-check` skill. Keep the complete diagnostic procedure in the skill, not in this always-loaded file.
 
+## Workspace boundary
+
+- Read `WORKSPACE_MAP.md` before starting work.
+- Treat this directory as the only canonical Vibe Clinic repository.
+- Do not inspect, modify, move, or delete unrelated sibling projects.
+- Preserve user-owned uncommitted changes and manage Git worktrees only through Git worktree procedures.
+- Require separate approval before deletion, movement, renaming, commit, merge, or push.
+- Do not read or expose secrets or credential files.
+
 ## Explicit activation
 
 Activate Vibe Check only when the user explicitly says one of these phrases:
@@ -31,3 +40,9 @@ Related words or ordinary project work must not activate the mode.
 - Ask once immediately before dependency installation or packaging commands.
 - Require separate explicit approval for `git push`, publication, release creation, deployment, or handling real API keys.
 - Report: what ran, what was found, what changed, rerun results, what did not run, and the next approval required.
+## Repository partition
+
+- Use `backend/mcp-server/index.js` as the only MCP entry point.
+- Keep runtime code in `backend/`, `frontend/`, and `shared/`; keep plans and handoff material in `docs/`; keep tool integrations in `integrations/`.
+- Before moving, renaming, or deleting user-authored material, announce the exact old and new paths, reason, and recovery path, then wait for explicit approval.
+- Use `docs/operations/agent-reference-path-migration.md` when updating old folder references; never infer a move for user-authored material.

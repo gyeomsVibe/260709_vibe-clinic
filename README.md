@@ -10,6 +10,18 @@ When coding with AI agents, prove that your project works — with code.
 
 [한국어 README](./README.ko.md)
 
+## Project partition
+
+| Area | Responsibility |
+| --- | --- |
+| `backend/` | Runtime engine, CLI, MCP, and tests |
+| `frontend/` | Production V2 UI and archived V1 UI |
+| `shared/` | API contract source of truth |
+| `docs/` | Plans, handoffs, operations, and non-runtime assets |
+| `integrations/` | VS Code extension and Claude Vibe Check integration |
+
+All AI tools use `backend/mcp-server/index.js` as the single MCP entry point.
+
 ---
 
 ## 🚀 Quick Start (MCP — Easiest)
@@ -22,7 +34,9 @@ Add the following JSON block to your AI tool's config file:
 
 | AI Tool | Config File Path |
 |---|---|
-| **Gemini** (Antigravity 2.0) | `.gemini/settings.json` (project) or `~/.gemini/config/mcp_config.json` (global) |
+| **Antigravity** (Gemini) | `.gemini/settings.json` (project) or `~/.gemini/config/mcp_config.json` (global) |
+| **Claude Code** | `~/.claude.json` |
+| **Codex** | `~/.codex/config.toml` |
 | **Claude Desktop** | `%APPDATA%/Claude/claude_desktop_config.json` (Win) · `~/Library/Application Support/Claude/claude_desktop_config.json` (Mac) |
 | **Cursor** | `.cursor/mcp.json` |
 | **Windsurf** | `~/.codeium/windsurf/mcp_config.json` |
@@ -85,20 +99,20 @@ You: "Apply vibe-clinic to this project"
 Run the CLI from the repository root:
 
 > [!IMPORTANT]
-> Running via npm/npx registry package is currently **not** supported/standard as the registry version does not align with the latest repository changes. You must execute from the local repository root via `node ./backend/bin/vibe-clinic.js` (or `node .\bin\vibe-clinic.js` on Windows).
+> Running via npm/npx registry package is currently **not** supported/standard as the registry version does not align with the latest repository changes. You must execute from the local repository root via `node ./backend/bin/vibe-clinic.js` (or `node .\backend\bin\vibe-clinic.js` on Windows).
 
 ```bash
 # Windows PowerShell
-node .\bin\vibe-clinic.js init                        # Initialize .vibe-clinic/ + auto-configure MCP
-node .\bin\vibe-clinic.js run                         # Run all diagnostics
-node .\bin\vibe-clinic.js run --json                  # JSON output (for CI/CD)
-node .\bin\vibe-clinic.js dashboard                   # Open web dashboard
-node .\bin\vibe-clinic.js config get                  # Show BYOK configuration
-node .\bin\vibe-clinic.js config set provider gemini  # Set AI provider (gemini only)
-node .\bin\vibe-clinic.js config set apiKey ...       # Set API key
-node .\bin\vibe-clinic.js config set model gemini-3.5-flash  # Set model name
-node .\bin\vibe-clinic.js repair <diagId>             # Auto-repair a specific diagnostic
-node .\bin\vibe-clinic.js repair --all                # Auto-repair all failing diagnostics
+node .\backend\bin\vibe-clinic.js init                        # Initialize .vibe-clinic/ + auto-configure MCP
+node .\backend\bin\vibe-clinic.js run                         # Run all diagnostics
+node .\backend\bin\vibe-clinic.js run --json                  # JSON output (for CI/CD)
+node .\backend\bin\vibe-clinic.js dashboard                   # Open web dashboard
+node .\backend\bin\vibe-clinic.js config get                  # Show BYOK configuration
+node .\backend\bin\vibe-clinic.js config set provider gemini  # Set AI provider (gemini only)
+node .\backend\bin\vibe-clinic.js config set apiKey ...       # Set API key
+node .\backend\bin\vibe-clinic.js config set model gemini-3.5-flash  # Set model name
+node .\backend\bin\vibe-clinic.js repair <diagId>             # Auto-repair a specific diagnostic
+node .\backend\bin\vibe-clinic.js repair --all                # Auto-repair all failing diagnostics
 npm run sync:rules                        # Validate the project adapter and local skill (no writes)
 npm run sync:rules:global                 # Explicitly copy the full local skill to the user-global Claude skill
 
@@ -165,8 +179,8 @@ module.exports = {
 
 ```bash
 # Windows PowerShell
-node .\bin\vibe-clinic.js dashboard            # http://localhost:7700
-node .\bin\vibe-clinic.js dashboard --port 8080
+node .\backend\bin\vibe-clinic.js dashboard            # http://localhost:7700
+node .\backend\bin\vibe-clinic.js dashboard --port 8080
 
 # macOS/Linux/Git Bash
 node ./backend/bin/vibe-clinic.js dashboard
@@ -176,7 +190,7 @@ node ./backend/bin/vibe-clinic.js dashboard --port 8080
 The dashboard server binds to `127.0.0.1` only, so it is not exposed to other machines on your network.
 
 > [!TIP]
-> **Dashboard Verified:** Local dashboard execution has been successfully verified under Windows PowerShell environment using `node .\bin\vibe-clinic.js dashboard` and API calls on `http://localhost:7700`.
+> **Dashboard Verified:** Local dashboard execution has been successfully verified under Windows PowerShell environment using `node .\backend\bin\vibe-clinic.js dashboard` and API calls on `http://localhost:7700`.
 
 Features:
 - **Korean Localization**: Fully localized UI text and dynamic auto-repair feedback
