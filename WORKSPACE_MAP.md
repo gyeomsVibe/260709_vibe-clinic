@@ -1,6 +1,6 @@
 # Vibe Clinic Workspace Map
 
-최종 확인일: 2026-07-16
+최종 확인일: 2026-07-17
 
 ## 대표 저장소
 
@@ -15,7 +15,7 @@
 | 경로 | 역할 | 현재 정책 |
 | --- | --- | --- |
 | `260709_vibe-clinic` | 대표 저장소 | 유지, 사용자 미커밋 변경 보존 |
-| `260709_vibe-clinic-dashboard-v2-20260716-035224` | V2 잔여 폴더 | Git worktree 등록 해제 완료, 사용자 직접 삭제 예정 |
+| `260709_vibe-clinic-dashboard-v2-20260716-035224` | V2 퇴역 완료 | Git worktree·잔여 폴더·브랜치 제거 완료 |
 | `260709_vibe-clinic-support` | 통합 복구·지원 폴더 | 유지, 복구 자료 해시 검증 완료 |
 | `260709_vibe-clinic-dashboard-handoff-20260716-043424` | V2 handoff | 해시 검증된 복구 자료로 유지 |
 | `260709_vibe-diagnosis` | 구 세션 연결 경로 | 퇴역 완료, 루트 삭제 완료 |
@@ -45,7 +45,7 @@
 
 ## 임시 경로 점검 결과
 
-- `ui/dashboard-v2-20260716-035224`: `main` 병합 완료, 고유·미커밋 파일 0개 확인. Git worktree 등록은 해제됐고 Windows 파일 잠금으로 남은 폴더는 사용자가 직접 삭제한다. 브랜치 삭제는 별도 승인 대상이다.
+- `ui/dashboard-v2-20260716-035224`: `main` 병합 완료, 고유·미커밋 파일 0개 확인 후 Git worktree·잔여 폴더·브랜치를 모두 제거했다.
 - `C:\tmp\vibe-clinic-dashboard-v2-20260716`: 중복 이미지 확인 후 worktree와 폴더 제거 완료.
 - `ui/dashboard-v2-final-20260716`: 고유 커밋 0개 확인 후 브랜치 제거 완료.
 - `ui/dashboard-v2-implementation-20260716`: 임시 worktree 종료 후 브랜치 제거 완료.
