@@ -11,7 +11,7 @@ export default function BrandMark({ variant = 'navy', compact = false }) {
   return (
     <div className={`brand-lockup ${compact ? 'brand-lockup-compact' : ''}`}>
       <span className={`brand-symbol brand-symbol-${variant}`} aria-hidden="true"><img src={MARKS[variant] || navyMark} alt="" /></span>
-      {!compact && <span className="brand-copy"><strong>Vibe Clinic</strong><small>CODE HEALTH CONTROL</small></span>}
+      {!compact && <span className="brand-copy"><strong>Vibe Clinic</strong><small>코드 건강 관제</small></span>}
     </div>
   )
 }

@@ -244,9 +244,9 @@ export default function useDashboardController() {
       const data = await dashboardApi.cureAll()
       setCureAllReport(data)
       await Promise.all([runDiagnostics(), loadTreatments()])
-      showToast('전체 치료 절차가 완료되었습니다.')
+      showToast('치료 절차가 완료되었습니다.')
     } catch (error) {
-      showToast(error.message || '전체 치료 실패', 'error')
+      showToast(error.message || '치료 실패', 'error')
     } finally {
       setBusy((current) => ({ ...current, cureAll: false }))
     }

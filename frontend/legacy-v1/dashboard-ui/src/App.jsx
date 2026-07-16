@@ -17,6 +17,7 @@ import {
   TrendingUp,
   RotateCcw
 } from 'lucide-react';
+import clinicMark from '../../../src/assets/vibe-clinic-star-navy.png';
 
 // --- Helper: Terminal Log Stream Chunk Renderer ---
 function TerminalLogBox({ text }) {
@@ -75,20 +76,20 @@ function DiagnosticCard({ diag, result, isActive, onClick }) {
       {isIntersecting && (
         <>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
-            <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text)' }}>
+            <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text)' }}>
               {diag.name || diag.id}
             </span>
             <span style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
               {result?.confidence === 'SUSPECTED' && (
-                <span style={{ fontSize: '9px', fontWeight: 700, color: 'var(--warn)', background: 'var(--warn-bg)', border: '1px solid var(--warn-border)', borderRadius: '8px', padding: '1px 6px', whiteSpace: 'nowrap' }}>간헐 의심</span>
+                <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--warn)', background: 'var(--warn-bg)', border: '1px solid var(--warn-border)', borderRadius: '8px', padding: '1px 6px', whiteSpace: 'nowrap' }}>간헐 의심</span>
               )}
               {result?.confidence === 'CONFIRMED' && result?.status !== 'OK' && (
-                <span style={{ fontSize: '9px', fontWeight: 700, color: 'var(--err)', background: 'var(--err-bg)', border: '1px solid var(--err-border)', borderRadius: '8px', padding: '1px 6px', whiteSpace: 'nowrap' }}>확진 (재현 2/2)</span>
+                <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--err)', background: 'var(--err-bg)', border: '1px solid var(--err-border)', borderRadius: '8px', padding: '1px 6px', whiteSpace: 'nowrap' }}>확진 (재현 2/2)</span>
               )}
               <span className={`card-badge ${layerClass}`}>{diag.layer}</span>
             </span>
           </div>
-          <div style={{ fontSize: '10px', color: 'var(--text3)', marginTop: '4px', fontFamily: 'monospace' }}>
+          <div style={{ fontSize: '13px', color: 'var(--text3)', marginTop: '4px', fontFamily: 'monospace' }}>
             {diag.id}
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '12px' }}>
@@ -96,7 +97,7 @@ function DiagnosticCard({ diag, result, isActive, onClick }) {
               width: '6px', height: '6px', borderRadius: '50%',
               backgroundColor: status === 'OK' ? 'var(--ok)' : status === 'WARNING' ? 'var(--warn)' : status === 'ERROR' ? 'var(--err)' : 'var(--text3)'
             }}></span>
-            <span style={{ fontSize: '11px', color: 'var(--text2)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <span style={{ fontSize: '13px', color: 'var(--text2)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {result ? result.details : '진단 대기'}
             </span>
           </div>
@@ -542,7 +543,7 @@ function App() {
                 <h2 style={{ fontSize: '18px', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <span>💉</span> 치료 리포트
                 </h2>
-                <p style={{ fontSize: '11px', color: 'var(--text3)', marginTop: '4px' }}>
+                <p style={{ fontSize: '13px', color: 'var(--text3)', marginTop: '4px' }}>
                   완치 인정 기준: 재진단 OK 검증(VERIFIED_RESULT)만 — 할루시네이션 치료 차단
                 </p>
               </div>
@@ -562,7 +563,7 @@ function App() {
               ].map(({ label, value, color, bg, border }) => (
                 <div key={label} style={{ background: bg, border: `1px solid ${border}`, borderRadius: '8px', padding: '10px 8px', textAlign: 'center' }}>
                   <div style={{ fontSize: '22px', fontWeight: 800, color }}>{value}</div>
-                  <div style={{ fontSize: '9px', color: 'var(--text3)', marginTop: '3px', lineHeight: 1.3 }}>{label}</div>
+                  <div style={{ fontSize: '13px', color: 'var(--text3)', marginTop: '3px', lineHeight: 1.3 }}>{label}</div>
                 </div>
               ))}
             </div>
@@ -570,18 +571,18 @@ function App() {
             {/* 완치 목록 */}
             {cureAllReport.cured.length > 0 && (
               <div style={{ marginBottom: '16px' }}>
-                <h4 style={{ fontSize: '12px', fontWeight: 700, color: 'var(--ok)', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <h4 style={{ fontSize: '13px', fontWeight: 700, color: 'var(--ok)', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                   ✅ 실제 완치 — 재진단 OK 검증 완료
                 </h4>
                 {cureAllReport.cured.map(c => (
                   <div key={c.diagId} style={{ background: 'var(--ok-bg)', border: '1px solid var(--ok-border)', borderRadius: '6px', padding: '10px 12px', marginBottom: '6px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ fontSize: '12px', fontWeight: 600, fontFamily: 'monospace', color: 'var(--text)' }}>{c.diagId}</span>
-                      <span style={{ fontSize: '10px', color: 'var(--ok)', fontWeight: 700 }}>재진단 OK ✓</span>
+                      <span style={{ fontSize: '13px', fontWeight: 600, fontFamily: 'monospace', color: 'var(--text)' }}>{c.diagId}</span>
+                      <span style={{ fontSize: '13px', color: 'var(--ok)', fontWeight: 700 }}>재진단 OK ✓</span>
                     </div>
-                    {c.summary && <div style={{ fontSize: '11px', color: 'var(--text3)', marginTop: '4px' }}>{c.summary}</div>}
+                    {c.summary && <div style={{ fontSize: '13px', color: 'var(--text3)', marginTop: '4px' }}>{c.summary}</div>}
                     {c.filesModified?.length > 0 && (
-                      <div style={{ fontSize: '10px', color: 'var(--text3)', marginTop: '4px', fontFamily: 'monospace' }}>
+                      <div style={{ fontSize: '13px', color: 'var(--text3)', marginTop: '4px', fontFamily: 'monospace' }}>
                         수정: {c.filesModified.join(', ')}
                       </div>
                     )}
@@ -593,12 +594,12 @@ function App() {
             {/* 롤백 목록 */}
             {cureAllReport.rolledBack.length > 0 && (
               <div style={{ marginBottom: '16px' }}>
-                <h4 style={{ fontSize: '12px', fontWeight: 700, color: 'var(--warn)', marginBottom: '8px' }}>⚠️ 자동 롤백 — 회귀/미완치로 원상복구</h4>
+                <h4 style={{ fontSize: '13px', fontWeight: 700, color: 'var(--warn)', marginBottom: '8px' }}>⚠️ 자동 롤백 — 회귀/미완치로 원상복구</h4>
                 {cureAllReport.rolledBack.map(r => (
                   <div key={r.diagId} style={{ background: 'var(--warn-bg)', border: '1px solid var(--warn-border)', borderRadius: '6px', padding: '10px 12px', marginBottom: '6px' }}>
-                    <span style={{ fontSize: '12px', fontWeight: 600, fontFamily: 'monospace' }}>{r.diagId}</span>
+                    <span style={{ fontSize: '13px', fontWeight: 600, fontFamily: 'monospace' }}>{r.diagId}</span>
                     {r.regressions?.length > 0 && (
-                      <div style={{ fontSize: '10px', color: 'var(--warn)', marginTop: '4px' }}>회귀: {r.regressions.join(', ')}</div>
+                      <div style={{ fontSize: '13px', color: 'var(--warn)', marginTop: '4px' }}>회귀: {r.regressions.join(', ')}</div>
                     )}
                   </div>
                 ))}
@@ -608,12 +609,12 @@ function App() {
             {/* 수동 조치 목록 */}
             {cureAllReport.manual.length > 0 && (
               <div style={{ marginBottom: '16px' }}>
-                <h4 style={{ fontSize: '12px', fontWeight: 700, color: '#60a5fa', marginBottom: '8px' }}>📋 수동 조치 필요 — 아래 처방전을 따르세요</h4>
+                <h4 style={{ fontSize: '13px', fontWeight: 700, color: '#60a5fa', marginBottom: '8px' }}>📋 수동 조치 필요 — 아래 처방전을 따르세요</h4>
                 {cureAllReport.manual.map(m => (
                   <div key={m.diagId} style={{ background: 'rgba(59,130,246,0.07)', border: '1px solid rgba(59,130,246,0.25)', borderRadius: '6px', padding: '10px 12px', marginBottom: '6px' }}>
-                    <div style={{ fontSize: '12px', fontWeight: 600, fontFamily: 'monospace', marginBottom: '6px' }}>{m.diagId}</div>
+                    <div style={{ fontSize: '13px', fontWeight: 600, fontFamily: 'monospace', marginBottom: '6px' }}>{m.diagId}</div>
                     {m.prescription?.map((step, i) => (
-                      <div key={i} style={{ fontSize: '11px', color: 'var(--text2)', marginBottom: '3px' }}>· {step}</div>
+                      <div key={i} style={{ fontSize: '13px', color: 'var(--text2)', marginBottom: '3px' }}>· {step}</div>
                     ))}
                   </div>
                 ))}
@@ -623,10 +624,10 @@ function App() {
             {/* 처방불가 목록 */}
             {cureAllReport.unprescribable.length > 0 && (
               <div style={{ marginBottom: '16px' }}>
-                <h4 style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text3)', marginBottom: '8px' }}>🔑 처방불가 — AI 키 설정 또는 수동 처리 필요</h4>
+                <h4 style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text3)', marginBottom: '8px' }}>🔑 처방불가 — AI 키 설정 또는 수동 처리 필요</h4>
                 {cureAllReport.unprescribable.map(u => (
                   <div key={u.diagId} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', borderRadius: '6px', padding: '8px 12px', marginBottom: '6px' }}>
-                    <span style={{ fontSize: '12px', fontFamily: 'monospace', color: 'var(--text3)' }}>{u.diagId}</span>
+                    <span style={{ fontSize: '13px', fontFamily: 'monospace', color: 'var(--text3)' }}>{u.diagId}</span>
                   </div>
                 ))}
               </div>
@@ -646,29 +647,30 @@ function App() {
       {/* Header UI */}
       <header>
         <div className="logo">
-          <span className="logo-icon">🩺</span>
+          <span className="logo-icon"><img src={clinicMark} alt="" /></span>
           <div>
             <h1>
               Vibe Clinic
-              <span className="logo-badge">코드 처방 엔진 🟢</span>
+              <span className="logo-badge">코드 건강 관제</span>
               <button 
                 className="btn-secondary" 
                 onClick={() => setIsHelpActive(true)}
-                style={{ marginLeft: '12px', padding: '4px 10px', fontSize: '11px', borderRadius: '4px' }}
+                style={{ marginLeft: '12px', padding: '4px 10px', fontSize: '13px', borderRadius: '4px' }}
               >
                 💡 치료 가이드
               </button>
             </h1>
-            <span style={{ fontSize: '12px', color: 'var(--text3)', marginTop: '2px', display: 'block' }}>
-              Project: {currentProjectDir || '로딩 중...'}
+            <span style={{ fontSize: '13px', color: 'var(--text3)', marginTop: '2px', display: 'block' }}>
+              대상 프로젝트: {currentProjectDir || '로딩 중...'}
             </span>
           </div>
         </div>
 
-        <a className="btn-secondary" href="/v2" style={{ padding: '8px 12px', borderRadius: '6px', fontSize: '12px', textDecoration: 'none' }}>V2 관제판</a>
+        <div className="header-actions">
+          <a className="btn-secondary" href="/v2" style={{ padding: '8px 12px', borderRadius: '6px', fontSize: '13px', textDecoration: 'none' }}>V2 대시보드</a>
 
-        {/* 종합 건강도 링 게이지 & HSL Emerald Green Theme */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          {/* 종합 건강도 링 게이지 & HSL Emerald Green Theme */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <div style={{ width: '48px', height: '48px', position: 'relative' }}>
               <svg width="48" height="48" viewBox="0 0 52 52">
@@ -684,14 +686,14 @@ function App() {
                 />
               </svg>
               <span style={{
-                fontSize: '11px', fontWeight: 700, position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', color: 'var(--ok)'
+                fontSize: '13px', fontWeight: 700, position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', color: 'var(--ok)'
               }}>
                 {healthPercent}%
               </span>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <span style={{ fontSize: '10px', fontWeight: 600, color: 'var(--text2)' }}>종합 건강도</span>
-              <span style={{ fontSize: '10px', color: 'var(--text3)' }}>
+              <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text2)' }}>종합 건강도</span>
+              <span style={{ fontSize: '13px', color: 'var(--text3)' }}>
                 {overallStatus === 'OK' ? '정상 동작 중' : overallStatus === 'ERROR' ? '치료 권장' : '진단 필요'}
               </span>
             </div>
@@ -699,16 +701,17 @@ function App() {
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', borderLeft: '1px solid var(--border)', paddingLeft: '16px' }}>
             <span style={{
-              fontSize: '11px', background: 'var(--ok-bg)', border: '1px solid var(--ok-border)', color: 'var(--ok)', padding: '2px 8px', borderRadius: '12px'
+              fontSize: '13px', background: 'var(--ok-bg)', border: '1px solid var(--ok-border)', color: 'var(--ok)', padding: '2px 8px', borderRadius: '12px'
             }}>
               🟢 정상
             </span>
             <span style={{
-              fontSize: '11px', background: 'var(--warn-bg)', border: '1px solid var(--warn-border)', color: 'var(--warn)', padding: '2px 8px', borderRadius: '12px'
+              fontSize: '13px', background: 'var(--warn-bg)', border: '1px solid var(--warn-border)', color: 'var(--warn)', padding: '2px 8px', borderRadius: '12px'
             }}>
               🟡 경고
             </span>
           </div>
+        </div>
         </div>
       </header>
 
@@ -739,10 +742,10 @@ function App() {
                   value={customPath} 
                   onChange={(e) => setCustomPath(e.target.value)}
                   placeholder="직접 경로 입력" 
-                  style={{ flex: 1, padding: '6px 10px', background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--text)', fontSize: '12px' }}
+                  style={{ flex: 1, padding: '6px 10px', background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--text)', fontSize: '13px' }}
                 />
-                <button className="btn-secondary" onClick={() => changeProject(customPath)} style={{ padding: '6px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 600 }}>이동</button>
-                <button className="btn-secondary" onClick={selectFolder} style={{ padding: '6px 12px', borderRadius: '6px', fontSize: '12px', color: 'var(--text2)' }}>선택</button>
+                <button className="btn-secondary" onClick={() => changeProject(customPath)} style={{ padding: '6px 12px', borderRadius: '6px', fontSize: '13px', fontWeight: 600 }}>이동</button>
+                <button className="btn-secondary" onClick={selectFolder} style={{ padding: '6px 12px', borderRadius: '6px', fontSize: '13px', color: 'var(--text2)' }}>선택</button>
               </div>
             </div>
           </div>
@@ -751,7 +754,7 @@ function App() {
           <div className="bento-card glass">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
               <h3 style={{ fontSize: '13px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <Settings size={14} /> 내 AI 키 직접 연결 <span style={{ fontSize: '10px', color: 'var(--text3)', fontWeight: 400 }}>Bring Your Own Key</span>
+                <Settings size={14} /> 내 AI 키 연결 <span style={{ fontSize: '13px', color: 'var(--text3)', fontWeight: 400 }}>(BYOK)</span>
               </h3>
               <label className="switch">
                 <input 
@@ -766,31 +769,31 @@ function App() {
             {byokEnabled && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '12px' }}>
                 <div>
-                  <label style={{ fontSize: '10px', color: 'var(--text3)', display: 'block', marginBottom: '4px' }}>AI API KEY (Gemini)</label>
+                  <label style={{ fontSize: '13px', color: 'var(--text3)', display: 'block', marginBottom: '4px' }}>AI API 키 (Gemini)</label>
                   <input
                     type="password"
                     value={byok.apiKey}
                     onChange={(e) => setByok(prev => ({ ...prev, apiKey: e.target.value }))}
                     placeholder={hasSavedKey ? '🔒 저장된 키 사용 중 — 변경할 때만 새 키 입력' : '로컬 API 키 입력'}
-                    style={{ width: '100%', padding: '8px 10px', background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--text)', fontSize: '12px' }}
+                    style={{ width: '100%', padding: '8px 10px', background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--text)', fontSize: '13px' }}
                   />
                 </div>
                 <div>
-                  <label style={{ fontSize: '10px', color: 'var(--text3)', display: 'block', marginBottom: '4px' }}>모델 구성</label>
+                  <label style={{ fontSize: '13px', color: 'var(--text3)', display: 'block', marginBottom: '4px' }}>모델 구성</label>
                   <select 
                     value={byok.model} 
                     onChange={(e) => setByok(prev => ({ ...prev, model: e.target.value }))}
-                    style={{ width: '100%', padding: '8px 10px', background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--text)', fontSize: '12px' }}
+                    style={{ width: '100%', padding: '8px 10px', background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--text)', fontSize: '13px' }}
                   >
                     <option value="gemini-3.5-flash">gemini-3.5-flash (추천/고속)</option>
                     <option value="gemini-1.5-pro">gemini-1.5-pro (고성능)</option>
                   </select>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '4px' }}>
-                  <span style={{ fontSize: '11px', color: byokFeedback.type === 'ok' ? 'var(--ok)' : 'var(--err)' }}>
+                  <span style={{ fontSize: '13px', color: byokFeedback.type === 'ok' ? 'var(--ok)' : 'var(--err)' }}>
                     {byokFeedback.text}
                   </span>
-                  <button className="btn-primary" onClick={saveByokConfig} style={{ padding: '6px 12px', borderRadius: '6px', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <button className="btn-primary" onClick={saveByokConfig} style={{ padding: '6px 12px', borderRadius: '6px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '4px' }}>
                     <Save size={12} /> 설정 저장
                   </button>
                 </div>
@@ -806,7 +809,7 @@ function App() {
                 <span>{apiAccordionOpen ? '▼' : '▶'}</span>
               </div>
               {apiAccordionOpen && (
-                <p style={{ fontSize: '10px', color: 'var(--text3)', lineHeight: '1.5', marginTop: '6px' }}>
+                <p style={{ fontSize: '13px', color: 'var(--text3)', lineHeight: '1.5', marginTop: '6px' }}>
                   입력된 API 키는 로컬 저장소 구성 파일(<code style={{background:'var(--surface3)', padding:'1px 3px'}}>config.json</code>)에만 암호화되어 관리되며, 외부 네트워크로 키 자체가 공유되지 않습니다.
                 </p>
               )}
@@ -816,29 +819,29 @@ function App() {
           {/* Card 3: AI Project Scanner Panel */}
           <div className="bento-card glass" style={{ borderLeft: '3px solid var(--accent)' }}>
             <h3 style={{ fontSize: '13px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <Sparkles size={14} style={{ color: 'var(--accent)' }} /> AI 프로젝트 분석 스캐너
+              <Sparkles size={14} style={{ color: 'var(--accent)' }} /> AI 프로젝트 분석
             </h3>
             {isProjectExplaining ? (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: 'var(--text3)', padding: '12px 0' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--text3)', padding: '12px 0' }}>
                 <span className="spinner" style={{ display: 'inline-block', width: '12px', height: '12px', border: '2px solid rgba(255,255,255,0.1)', borderTopColor: 'var(--text)', borderRadius: '50%', animation: 'spin .6s linear infinite' }}></span>
                 프로젝트 코드베이스 정적 스캔 중...
               </div>
             ) : projectExplain && projectExplain.success ? (
-              <div style={{ fontSize: '12px', color: 'var(--text2)', lineHeight: '1.6' }}>
+              <div style={{ fontSize: '13px', color: 'var(--text2)', lineHeight: '1.6' }}>
                 {projectExplain.isFallback && (
-                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '4px 10px', background: 'var(--surface3)', border: '1px solid var(--border)', borderRadius: '4px', fontSize: '10px', color: 'var(--text2)', marginBottom: '10px' }}>
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '4px 10px', background: 'var(--surface3)', border: '1px solid var(--border)', borderRadius: '4px', fontSize: '13px', color: 'var(--text2)', marginBottom: '10px' }}>
                     🤖 로컬 스마트 분석 결과 대체
                   </div>
                 )}
                 <div style={{ fontWeight: 600, color: 'var(--text)', marginBottom: '8px', fontSize: '13px' }}>
                   {projectExplain.summary}
                 </div>
-                <div style={{ color: 'var(--text2)', fontSize: '11.5px', marginBottom: '12px', lineHeight: '1.5' }}>
+                <div style={{ color: 'var(--text2)', fontSize: '13px', marginBottom: '12px', lineHeight: '1.5' }}>
                   {projectExplain.details}
                 </div>
                 {projectExplain.implementationNotes && (
-                  <div style={{ fontSize: '11px', color: 'var(--text2)', marginBottom: '12px', padding: '10px', background: 'var(--surface3)', border: '1px solid var(--border)', borderRadius: '6px' }}>
-                    <span style={{ fontSize: '10px', fontWeight: 700, color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '.5px' }}>📐 구현 방식</span>
+                  <div style={{ fontSize: '13px', color: 'var(--text2)', marginBottom: '12px', padding: '10px', background: 'var(--surface3)', border: '1px solid var(--border)', borderRadius: '6px' }}>
+                    <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '.5px' }}>📐 구현 방식</span>
                     <div style={{ marginTop: '4px', lineHeight: '1.45' }}>{projectExplain.implementationNotes}</div>
                   </div>
                 )}
@@ -846,8 +849,8 @@ function App() {
                 {/* 깃허브 스타일 언어 분석 바 */}
                 {projectExplain.languages && projectExplain.languages.length > 0 && (
                   <div style={{ marginTop: '16px', borderTop: '1px solid var(--border)', paddingTop: '12px' }}>
-                    <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text2)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                      기술 스택 (Languages)
+                    <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text2)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                      기술 스택
                     </div>
                     <div style={{ display: 'flex', height: '8px', borderRadius: '4px', overflow: 'hidden', background: 'var(--surface3)', marginBottom: '12px' }}>
                       {projectExplain.languages.map((lang, idx) => (
@@ -860,7 +863,7 @@ function App() {
                     </div>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px 12px' }}>
                       {projectExplain.languages.map((lang, idx) => (
-                        <div key={idx} style={{ display: 'flex', alignItems: 'center', fontSize: '11px', color: 'var(--text2)' }}>
+                        <div key={idx} style={{ display: 'flex', alignItems: 'center', fontSize: '13px', color: 'var(--text2)' }}>
                           <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', backgroundColor: lang.color, marginRight: '6px' }}></span>
                           {lang.name} <span style={{ color: 'var(--text3)', marginLeft: '4px' }}>{lang.percentage}%</span>
                         </div>
@@ -872,30 +875,30 @@ function App() {
                 <button 
                   className="btn-secondary" 
                   onClick={() => fetchProjectExplanation(true)} 
-                  style={{ marginTop: '16px', width: '100%', padding: '6px 10px', borderRadius: '4px', fontSize: '11px', fontWeight: 600, cursor: 'pointer' }}
+                  style={{ marginTop: '16px', width: '100%', padding: '6px 10px', borderRadius: '4px', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}
                 >
                   🔄 다시 요약하기
                 </button>
               </div>
             ) : (
-              <div style={{ fontSize: '12px', color: 'var(--text2)', lineHeight: '1.6' }}>
+              <div style={{ fontSize: '13px', color: 'var(--text2)', lineHeight: '1.6' }}>
                 <div style={{ fontWeight: 600, color: 'var(--text3)', marginBottom: '6px' }}>
                   프로젝트 분석 대기 중
                 </div>
-                <p style={{ fontSize: '11px', color: 'var(--text3)', marginBottom: '10px' }}>
+                <p style={{ fontSize: '13px', color: 'var(--text3)', marginBottom: '10px' }}>
                   아래 버튼을 눌러 프로젝트를 분석합니다.<br/>
                   🤖 AI 분석은 <b>내 AI 키 직접 연결</b>에서 키 등록 후 사용 가능하며,<br/>
                   키 없이도 <b>로컬 분석기</b>로 기본 정보를 확인할 수 있습니다.
                 </p>
                 {projectExplain?.error && (
-                  <p style={{ fontSize: '10px', color: 'var(--err)', marginTop: '8px' }}>
+                  <p style={{ fontSize: '13px', color: 'var(--err)', marginTop: '8px' }}>
                     상세 정보: {projectExplain.error}
                   </p>
                 )}
                 <button 
                   className="btn-secondary" 
                   onClick={() => fetchProjectExplanation(true)} 
-                  style={{ marginTop: '4px', width: '100%', padding: '8px 10px', borderRadius: '4px', fontSize: '11px', fontWeight: 700, cursor: 'pointer', borderColor: 'var(--accent)', color: 'var(--accent)' }}
+                  style={{ marginTop: '4px', width: '100%', padding: '8px 10px', borderRadius: '4px', fontSize: '13px', fontWeight: 700, cursor: 'pointer', borderColor: 'var(--accent)', color: 'var(--accent)' }}
                 >
                   🔄 로컬 분석기 구동
                 </button>
@@ -952,16 +955,16 @@ function App() {
             </div>
             
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-              <button className={`btn-secondary ${activeFilter === 'all' ? 'active' : ''}`} onClick={() => setActiveFilter('all')} style={{ padding: '6px 12px', borderRadius: '6px', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <button className={`btn-secondary ${activeFilter === 'all' ? 'active' : ''}`} onClick={() => setActiveFilter('all')} style={{ padding: '6px 12px', borderRadius: '6px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                 전체 <span style={{ background: 'rgba(255,255,255,0.06)', padding: '1px 6px', borderRadius: '10px' }}>{summary.total}</span>
               </button>
-              <button className={`btn-secondary ${activeFilter === 'ok' ? 'active' : ''}`} onClick={() => setActiveFilter('ok')} style={{ padding: '6px 12px', borderRadius: '6px', fontSize: '12px', color: 'var(--ok)', borderColor: activeFilter === 'ok' ? 'var(--ok)' : '' }}>
+              <button className={`btn-secondary ${activeFilter === 'ok' ? 'active' : ''}`} onClick={() => setActiveFilter('ok')} style={{ padding: '6px 12px', borderRadius: '6px', fontSize: '13px', color: 'var(--ok)', borderColor: activeFilter === 'ok' ? 'var(--ok)' : '' }}>
                 완치(정상) <span style={{ background: 'rgba(16,185,129,0.1)', padding: '1px 6px', borderRadius: '10px' }}>{summary.ok}</span>
               </button>
-              <button className={`btn-secondary ${activeFilter === 'warning' ? 'active' : ''}`} onClick={() => setActiveFilter('warning')} style={{ padding: '6px 12px', borderRadius: '6px', fontSize: '12px', color: 'var(--warn)', borderColor: activeFilter === 'warning' ? 'var(--warn)' : '' }}>
+              <button className={`btn-secondary ${activeFilter === 'warning' ? 'active' : ''}`} onClick={() => setActiveFilter('warning')} style={{ padding: '6px 12px', borderRadius: '6px', fontSize: '13px', color: 'var(--warn)', borderColor: activeFilter === 'warning' ? 'var(--warn)' : '' }}>
                 주의관찰 <span style={{ background: 'rgba(245,158,11,0.1)', padding: '1px 6px', borderRadius: '10px' }}>{summary.warning}</span>
               </button>
-              <button className={`btn-secondary ${activeFilter === 'error' ? 'active' : ''}`} onClick={() => setActiveFilter('error')} style={{ padding: '6px 12px', borderRadius: '6px', fontSize: '12px', color: 'var(--err)', borderColor: activeFilter === 'error' ? 'var(--err)' : '' }}>
+              <button className={`btn-secondary ${activeFilter === 'error' ? 'active' : ''}`} onClick={() => setActiveFilter('error')} style={{ padding: '6px 12px', borderRadius: '6px', fontSize: '13px', color: 'var(--err)', borderColor: activeFilter === 'error' ? 'var(--err)' : '' }}>
                 치료시급 <span style={{ background: 'rgba(239,68,68,0.1)', padding: '1px 6px', borderRadius: '10px' }}>{summary.error}</span>
               </button>
             </div>
@@ -976,27 +979,27 @@ function App() {
               
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
                 <div style={{ background: 'var(--surface2)', padding: '12px', borderRadius: '6px', border: '1px solid var(--border)' }}>
-                  <div style={{ fontSize: '10px', color: 'var(--text3)' }}>자동 완치율</div>
+                  <div style={{ fontSize: '13px', color: 'var(--text3)' }}>자동 완치율</div>
                   <div style={{ fontSize: '20px', fontWeight: 800, color: 'var(--ok)', marginTop: '4px' }}>
                     {summary.total > 0 ? Math.round((summary.ok / summary.total) * 100) : 100}%
                   </div>
                 </div>
                 <div style={{ background: 'var(--surface2)', padding: '12px', borderRadius: '6px', border: '1px solid var(--border)' }}>
-                  <div style={{ fontSize: '10px', color: 'var(--text3)' }}>누적 치료 횟수</div>
+                  <div style={{ fontSize: '13px', color: 'var(--text3)' }}>누적 치료 횟수</div>
                   <div style={{ fontSize: '20px', fontWeight: 800, color: 'var(--text)', marginTop: '4px' }}>
                     {Object.keys(repairStates).filter(k => repairStates[k].status === 'repaired').length}건
                   </div>
                 </div>
               </div>
 
-              <div style={{ fontSize: '12px', color: 'var(--text2)', lineHeight: '1.5' }}>
+              <div style={{ fontSize: '13px', color: 'var(--text2)', lineHeight: '1.5' }}>
                 현재 진단 노드 전체 <strong>{summary.total}개</strong> 중 정상 코드로 자동 검증 통과 완료된 항목은 <strong>{summary.ok}개</strong>입니다. 미통과 상태의 오류 요인들에 대해 AI 수리 제안 적용이 적극 필요합니다.
               </div>
             </div>
 
             {/* 실시간 치료 흐름 타임라인 (최근 3건 간략 요약) */}
             <div style={{ borderLeft: '1px solid var(--border)', paddingLeft: '24px' }}>
-              <h4 style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text2)', marginBottom: '12px' }}>
+              <h4 style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text2)', marginBottom: '12px' }}>
                 최근 치료 트렌드 타임라인
               </h4>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -1008,15 +1011,15 @@ function App() {
                       : label === 'PRESCRIBED' ? 'var(--warn)' : 'var(--text2)';
                     const at = item.at ? new Date(item.at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
                     return (
-                      <div key={idx} style={{ fontSize: '11.5px', color: 'var(--text2)', lineHeight: '1.4', display: 'flex', gap: '8px', alignItems: 'baseline' }}>
-                        <span style={{ fontSize: '9px', color: 'var(--text3)', minWidth: '34px' }}>{at}</span>
-                        <span style={{ fontSize: '9px', fontWeight: 700, color, border: `1px solid ${color}`, borderRadius: '6px', padding: '0 5px', whiteSpace: 'nowrap' }}>{label}</span>
+                      <div key={idx} style={{ fontSize: '13px', color: 'var(--text2)', lineHeight: '1.4', display: 'flex', gap: '8px', alignItems: 'baseline' }}>
+                        <span style={{ fontSize: '13px', color: 'var(--text3)', minWidth: '34px' }}>{at}</span>
+                        <span style={{ fontSize: '13px', fontWeight: 700, color, border: `1px solid ${color}`, borderRadius: '6px', padding: '0 5px', whiteSpace: 'nowrap' }}>{label}</span>
                         <span><strong>{item.diagId}</strong>{item.strategy ? <span style={{ color: 'var(--text3)' }}> · {item.strategy}</span> : null}</span>
                       </div>
                     );
                   })
                 ) : (
-                  <p style={{ fontSize: '11px', color: 'var(--text3)', padding: '12px 0' }}>치료 히스토리가 존재하지 않습니다.</p>
+                  <p style={{ fontSize: '13px', color: 'var(--text3)', padding: '12px 0' }}>치료 히스토리가 존재하지 않습니다.</p>
                 )}
               </div>
             </div>
@@ -1029,7 +1032,7 @@ function App() {
             <div className="bento-card glass" style={{ minHeight: '380px' }}>
               <h3 style={{ fontSize: '13px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span>정밀 진단 차트</span>
-                <span style={{ fontSize: '11px', color: 'var(--text3)', background: 'var(--surface3)', padding: '2px 8px', borderRadius: '10px' }}>{filteredDiagnostics.length}</span>
+                <span style={{ fontSize: '13px', color: 'var(--text3)', background: 'var(--surface3)', padding: '2px 8px', borderRadius: '10px' }}>{filteredDiagnostics.length}</span>
               </h3>
 
               <div className="cards-grid">
@@ -1047,7 +1050,7 @@ function App() {
                       )}
                       🩺 Vibe Clinic 진단 도구 설치 (초기화)
                     </button>
-                    <span style={{ fontSize: '11px' }}>설치하면 .vibe-clinic 폴더와 예제 진단 파일이 생성됩니다.</span>
+                    <span style={{ fontSize: '13px' }}>설치하면 .vibe-clinic 폴더와 예제 진단 파일이 생성됩니다.</span>
                   </div>
                 ) : (
                   filteredDiagnostics.map(diag => (
@@ -1070,12 +1073,12 @@ function App() {
             <div className="bento-card glass" style={{ minHeight: '380px' }}>
               <h3 style={{ fontSize: '13px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span>검출 오류 파일 패턴</span>
-                <span style={{ fontSize: '11px', color: 'var(--text3)', background: 'var(--surface3)', padding: '2px 8px', borderRadius: '10px' }}>{errorPatterns.length}</span>
+                <span style={{ fontSize: '13px', color: 'var(--text3)', background: 'var(--surface3)', padding: '2px 8px', borderRadius: '10px' }}>{errorPatterns.length}</span>
               </h3>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {errorPatterns.length === 0 ? (
-                  <p style={{ fontSize: '11.5px', color: 'var(--text3)', textAlign: 'center', padding: '40px 0' }}>
+                  <p style={{ fontSize: '13px', color: 'var(--text3)', textAlign: 'center', padding: '40px 0' }}>
                     검출된 에러 파일 패턴이 없습니다.
                   </p>
                 ) : (
@@ -1084,7 +1087,7 @@ function App() {
                       key={filename}
                       onClick={() => viewErrorPattern(filename)}
                       className="glass"
-                      style={{ padding: '10px 14px', borderRadius: '6px', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifySelf: 'stretch', gap: '8px', border: '1px solid var(--border)' }}
+                      style={{ padding: '10px 14px', borderRadius: '6px', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifySelf: 'stretch', gap: '8px', border: '1px solid var(--border)' }}
                     >
                       <span style={{ color: 'var(--err)', fontSize: '14px' }}>🚨</span>
                       <span style={{ flex: 1, color: 'var(--text2)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{filename}</span>
@@ -1127,11 +1130,11 @@ function App() {
         <div style={{ padding: '20px', flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {selectedDiagObj ? (
             <>
-              <div style={{ fontSize: '12.5px', color: 'var(--text2)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div style={{ fontSize: '13px', color: 'var(--text2)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <div><strong>영역 레이어:</strong> <span className={`card-badge badge-${selectedDiagObj.layer?.toLowerCase()}`}>{selectedDiagObj.layer}</span></div>
                 <div><strong>검증 상태:</strong> <span style={{ color: selectedDiagResult?.status === 'OK' ? 'var(--ok)' : 'var(--err)', fontWeight: 700 }}>{selectedDiagResult?.status || 'PENDING'}</span>
                   {selectedDiagResult?.confidence && selectedDiagResult?.status !== 'OK' && (
-                    <span style={{ marginLeft: '8px', fontSize: '10px', fontWeight: 700, color: selectedDiagResult.confidence === 'CONFIRMED' ? 'var(--err)' : 'var(--warn)' }}>
+                    <span style={{ marginLeft: '8px', fontSize: '13px', fontWeight: 700, color: selectedDiagResult.confidence === 'CONFIRMED' ? 'var(--err)' : 'var(--warn)' }}>
                       {selectedDiagResult.confidence === 'CONFIRMED' ? '확진 — 재실행에서도 재현됨 (2/2)' : '간헐 의심 — 재실행에서는 통과 (1/2)'}
                     </span>
                   )}
@@ -1145,7 +1148,7 @@ function App() {
                     <strong>🔎 원인 후보 (가능성순):</strong>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginTop: '6px' }}>
                       {selectedDiagResult.causeHypotheses.map((h, i) => (
-                        <div key={i} style={{ fontSize: '11px', color: 'var(--text3)' }}>
+                        <div key={i} style={{ fontSize: '13px', color: 'var(--text3)' }}>
                           <span style={{ fontWeight: 700, color: h.likelihood === 'HIGH' ? 'var(--warn)' : 'var(--text2)' }}>{h.likelihood}</span>
                           {' · '}{h.cause}
                           <span style={{ opacity: 0.7 }}> — {h.signal}</span>
@@ -1183,14 +1186,14 @@ function App() {
               )}
 
               <div style={{ marginTop: '12px' }}>
-                <h4 style={{ fontSize: '11px', color: 'var(--text3)', textTransform: 'uppercase', marginBottom: '6px' }}>원시 터미널 로그</h4>
-                <pre style={{ background: 'var(--surface2)', padding: '10px', borderRadius: '4px', fontSize: '11px', color: 'var(--text2)', overflowX: 'auto', whiteSpace: 'pre-wrap', fontFamily: 'monospace' }}>
+                <h4 style={{ fontSize: '13px', color: 'var(--text3)', textTransform: 'uppercase', marginBottom: '6px' }}>원시 터미널 로그</h4>
+                <pre style={{ background: 'var(--surface2)', padding: '10px', borderRadius: '4px', fontSize: '13px', color: 'var(--text2)', overflowX: 'auto', whiteSpace: 'pre-wrap', fontFamily: 'monospace' }}>
                   {selectedDiagResult?.errorMessage || selectedDiagResult?.stderr || selectedDiagResult?.stdout || '출력 로그 없음'}
                 </pre>
               </div>
             </>
           ) : (
-            <p style={{ color: 'var(--text3)', fontSize: '12px' }}>정밀 진단 차트에서 항목 카드를 클릭해 주세요.</p>
+            <p style={{ color: 'var(--text3)', fontSize: '13px' }}>정밀 진단 차트에서 항목 카드를 클릭해 주세요.</p>
           )}
         </div>
       </div>
@@ -1205,7 +1208,7 @@ function App() {
                 <X size={16} />
               </button>
             </div>
-            <pre style={{ background: 'var(--surface2)', padding: '16px', borderRadius: '6px', fontSize: '12px', lineHeight: '1.6', overflowY: 'auto', maxHeight: '60vh', color: 'var(--text2)', whiteSpace: 'pre-wrap' }}>
+            <pre style={{ background: 'var(--surface2)', padding: '16px', borderRadius: '6px', fontSize: '13px', lineHeight: '1.6', overflowY: 'auto', maxHeight: '60vh', color: 'var(--text2)', whiteSpace: 'pre-wrap' }}>
               {selectedErrorPattern.content}
             </pre>
           </div>
@@ -1223,16 +1226,16 @@ function App() {
               <strong>처방 요약:</strong> {pendingProposal.summary}
             </div>
 
-            <h4 style={{ fontSize: '12px', margin: '14px 0 6px 0', color: 'var(--text)' }}>수정 예정 코드 내역 (Diff)</h4>
+            <h4 style={{ fontSize: '13px', margin: '14px 0 6px 0', color: 'var(--text)' }}>수정 예정 코드 내역 (Diff)</h4>
             <div className="terminal-view" style={{ maxHeight: '350px', background: '#080c10' }}>
               {/* repairedFiles is an ARRAY of { path, content, delete? } from /api/repair/propose */}
               {(pendingProposal.repairedFiles || []).map(file => (
                 <div key={file.path} style={{ marginBottom: '16px' }}>
-                  <div style={{ fontSize: '11px', color: file.delete ? 'var(--err)' : 'var(--text3)', borderBottom: '1px solid var(--border)', paddingBottom: '4px', marginBottom: '6px' }}>
+                  <div style={{ fontSize: '13px', color: file.delete ? 'var(--err)' : 'var(--text3)', borderBottom: '1px solid var(--border)', paddingBottom: '4px', marginBottom: '6px' }}>
                     📄 {file.path}{file.delete ? ' — 🗑️ 삭제 예정 파일' : ''}
                   </div>
                   {!file.delete && (
-                    <pre style={{ margin: 0, fontSize: '11.5px', fontFamily: 'monospace', whiteSpace: 'pre-wrap', lineHeight: '1.5' }}>
+                    <pre style={{ margin: 0, fontSize: '13px', fontFamily: 'monospace', whiteSpace: 'pre-wrap', lineHeight: '1.5' }}>
                       {file.content}
                     </pre>
                   )}
@@ -1273,8 +1276,8 @@ function App() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '8px' }}>
               {(manualRx.prescription || []).map((step, i) => (
                 <div key={i} style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', background: 'var(--surface3)', border: '1px solid var(--border)', borderRadius: '8px', padding: '10px 12px' }}>
-                  <span style={{ minWidth: '20px', height: '20px', background: 'var(--warn-bg)', border: '1px solid var(--warn-border)', color: 'var(--warn)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: 700 }}>{i + 1}</span>
-                  <span style={{ fontSize: '12.5px', lineHeight: '1.6', color: 'var(--text2)', wordBreak: 'break-all' }}>{step}</span>
+                  <span style={{ minWidth: '20px', height: '20px', background: 'var(--warn-bg)', border: '1px solid var(--warn-border)', color: 'var(--warn)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: 700 }}>{i + 1}</span>
+                  <span style={{ fontSize: '13px', lineHeight: '1.6', color: 'var(--text2)', wordBreak: 'break-all' }}>{step}</span>
                 </div>
               ))}
             </div>
@@ -1303,24 +1306,24 @@ function App() {
             </h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '20px' }}>
               <div style={{ display: 'flex', gap: '12px' }}>
-                <span style={{ width: '20px', height: '20px', background: 'var(--surface3)', border: '1px solid var(--border)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: 700 }}>1</span>
+                <span style={{ width: '20px', height: '20px', background: 'var(--surface3)', border: '1px solid var(--border)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: 700 }}>1</span>
                 <div>
-                  <h4 style={{ fontSize: '12px', fontWeight: 600 }}>프로젝트 이동</h4>
-                  <p style={{ fontSize: '11px', color: 'var(--text3)', marginTop: '2px' }}>좌측 대상 프로젝트를 선택하거나 custom 경로를 입력해 이동합니다.</p>
+                  <h4 style={{ fontSize: '13px', fontWeight: 600 }}>프로젝트 이동</h4>
+                  <p style={{ fontSize: '13px', color: 'var(--text3)', marginTop: '2px' }}>좌측 대상 프로젝트를 선택하거나 custom 경로를 입력해 이동합니다.</p>
                 </div>
               </div>
               <div style={{ display: 'flex', gap: '12px' }}>
-                <span style={{ width: '20px', height: '20px', background: 'var(--surface3)', border: '1px solid var(--border)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: 700 }}>2</span>
+                <span style={{ width: '20px', height: '20px', background: 'var(--surface3)', border: '1px solid var(--border)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: 700 }}>2</span>
                 <div>
-                  <h4 style={{ fontSize: '12px', fontWeight: 600 }}>정밀 진단 실행</h4>
-                  <p style={{ fontSize: '11px', color: 'var(--text3)', marginTop: '2px' }}>'진단 실행 🩺' 버튼을 클릭하면 전체 테스트 노드 검증이 실시간 구동됩니다.</p>
+                  <h4 style={{ fontSize: '13px', fontWeight: 600 }}>정밀 진단 실행</h4>
+                  <p style={{ fontSize: '13px', color: 'var(--text3)', marginTop: '2px' }}>'진단 실행 🩺' 버튼을 클릭하면 전체 테스트 노드 검증이 실시간 구동됩니다.</p>
                 </div>
               </div>
               <div style={{ display: 'flex', gap: '12px' }}>
-                <span style={{ width: '20px', height: '20px', background: 'var(--surface3)', border: '1px solid var(--border)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: 700 }}>3</span>
+                <span style={{ width: '20px', height: '20px', background: 'var(--surface3)', border: '1px solid var(--border)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: 700 }}>3</span>
                 <div>
-                  <h4 style={{ fontSize: '12px', fontWeight: 600 }}>AI 치료 처방 적용</h4>
-                  <p style={{ fontSize: '11px', color: 'var(--text3)', marginTop: '2px' }}>치료시급 노드를 클릭하고 AI 치료 처방을 요청하면 패치가 검토되고 적용됩니다.</p>
+                  <h4 style={{ fontSize: '13px', fontWeight: 600 }}>AI 치료 처방 적용</h4>
+                  <p style={{ fontSize: '13px', color: 'var(--text3)', marginTop: '2px' }}>치료시급 노드를 클릭하고 AI 치료 처방을 요청하면 패치가 검토되고 적용됩니다.</p>
                 </div>
               </div>
             </div>
