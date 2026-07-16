@@ -1,6 +1,6 @@
 # 🩺 vibe-clinic
 
-![Vibe Clinic Banner](./assets/vibe-clinic-banner.png)
+![Vibe Clinic Banner](./docs/assets/vibe-clinic-banner.png)
 
 **바이브코딩 프로젝트를 위한 자가 진단 프레임워크**
 

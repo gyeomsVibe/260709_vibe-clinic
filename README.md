@@ -1,6 +1,6 @@
 # 🩺 vibe-clinic
 
-![Vibe Clinic Banner](./assets/vibe-clinic-banner.png)
+![Vibe Clinic Banner](./docs/assets/vibe-clinic-banner.png)
 
 **Self-diagnosis framework for vibe coding projects**
 
