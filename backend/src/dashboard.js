@@ -650,6 +650,7 @@ function startDashboard(projectDir, port = 7700, options = {}) {
 
     if (req.method === 'GET' && url.pathname === '/api/list') {
       const diagnostics = listDiagnosticMeta(currentProjectDir);
+      console.log(`[API GET /api/list] diagnostics returned: ${diagnostics.length}`);
       sendJson(res, diagnostics);
       return;
     }
@@ -679,7 +680,9 @@ function startDashboard(projectDir, port = 7700, options = {}) {
 
     if (req.method === 'POST' && url.pathname === '/api/run') {
       try {
+        console.log('[API POST /api/run] diagnostics started');
         const results = await runDiagnostics(currentProjectDir);
+        console.log(`[API POST /api/run] diagnostics completed: ${results.length}`);
         lastRunResults = results;
         const summary = {
           total: results.length,
@@ -691,6 +694,7 @@ function startDashboard(projectDir, port = 7700, options = {}) {
         const healthPercent = summary.total > 0 ? Math.round((summary.ok / summary.total) * 100) : 100;
         sendJson(res, { results, summary, overallStatus, healthPercent });
       } catch (err) {
+        console.error('[API Error] POST /api/run failed');
         sendJson(res, { error: err.message }, 500);
       }
       return;
@@ -899,16 +903,20 @@ function startDashboard(projectDir, port = 7700, options = {}) {
         }
 
         const targetPath = path.resolve(body.projectDir);
+        console.log('[API POST /api/project/change] requested');
         if (!fs.existsSync(targetPath)) {
+          console.warn('[API POST /api/project/change] rejected: target does not exist');
           sendJson(res, { error: `지정한 경로가 존재하지 않습니다: ${body.projectDir}` }, 400);
           return;
         }
         if (!fs.statSync(targetPath).isDirectory()) {
+          console.warn('[API POST /api/project/change] rejected: target is not a directory');
           sendJson(res, { error: `지정한 경로가 폴더가 아닙니다: ${body.projectDir}` }, 400);
           return;
         }
 
         currentProjectDir = targetPath;
+        console.log('[API POST /api/project/change] updated');
         lastRunResults = [];
         sendJson(res, { success: true, currentProjectDir });
       } catch (err) {
@@ -920,12 +928,14 @@ function startDashboard(projectDir, port = 7700, options = {}) {
 
     if (req.method === 'POST' && url.pathname === '/api/project/init') {
       try {
+        console.log('[API POST /api/project/init] started');
         await initialize(currentProjectDir);
         const patternsDir = path.join(currentProjectDir, '.vibe-clinic', 'error-patterns');
         const existing = fs.existsSync(patternsDir)
           ? fs.readdirSync(patternsDir).filter(f => f.endsWith('.md'))
           : [];
         if (existing.length <= 1) writeExampleErrorPatterns(patternsDir);
+        console.log('[API POST /api/project/init] completed');
         sendJson(res, { success: true, currentProjectDir });
       } catch (err) {
         console.error('[API Error] POST /api/project/init failed:', err);
@@ -1010,7 +1020,7 @@ function startDashboard(projectDir, port = 7700, options = {}) {
     console.log(`\n  \x1b[36m🩺 Vibe Clinic Dashboard\x1b[0m`);
     console.log(`  \x1b[90m${'─'.repeat(40)}\x1b[0m`);
     console.log(`  Running at: \x1b[32m${url}\x1b[0m`);
-    console.log(`  Project:    ${currentProjectDir}`);
+    console.log('  Project:    configured');
     console.log(`  \x1b[90m${'─'.repeat(40)}\x1b[0m`);
     console.log(`  Press \x1b[33mCtrl+C\x1b[0m to stop\n`);
 

@@ -105,6 +105,69 @@ test('dashboard blocks foreign origins and non-directory projects', async () => 
     await new Promise(resolve => server.close(resolve));
     fs.rmSync(temporaryDir, { recursive: true, force: true });
     console.log = originalLog;
+  }});
+
+test('dashboard request logs omit project paths', async () => {
+  const changedProject = fs.mkdtempSync(path.join(os.tmpdir(), 'vibe-dashboard-log-target-'));
+  const server = startDashboard(CALC_DIR, 0, { openBrowser: false });
+
+  try {
+    if (!server.listening) {
+      await new Promise(resolve => server.once('listening', resolve));
+    }
+    const port = server.address().port;
+    const messages = [];
+    const originalLog = console.log;
+    const originalWarn = console.warn;
+    const originalError = console.error;
+    const capture = (...args) => messages.push(args.map(String).join(' '));
+    console.log = capture;
+    console.warn = capture;
+    console.error = capture;
+
+    try {
+      const list = await requestDashboard(port, { path: '/api/list' });
+      assert.strictEqual(list.statusCode, 200);
+      const run = await requestDashboard(port, { path: '/api/run', method: 'POST' });
+      assert.strictEqual(run.statusCode, 200);
+      const changed = await requestDashboard(port, {
+        path: '/api/project/change',
+        method: 'POST',
+        body: { projectDir: changedProject },
+      });
+      assert.strictEqual(changed.statusCode, 200);
+    } finally {
+      console.log = originalLog;
+      console.warn = originalWarn;
+      console.error = originalError;
+    }
+
+    const output = messages.join('\n');
+    assert.match(output, /API GET \/api\/list/);
+    assert.match(output, /API POST \/api\/run/);
+    assert.match(output, /API POST \/api\/project\/change/);
+    assert.ok(!output.includes(CALC_DIR));
+    assert.ok(!output.includes(changedProject));
+  } finally {
+    await new Promise(resolve => server.close(resolve));
+    fs.rmSync(changedProject, { recursive: true, force: true });
+  }});
+
+test('dashboard startup log omits the configured project path', async () => {
+  const messages = [];
+  const originalLog = console.log;
+  let dashboard;
+  console.log = (...args) => messages.push(args.map(String).join(' '));
+
+  try {
+    dashboard = startDashboard(CALC_DIR, 0, { openBrowser: false });
+    if (!dashboard.listening) {
+      await new Promise(resolve => dashboard.once('listening', resolve));
+    }
+    assert.ok(!messages.join('\n').includes(CALC_DIR));
+  } finally {
+    if (dashboard) await new Promise(resolve => dashboard.close(resolve));
+    console.log = originalLog;
   }
 });
 
