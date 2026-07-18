@@ -5,9 +5,12 @@ module.exports = {
   linkedTask: 'TASK-001',
 
   async run(ctx) {
-    const { discoverDiagnostics, runDiagnostics } = require('../../src/runner');
-    const { validateDiagnosticModule, validateResult } = require('../../src/schema');
+    // 엔진은 backend/ 파티션 안에 있다. ctx.projectDir(저장소 루트) 기준으로
+    // 해석해야 진단 파일 위치가 바뀌어도 깨지지 않는다.
     const path = require('path');
+    const enginePath = (name) => path.join(ctx.projectDir, 'backend', 'src', name);
+    const { discoverDiagnostics } = require(enginePath('runner'));
+    const { validateDiagnosticModule, validateResult } = require(enginePath('schema'));
 
     const exampleDir = path.join(ctx.projectDir, 'examples', 'calculator');
     const files = discoverDiagnostics(exampleDir);

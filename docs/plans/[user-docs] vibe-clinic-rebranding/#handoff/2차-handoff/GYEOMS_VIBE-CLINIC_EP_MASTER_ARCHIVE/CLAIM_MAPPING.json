@@ -1,0 +1,76 @@
+{
+  "schema": "EP-Handoff/claim-mapping-v2",
+  "confidence_policy": "신뢰 순서: 현재 작업 트리 코드(재독) > 자동 테스트 > 실측 E2E > S1 해시 일치 > S4 문서 주장. 문서는 코드보다 늦다.",
+  "claims": [
+    {
+      "id": "C-PART-1",
+      "statement": "저장소는 backend/ · frontend/(+legacy-v1) · shared/ 로 물리 파티션 완료. npm workspaces [backend, frontend]. 기획 문서는 docs/plans/[user-docs] vibe-clinic-rebranding/ 로 이관.",
+      "status": "VERIFIED",
+      "sources": ["S2.pkg-root", "S2.wsmap"],
+      "evidence": "커밋 9ec91a6→b35b5ba→6b07c4e→92564fb. HEAD 92564fb == origin/main (push 동기화 상태)."
+    },
+    {
+      "id": "C-CONTRACT-1",
+      "statement": "shared/api-contract.md 가 백엔드↔프론트 단일 진실원(SoT)이며, backend/test/api-contract.test.js 가 이를 자동 검증한다. 계약 변경은 문서 선(先)수정 → 백엔드+테스트 → 프론트 순서.",
+      "status": "VERIFIED",
+      "sources": ["S2.contract", "S3.contract-test"],
+      "evidence": "Phase B 커밋 65d3471 + 이번 세션 fs/list·410 확장. npm test 45/45."
+    },
+    {
+      "id": "C-CORE-1",
+      "statement": "MIA 코어 P1~P5 전부 가동 중: Flaky Gate(확진/의심)·triage 원인 후보·회귀 게이트+자동 롤백·진단 약화 차단(BLOCKED_WEAKENING)·처방 전략(auto/local/ai)·수동 처방전(MANUAL)·치료 원장·cureAll(💉 치료 버튼).",
+      "status": "VERIFIED",
+      "sources": ["S1.runner", "S1.triage", "S1.repairer", "S3.unit"],
+      "evidence": "커밋 854eda4·8e3c8a3·7a2f451·7d235d8(+병렬 d8fba24 계열). 테스트 45/45에 해당 케이스 포함."
+    },
+    {
+      "id": "C-FB-1",
+      "statement": "폴더 선택은 OS 대화창을 완전 삭제하고 웹 내장 폴더 탐색기로 재건축됨: GET /api/fs/list(읽기 전용, 드라이브 루트/하위 폴더, 400 검증) + V2 폴더 탐색 모달 → 기존 POST /api/project/change 재사용. POST /api/project/select 는 410.",
+      "status": "VERIFIED",
+      "sources": ["S1.dashboard", "S1.fe-api", "S1.fe-hook", "S1.appv2", "S2.contract", "S3.contract-test"],
+      "evidence": "브라우저 E2E 완주: [폴더 탐색]→모달(대시보드 내부)→상위/하위 탐색→선택 확정→모달 닫힘→프로젝트 변경→자동 진단 연쇄(필터 '진단 전 3'→'정상 3'). API: 드라이브 4개(C/D/E/F)·목록·410 실측. ⚠️ 전체가 UNCOMMITTED."
+    },
+    {
+      "id": "C-WALL-1",
+      "statement": "백그라운드 서버(Node)의 자식 프로세스는 Windows 포그라운드 정책상 GUI 대화창을 브라우저 앞에 안정적으로 띄울 수 없다. SetForegroundWindow/AttachThreadInput/HWND_TOPMOST/owner 조작 5개 변형 전부 실패 — 구현 버그가 아니라 아키텍처 벽.",
+      "status": "VERIFIED",
+      "sources": ["S4.audit58"],
+      "evidence": "문서 58 §3 실패 이력표. 윤겸스 육안 확인 3회('브라우저 뒤에 뜬다') + 500 재현(5분 타임아웃 kill)."
+    },
+    {
+      "id": "C-STALE-1",
+      "statement": "'모양만 그럴듯하고 전 기능 불능' 사건의 근본 원인은 파티션 이전에 기동된 낡은 서버 프로세스였다(코드 파일이 발밑에서 이동). GET은 살고 POST에서 크래시. 현재 코드는 정상.",
+      "status": "VERIFIED",
+      "sources": ["S1.dashboard"],
+      "evidence": "7700 구 프로세스에 POST → 즉사(000) 실측, 새 서버 → 전 API 200. 'Failed to fetch'는 죽은 서버(연결 불가)였음."
+    },
+    {
+      "id": "C-PRIV-1",
+      "statement": "기동 로그의 'Project: configured' 는 의도된 프라이버시 규칙이다(절대경로 콘솔 비노출, 커밋 715e0db). 회귀 테스트 'dashboard startup log omits the configured project path' 가 강제한다. 경로 복원 금지.",
+      "status": "VERIFIED",
+      "sources": ["S1.dashboard", "S3.unit"],
+      "evidence": "이 세션에서 복원 시도 → 테스트 실패 → 의도 확인 후 되돌림. 절충안(폴더명만 표시)은 제안만 된 상태."
+    },
+    {
+      "id": "C-SEC-1",
+      "statement": "보안 가드 3종 가동: 마스킹/빈 키의 실키 덮어쓰기 방지(saveByokConfig), **/.vibe-clinic/config.json 전역 gitignore(실키 유출 차단), Origin null 403·경로탈출 차단·1MiB 제한.",
+      "status": "VERIFIED",
+      "sources": ["S1.config", "S1.dashboard", "S3.unit", "S3.contract-test"],
+      "evidence": "테스트 45/45 포함. 과거 사고: 마스킹 문자열이 실키를 파괴(401), 추적 파일에 실키 저장 직전 차단."
+    },
+    {
+      "id": "C-V2-1",
+      "statement": "V2 병합 차단 10건 중 #1(409 롤백 본문)·#2(전환 후 자동 진단)·#3(LogViewer)·#5(브랜드 자산 분리)·#8(컴포넌트 분리)·#10(Google Fonts 제거)은 해결 확인. #9(V2 프론트 테스트 0건)만 미해결.",
+      "status": "VERIFIED",
+      "sources": ["S1.fe-api", "S1.fe-hook", "S1.fe-css"],
+      "evidence": "allowStatuses:[409] + ROLLED_BACK 분기, changeProject→runDiagnostics, googleapis 참조 0건 실측."
+    },
+    {
+      "id": "C-ENV-1",
+      "statement": "에이전트 샌드박스 셸은 GUI 창을 관측할 수 없다(FindWindow/창 열거 실패). OS 창 관련 검증은 사용자 육안이 유일한 수단이었으나, 웹 내장 탐색기 전환으로 이 의존성 자체가 소멸했다.",
+      "status": "VERIFIED",
+      "sources": ["S4.audit58"],
+      "evidence": "exit 124(창 열려 블록)와 FindWindow NOT FOUND 동시 관측."
+    }
+  ]
+}

@@ -16,15 +16,15 @@
   ],
   "scripts": {
     "test": "node --test \"test/*.test.js\"",
-    "test:self": "node bin/vibe-clinic.js run",
+    "test:self": "node bin/vibe-clinic.js run --cwd ..",
     "test:example": "node bin/vibe-clinic.js run --cwd ../examples/calculator",
     "dashboard:example": "node --env-file=../.env bin/vibe-clinic.js dashboard --cwd ../examples/calculator --port 7700",
     "sync:rules": "node bin/sync-rules.js",
     "sync:rules:global": "node bin/sync-rules.js --global",
     "serve": "node bin/vibe-clinic.js dashboard --cwd ../examples/calculator --port 7700",
     "mcp": "node mcp-server/index.js",
-    "dashboard:v1": "node bin/vibe-clinic.js dashboard --ui v1",
-    "dashboard:v2": "node bin/vibe-clinic.js dashboard --ui v2",
+    "dashboard:v1": "node bin/vibe-clinic.js dashboard --cwd .. --ui v1",
+    "dashboard:v2": "node bin/vibe-clinic.js dashboard --cwd .. --ui v2",
     "dashboard:example:v2": "node --env-file=../.env bin/vibe-clinic.js dashboard --cwd ../examples/calculator --port 7700 --ui v2",
     "publish": "echo 'Error: Public publishing is strictly prohibited.' && exit 1"
   },

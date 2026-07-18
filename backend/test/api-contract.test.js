@@ -95,6 +95,26 @@ test('API contract: response shapes match shared/api-contract.md', async () => {
     const gone = await fetch(`${base}/api/repair`, { method: 'POST' });
     assert.strictEqual(gone.status, 410);
 
+    // GET /api/fs/list (path 없음) → { roots: [...] }
+    const rootsRes = await (await fetch(`${base}/api/fs/list`)).json();
+    assert.ok(Array.isArray(rootsRes.roots) && rootsRes.roots.length > 0);
+
+    // GET /api/fs/list?path=<dir> → { path, parent, dirs }
+    const fsRes = await (await fetch(`${base}/api/fs/list?path=${encodeURIComponent(dir)}`)).json();
+    assert.strictEqual(fsRes.path, path.resolve(dir));
+    assert.ok(Array.isArray(fsRes.dirs));
+    // 픽스처가 만든 .vibe-clinic 하위 폴더가 목록에 보여야 한다.
+    assert.ok(fsRes.dirs.some(d => d.name === '.vibe-clinic'));
+
+    // GET /api/fs/list?path=<없는 경로> → 400
+    const fsBad = await fetch(`${base}/api/fs/list?path=${encodeURIComponent(path.join(dir, 'nope'))}`);
+    assert.strictEqual(fsBad.status, 400);
+
+    // POST /api/project/select (OS 대화창 폐기) → 410 + 안내
+    const selectGone = await fetch(`${base}/api/project/select`, { method: 'POST' });
+    assert.strictEqual(selectGone.status, 410);
+    assert.ok((await selectGone.json()).error.includes('폴더 탐색'));
+
     // POST /api/diagnostic/create (testCode 누락) → 400
     const badCreate = await fetch(`${base}/api/diagnostic/create`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },

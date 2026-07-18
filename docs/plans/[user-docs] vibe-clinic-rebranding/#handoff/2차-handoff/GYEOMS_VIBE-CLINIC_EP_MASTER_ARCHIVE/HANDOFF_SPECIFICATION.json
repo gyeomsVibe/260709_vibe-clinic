@@ -1,0 +1,42 @@
+{
+  "schema": "EP-Handoff/handoff-spec-v2",
+  "previous_response_id": "UNAVAILABLE_IN_HARNESS — Claude Code 세션에는 API response_id가 없음. 복구 앵커 = git HEAD 92564fb + 이 아카이브 + source_files/015 세션 로그.",
+  "environment": {
+    "user": "윤겸스 (한국어 응답, 기술용어 영문 병기, 비개발자 가능성 고려)",
+    "repo": "D:/D_Workspace_NB/-google-workspace/-antigravity-workspace/260709_vibe-clinic (유일한 대표 저장소)",
+    "remote": "git@github-gyeoms:gyeomsVibe/260709_vibe-clinic.git / identity: gyeomsVibe <yoongyeomkim0515@gmail.com>",
+    "head": "92564fb == origin/main (커밋된 것은 push 동기화 상태)",
+    "test_state": "npm test → 45/45 (backend, api-contract 포함)",
+    "structure": "backend/ + frontend/(+legacy-v1) + shared/api-contract.md + docs/plans/[user-docs] vibe-clinic-rebranding/ + examples/ (npm workspaces)",
+    "external_repo": "260714_gyeoms-ai-agent — 별도 repo, 7b341bf까지 push 완료, 이번 세션 범위 밖",
+    "governance": "WORKSPACE_MAP.md + CLAUDE.md 를 작업 시작 전 반드시 읽고 경계 준수"
+  },
+  "inherited_constraints": [
+    "호칭 '윤겸스', 한국어 기본, 보고는 고정 6분류(실행한 것/발견한 것/수정한 것/다시 실행한 검증/아직 실행하지 않은 것/다음 승인 필요 항목)",
+    "승인 게이트(매번 별도, 일반화 금지): 삭제·이동·이름변경 / 커밋 / 병합 / push / publish·배포 / 실 API 키 입력·저장 / 패키지 설치",
+    "로컬 파일 수정·로컬 테스트·MCP smoke는 세션 승인 범위",
+    ".env·비밀키·자격증명은 읽지도 출력하지도 않음. 키 값은 마스킹·불리언으로만 다룸",
+    "진단·테스트를 약화시켜 가짜 통과 금지. 실측만 인정(테스트 통과 ≠ 기능 작동)",
+    "1 실패 → 1 원인 → 최소 수정 → 재검증. 같은 오류 3회면 중단·보고",
+    "상시 규칙: 기획 폴더(docs/plans/[user-docs] vibe-clinic-rebranding/)의 새 번호 문서를 수시 확인 — 병렬 세션(Codex/Antigravity)의 코드 변경 의도가 거기 기록됨. 문서보다 코드 실측 우선",
+    "병렬 세션과 같은 파일 동시 편집 금지. 편집 전 재읽기",
+    "계약 변경은 shared/api-contract.md 선(先)수정 → 백엔드+계약테스트 → 프론트 순",
+    "worktree는 Git 절차로만, 복구자료는 복사→해시검증→참조전환→제거승인 순"
+  ],
+  "recovery_procedure": [
+    "1. WORKSPACE_MAP.md 와 CLAUDE.md 를 읽고 경계 확인",
+    "2. git status --short && git log --oneline -5 && npm test 로 상태 실측 (기대: HEAD 92564fb 이후 상태, 미커밋 세트 존재 여부 확인, 45/45)",
+    "3. 이 아카이브의 SOURCE_MANIFEST.json 해시를 재계산 대조 — 불일치 파일은 '이 EP 이후 변경됨'으로 취급하고 재독",
+    "4. CONTRADICTION_LEDGER U1 최우선: 폴더 탐색기 재건축 커밋 승인 질문 (미커밋 세트가 그대로면). 이미 커밋돼 있으면 병렬 세션이 처리한 것 — 커밋 메시지 확인 후 U2로",
+    "5. U2: 윤겸스 대시보드 서버 재시작 안내 (구 서버는 [선택]에서 500)",
+    "6. 이후 U3(전 기능 감사 A~H 재개) → U4(#9 V2 테스트) 순",
+    "7. 절대 하지 말 것: 문서 60의 C4 치료 주장 신뢰(무효), 포그라운드 방식 재시도, 프라이버시 로그에 절대경로 복원, git clean/reset --hard"
+  ],
+  "immediate_next_actions_ranked": [
+    "A. [U1] 미커밋 재건축 세트 커밋 승인 → 커밋 (메시지 제안: feat(dashboard): replace OS folder dialog with in-app folder browser) → push 별도 승인",
+    "B. [U2] 사용자 서버 재시작 안내 + 새 폴더 탐색기 사용 확인",
+    "C. [U3] 문서 58 전 기능 감사 A~H 전수검토 재개 (재건축 후 상태 기준)",
+    "D. [U4] V2 프론트 테스트 도입 (vitest 설치 승인 필요)",
+    "E. [U8] 프라이버시 로그 절충안(폴더명만 표시) 결정 — 저우선"
+  ]
+}

@@ -34,7 +34,8 @@ export const dashboardApi = {
   explainProject: (force = false) => request(`/api/project/explain${force ? '?force=true' : ''}`),
   runDiagnostics: () => post('/api/run'),
   changeProject: (projectDir) => post('/api/project/change', { projectDir }),
-  selectFolder: () => post('/api/project/select'),
+  // 웹 내장 폴더 탐색 (OS 대화창 대체): path 없으면 드라이브 루트 목록.
+  listFolders: (dirPath) => request(`/api/fs/list${dirPath ? `?path=${encodeURIComponent(dirPath)}` : ''}`),
   initializeProject: () => post('/api/project/init'),
   saveByok: (config) => post('/api/byok/save', config),
   proposeRepair: (diagId) => post('/api/repair/propose', { diagId }),

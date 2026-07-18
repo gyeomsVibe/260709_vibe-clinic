@@ -1,0 +1,21 @@
+{
+  "schema": "EP-Handoff/decision-history-v2",
+  "decisions": [
+    { "id": "D1", "who": "윤겸스", "date": "2026-07-15", "decision": "미커밋 2.0.1 세트는 소스/문서 분리 커밋 (1차 EP의 C2 해소)", "status": "완료" },
+    { "id": "D2", "who": "윤겸스", "date": "2026-07-15", "decision": "MIA 코어 마스터플랜(문서 46) P1+P3 → P2 → P4+P5 순차 구현", "status": "완료 (커밋 854eda4·8e3c8a3·7a2f451·7d235d8)" },
+    { "id": "D3", "who": "윤겸스", "date": "2026-07-15", "decision": "💉 전체 치료(cureAll) 기본 전략 = auto (로컬 룰 우선, 없으면 AI)", "status": "완료 (병렬 세션이 UI까지 구현, 이후 '치료'로 개명)" },
+    { "id": "D4", "who": "윤겸스", "date": "2026-07-16", "decision": "생명의 별 표식: 개인용·비배포 프로젝트이므로 법률 검토 불요 판정", "status": "확정" },
+    { "id": "D5", "who": "윤겸스", "date": "2026-07-17", "decision": "파티션 대안 C: 논리 분리(Phase B: 계약 SoT·진영 스크립트·계약 테스트) 선행 → 물리 분리(Phase C) 후행", "status": "완료 (B: 65d3471 / C: 병렬 세션 9ec91a6~92564fb)" },
+    { "id": "D6", "who": "윤겸스", "date": "2026-07-17", "decision": "상시 규칙: 지시 없어도 기획 폴더(docs/plans/[user-docs] vibe-clinic-rebranding/)를 수시 확인해 병렬 세션 진행상황 파악", "status": "메모리 저장됨 (check-planning-folder-regularly)" },
+    { "id": "D7", "who": "프로젝트 규범", "date": "2026-07-16~", "decision": "승인 게이트: 삭제·이동·커밋·병합·push 각각 별도 승인. 복구자료는 복사→SHA-256 검증→참조 전환→원본 제거 승인 순서. (CLAUDE.md·WORKSPACE_MAP.md)", "status": "상시 적용" },
+    { "id": "D8", "who": "윤겸스+검증", "date": "2026-07-18", "decision": "'Project: configured' 프라이버시 로그 규칙 유지 — 회귀 테스트가 지키는 의도된 결정. 경로 복원 시도는 되돌림", "status": "확정 (절충안 미결 = U8)" },
+    { "id": "D9", "who": "윤겸스", "date": "2026-07-18", "decision": "폴더 선택: A안 승인 — OS 대화창 완전 삭제 + 웹 내장 폴더 탐색기 재건축 ('폴더 선택 로직을 삭제하고 처음부터 다시' 제안에 대한 아키텍처 교체 응답)", "status": "구현·검증 완료, 커밋 승인 대기 (U1)" },
+    { "id": "D10", "who": "검증 원칙", "date": "상시", "decision": "실측만 인정(테스트 통과 ≠ 기능 작동), 1실패→1원인→최소수정→재검증, 진단·테스트 약화로 가짜 통과 금지", "status": "상시 적용" }
+  ],
+  "failed_attempts_worth_remembering": [
+    "폴더 선택기 포그라운드 5개 변형 전부 실패 (문서 58 §3) — 같은 접근 재시도 금지",
+    "Add-Type/csc.exe 는 folder-picker의 compile-free 설계 제약 위반이었음 (해당 파일은 이제 삭제됨)",
+    "기동 로그에 절대경로 복원 → 프라이버시 회귀 테스트 위반으로 철회",
+    "bash heredoc 으로 JS 템플릿 리터럴 포함 테스트 작성 → 셸 파싱 실패. Edit/Write 도구를 쓸 것"
+  ]
+}

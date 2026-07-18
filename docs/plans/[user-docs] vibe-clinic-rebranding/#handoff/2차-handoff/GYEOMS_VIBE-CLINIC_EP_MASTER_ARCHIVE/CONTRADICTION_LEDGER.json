@@ -1,0 +1,68 @@
+{
+  "schema": "EP-Handoff/contradiction-ledger-v2",
+  "purpose": "다음 에이전트의 오판 방지. 미결 과제와 상충 정보를 우선순위순으로 기록.",
+  "unresolved": [
+    {
+      "id": "U1",
+      "type": "approval_pending",
+      "severity": "critical",
+      "description": "폴더 탐색기 재건축 전체(백엔드 fs/list + 410 + 프론트 모달 + 테스트 + 계약 + folder-picker.ps1 삭제)가 UNCOMMITTED. 커밋 승인을 윤겸스에게 질문한 상태에서 세션이 종료됨. 응답 없음 = 미승인.",
+      "next_action": "새 세션 최우선: 커밋 승인 재질문 → 승인 시 'feat(dashboard): replace OS folder dialog with in-app folder browser' 로 커밋 (docs 58~60 + dist 산출물 포함 여부 함께 확인). push는 또 별도 승인."
+    },
+    {
+      "id": "U2",
+      "type": "stale_runtime",
+      "severity": "high",
+      "description": "윤겸스가 사용하던 7700 서버는 재건축 이전 코드. 그 서버에서 [선택]을 누르면 삭제된 folder-picker.ps1 을 execFile 하려다 500. 새 기능을 보려면 서버 재시작 필수.",
+      "next_action": "재시작 안내: run-dashboard.bat 또는 node backend/bin/vibe-clinic.js dashboard --cwd examples/calculator --port 7700 --ui v2. (검증용 7701 서버는 세션 종료로 이미 중지됨)"
+    },
+    {
+      "id": "U3",
+      "type": "incomplete_audit",
+      "severity": "medium",
+      "description": "문서 58의 전 기능 점검 인벤토리(A진단·B치료·C프로젝트·D설정·E오류패턴·F UI·G보안·H CLI) 중 C4만 종결. 나머지는 재건축 이후 상태로 재검증 필요. (직전 검증들은 재건축 이전 코드 기준이 다수)",
+      "next_action": "U1 처리 후 A~H 전수검토 재개, 문서 58 §4에 결과표 기록."
+    },
+    {
+      "id": "U4",
+      "type": "test_gap",
+      "severity": "medium",
+      "description": "V2 프론트엔드 테스트 0건 (V2 메타검토 잔여 항목 #9). vitest 등 신규 의존성 설치는 승인 게이트 대상이라 보류돼 온 상태.",
+      "next_action": "vitest 도입 승인 질문 → 승인 시 계산/컨트롤러 단위 테스트부터."
+    },
+    {
+      "id": "U5",
+      "type": "mixed_ownership_diff",
+      "severity": "medium",
+      "description": "backend/src/dashboard.js 의 미커밋 diff에는 (a) 내 폴더 탐색기 변경과 (b) 사용자/병렬 세션의 디버그 console.log(+10줄, /api/list·run·change·init 추적용)가 혼재. 함부로 분리하거나 되돌리면 안 됨.",
+      "next_action": "커밋 시 함께 포함하거나, 디버그 로그 유지/정리 여부를 윤겸스에게 별도 확인."
+    },
+    {
+      "id": "U6",
+      "type": "unknown_intent_change",
+      "severity": "low",
+      "description": "frontend/legacy-v1/dashboard-ui/src/App.jsx 미커밋 수정 존재(문서 60 주장: 버튼 정렬 CSS). 사용자/병렬 소유 — 건드리지 말 것. 레거시 V1의 [선택]은 서버 410 안내 토스트로 대응됨(빌드 재생성 안 함).",
+      "next_action": "커밋 범위 결정 시 포함 여부만 질문."
+    },
+    {
+      "id": "U7",
+      "type": "doc_supersession",
+      "severity": "low",
+      "description": "문서 60(Walkthrough)의 'C4 치료 완료(Show/Activate)' 주장은 이후 실측 실패로 무효 — 해당 코드는 삭제됨. 문서 58 §3·§3-1이 정본. 문서만 믿으면 오판한다.",
+      "next_action": "필요 시 문서 60 상단에 SUPERSEDED 배너 추가 제안."
+    },
+    {
+      "id": "U8",
+      "type": "policy_tension",
+      "severity": "low",
+      "description": "프라이버시 규칙(콘솔에 프로젝트 절대경로 비노출)과 진단성(빈 대시보드 오진 방지)의 긴장. 절충안 '폴더명만 표시'가 제안됐으나 윤겸스 미결정.",
+      "next_action": "우선순위 낮음. 결정 요청은 다른 급한 일 이후."
+    }
+  ],
+  "environment_facts": [
+    "샌드박스 셸은 GUI 창 관측 불가 — OS 창 검증은 사용자 육안 필요 (웹 탐색기 전환으로 해당 의존성은 소멸)",
+    "Windows PowerShell 5.1(CP949): .ps1 은 ASCII 전용 또는 UTF-8 BOM",
+    "PowerShell에서 '[user-docs]' 경로는 와일드카드로 해석됨 — -LiteralPath 필수",
+    "브라우저 자동화의 computer/screenshot 이 간헐 타임아웃 — read_page/find/left_click(ref) 경로가 안정적"
+  ]
+}

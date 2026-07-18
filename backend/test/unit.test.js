@@ -16,8 +16,8 @@ const {
   startDashboard,
   readBody,
   isAllowedDashboardOrigin,
-  parseFolderPickerOutput,
-  runFolderPicker,
+  listDriveRoots,
+  listDirectories,
   MAX_BODY_BYTES,
 } = require('../src/dashboard');
 
@@ -307,52 +307,41 @@ test('dashboard rejects oversized JSON request bodies', async () => {
   );
 });
 
-test('folder picker output parser returns only selected paths', () => {
-  assert.strictEqual(parseFolderPickerOutput('SELECTED:C:\\workspace\\app\n'), 'C:\\workspace\\app');
-  assert.strictEqual(parseFolderPickerOutput(''), null);
-  assert.strictEqual(parseFolderPickerOutput('DRYRUN_OK\n'), null);
+// 웹 내장 폴더 탐색 (OS 대화창 대체 — shared/api-contract.md `GET /api/fs/list`)
+test('fs listing returns drive roots and directory children, read-only', () => {
+  const roots = listDriveRoots();
+  assert.ok(Array.isArray(roots) && roots.length > 0);
+  assert.ok(roots.every(r => typeof r.name === 'string' && typeof r.path === 'string'));
+
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'vibe-fslist-'));
+  try {
+    fs.mkdirSync(path.join(dir, 'sub-b'));
+    fs.mkdirSync(path.join(dir, 'sub-a'));
+    fs.writeFileSync(path.join(dir, 'file.txt'), 'x', 'utf-8');
+
+    const before = fs.readdirSync(dir).length;
+    const listing = listDirectories(dir);
+    assert.strictEqual(listing.path, path.resolve(dir));
+    assert.strictEqual(typeof listing.parent, 'string');
+    // 디렉터리만, 이름순 — 파일(file.txt)은 제외된다.
+    assert.deepStrictEqual(listing.dirs.map(d => d.name), ['sub-a', 'sub-b']);
+    // 읽기 전용 보증: 목록 조회가 파일시스템을 변경하지 않는다.
+    assert.strictEqual(fs.readdirSync(dir).length, before);
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
 });
 
-// Real PowerShell smoke test: the mocked runner tests above can never catch
-// script-level parse errors (e.g. statements placed before param()), so run
-// the actual script once in -DryRun mode. No UI is shown in DryRun.
-test('folder picker script passes a real -DryRun smoke check', { skip: process.platform !== 'win32' }, () => {
-  const { execFileSync } = require('child_process');
-  const script = path.join(__dirname, '..', 'src', 'folder-picker.ps1');
-  const stdout = execFileSync(
-    'powershell',
-    ['-NoProfile', '-STA', '-ExecutionPolicy', 'Bypass', '-File', script, '-DryRun'],
-    { encoding: 'utf8', timeout: 30000, windowsHide: true }
-  );
-  assert.match(stdout, /DRYRUN_OK/);
-});
-
-test('folder picker runner handles selection, cancellation, and errors', async () => {
-  const selected = await runFolderPicker({
-    execFileImpl(file, args, options, callback) {
-      assert.strictEqual(file, 'powershell');
-      assert.ok(args.includes('-STA'));
-      assert.strictEqual(options.windowsHide, true);
-      callback(null, 'SELECTED:C:\\workspace\\app\n', '');
-    },
-  });
-  assert.deepStrictEqual(selected, { success: true, selectedPath: 'C:\\workspace\\app' });
-
-  const cancelled = await runFolderPicker({
-    execFileImpl(file, args, options, callback) {
-      callback(null, '', '');
-    },
-  });
-  assert.deepStrictEqual(cancelled, { success: false, cancelled: true });
-
-  await assert.rejects(
-    runFolderPicker({
-      execFileImpl(file, args, options, callback) {
-        callback(new Error('timeout'), '', 'picker timed out');
-      },
-    }),
-    /picker timed out/
-  );
+test('fs listing rejects missing paths and files with HTTP 400 semantics', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'vibe-fsbad-'));
+  try {
+    assert.throws(() => listDirectories(path.join(dir, 'no-such-dir')), err => err.statusCode === 400);
+    const filePath = path.join(dir, 'plain.txt');
+    fs.writeFileSync(filePath, 'x', 'utf-8');
+    assert.throws(() => listDirectories(filePath), err => err.statusCode === 400);
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
 });
 
 test('validateDiagnosticModule accepts a well-formed module', () => {

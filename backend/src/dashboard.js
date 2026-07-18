@@ -6,7 +6,6 @@ const { validateDiagnosticModule } = require('./schema');
 const { getByokConfig, saveByokConfig, getResolvedByok } = require('./config-manager');
 const { createRepairProposal, applyRepairProposal, cureAll, readTreatmentLedger } = require('./repairer');
 const aiProvider = require('./ai-provider');
-const { execFile } = require('child_process');
 const { initialize } = require('./init');
 const crypto = require('crypto');
 
@@ -541,43 +540,53 @@ function isAllowedDashboardOrigin(origin, port) {
 }
 
 
-function parseFolderPickerOutput(stdout) {
-  const matchB64 = String(stdout || '').match(/^SELECTED_B64:(.+)$/m);
-  if (matchB64) {
-    try {
-      return Buffer.from(matchB64[1].trim(), 'base64').toString('utf8');
-    } catch (e) {
-      console.error('Base64 디코딩 실패:', e);
+// 서버측 폴더 탐색 (읽기 전용) — 웹 내장 폴더 탐색 모달의 데이터 소스.
+// OS 대화창(PowerShell) 방식은 제거됨: 백그라운드 서버의 자식 프로세스는
+// Windows 포그라운드 정책상 대화창을 브라우저 앞에 띄울 수 없다
+// (5개 변형 전부 실패 — docs/plans 58 §3). 계약: shared/api-contract.md.
+function listDriveRoots() {
+  const roots = [];
+  if (process.platform === 'win32') {
+    for (let code = 65; code <= 90; code += 1) {
+      const drive = `${String.fromCharCode(code)}:\\`;
+      try {
+        if (fs.existsSync(drive)) roots.push({ name: drive, path: drive });
+      } catch {}
     }
+  } else {
+    roots.push({ name: '/', path: '/' });
   }
-  const match = String(stdout || '').match(/^SELECTED:(.+)$/m);
-  return match ? match[1].trim() : null;
+  return roots;
 }
 
-function runFolderPicker(options = {}) {
-  const execFileImpl = options.execFileImpl || execFile;
-  const pickerScript = options.pickerScript || path.join(__dirname, 'folder-picker.ps1');
+function listDirectories(requestedPath) {
+  const resolved = path.resolve(requestedPath);
+  if (!fs.existsSync(resolved)) {
+    throw createHttpError(`경로가 존재하지 않습니다: ${requestedPath}`, 400);
+  }
+  if (!fs.statSync(resolved).isDirectory()) {
+    throw createHttpError(`폴더가 아닙니다: ${requestedPath}`, 400);
+  }
 
-  return new Promise((resolve, reject) => {
-    execFileImpl(
-      'powershell',
-      ['-NoProfile', '-STA', '-ExecutionPolicy', 'Bypass', '-File', pickerScript],
-      { windowsHide: true, timeout: 300000 },
-      (err, stdout, stderr) => {
-        const selectedPath = parseFolderPickerOutput(stdout);
-        if (selectedPath) {
-          resolve({ success: true, selectedPath });
-          return;
-        }
-        if (err) {
-          const detail = String(stderr || err.message || '').trim().slice(0, 300);
-          reject(new Error(`폴더 선택 창을 여는데 실패했습니다: ${detail}`));
-          return;
-        }
-        resolve({ success: false, cancelled: true });
-      }
-    );
-  });
+  const dirs = [];
+  for (const entry of fs.readdirSync(resolved, { withFileTypes: true })) {
+    if (!entry.isDirectory()) continue;
+    try {
+      // 접근 불가(권한/정션 깨짐) 폴더는 조용히 제외한다.
+      fs.readdirSync(path.join(resolved, entry.name));
+      dirs.push({ name: entry.name, path: path.join(resolved, entry.name) });
+    } catch {
+      continue;
+    }
+  }
+  dirs.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
+
+  const parentPath = path.dirname(resolved);
+  return {
+    path: resolved,
+    parent: parentPath === resolved ? null : parentPath,
+    dirs,
+  };
 }
 
 function startDashboard(projectDir, port = 7700, options = {}) {
@@ -884,13 +893,24 @@ function startDashboard(projectDir, port = 7700, options = {}) {
       return;
     }
 
-    if (req.method === 'POST' && url.pathname === '/api/project/select') {
+    // 웹 내장 폴더 탐색: 드라이브 루트 또는 지정 폴더의 하위 디렉터리 목록.
+    if (req.method === 'GET' && url.pathname === '/api/fs/list') {
       try {
-        const result = await runFolderPicker();
-        sendJson(res, result);
+        const requestedPath = url.searchParams.get('path');
+        if (!requestedPath) {
+          sendJson(res, { roots: listDriveRoots() });
+          return;
+        }
+        sendJson(res, listDirectories(requestedPath));
       } catch (err) {
-        sendJson(res, { error: err.message }, 500);
+        sendJson(res, { error: err.message }, err.statusCode || 500);
       }
+      return;
+    }
+
+    // OS 폴더 선택창은 제거됨 (계약 참조: shared/api-contract.md).
+    if (req.method === 'POST' && url.pathname === '/api/project/select') {
+      sendJson(res, { error: 'OS 폴더 선택창은 제거되었습니다. 화면의 폴더 탐색 기능을 사용하세요.' }, 410);
       return;
     }
 
@@ -1020,6 +1040,9 @@ function startDashboard(projectDir, port = 7700, options = {}) {
     console.log(`\n  \x1b[36m🩺 Vibe Clinic Dashboard\x1b[0m`);
     console.log(`  \x1b[90m${'─'.repeat(40)}\x1b[0m`);
     console.log(`  Running at: \x1b[32m${url}\x1b[0m`);
+    // 프라이버시 규칙(715e0db): 콘솔에 프로젝트 절대경로를 노출하지 않는다.
+    // 회귀 테스트 'dashboard startup log omits the configured project path'가
+    // 이 규칙을 강제한다. 진단 대상 경로는 대시보드 상단바에서 확인할 수 있다.
     console.log('  Project:    configured');
     console.log(`  \x1b[90m${'─'.repeat(40)}\x1b[0m`);
     console.log(`  Press \x1b[33mCtrl+C\x1b[0m to stop\n`);
@@ -1042,7 +1065,7 @@ module.exports = {
   startDashboard,
   readBody,
   isAllowedDashboardOrigin,
-  parseFolderPickerOutput,
-  runFolderPicker,
+  listDriveRoots,
+  listDirectories,
   MAX_BODY_BYTES,
 };

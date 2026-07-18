@@ -1,0 +1,44 @@
+{
+  "envelope": {
+    "artifact_class": "forensic_master_archive_evidence_pack",
+    "ep_version": "2.0",
+    "generated_at_utc": "2026-07-18",
+    "self_integrity": {
+      "algorithm": "SHA-256",
+      "scope": "canonical JSON of the evidence_pack object (deep key-sort, no whitespace, UTF-8)",
+      "evidence_pack_sha256": "c43541c8c37467978ccd3c7468d16e9148880d359960c023c856076308b37e37",
+      "verify_procedure": "node: sortDeep(evidence_pack) -> JSON.stringify -> sha256 hex; must equal evidence_pack_sha256"
+    }
+  },
+  "evidence_pack": {
+    "ep_meta": {
+      "artifact_class": "forensic_master_archive_evidence_pack",
+      "ep_version": "2.0",
+      "handoff_generation": "2차",
+      "schema": "EP-Handoff/forensic-v2",
+      "generated_at": "2026-07-18",
+      "generator": "Claude Fable 5 (Claude Code) as Context Compiler",
+      "project": "Vibe Clinic (260709_vibe-clinic)",
+      "integrity_basis": "component_hashes 는 각 구성 JSON 파일 바이트의 SHA-256. 소스 해시는 SOURCE_MANIFEST 참조(working-tree 기준). 이후 수정 시 무효 — 수신 에이전트는 재해시 필수."
+    },
+    "anchor": {
+      "git_head": "92564fb == origin/main",
+      "test_state": "npm test 45/45",
+      "critical_uncommitted": "폴더 탐색기 재건축 세트 전체 (커밋 승인 대기 = U1)",
+      "first_action": "CONTRADICTION_LEDGER U1 → HANDOFF_SPECIFICATION recovery_procedure 순서 준수"
+    },
+    "component_hashes": {
+      "SOURCE_MANIFEST.json": "f5ab862c598e72d80cce047664c37b2dbbeb14f0cb71f3e1e883e463fb7ae788",
+      "CLAIM_MAPPING.json": "8fbb50c923572079be64c9b8d1dec5c332a632e99f4ef1e37651ac3c6233ea78",
+      "CONTRADICTION_LEDGER.json": "6c4432a29d974b4b184530d0b67d4e0427056418242833e72abab59393c29f50",
+      "DECISION_HISTORY.json": "592d83c7337bbba34a1fe97e04f19c7f088db7733d07a9d6031d3481e81a4507",
+      "HANDOFF_SPECIFICATION.json": "3f60cb416aeaebfe7b902d47b9acda6949656ad545966cde091f59cfa3419004"
+    },
+    "companion_docs": [
+      "GYEOMS_FOUNDATION_WORKING_DRAFT.md",
+      "NEXT_CONVERSATION_PROMPT.md",
+      "README.md",
+      "source_files/015_현재_대화창_전체_대화_로그.md"
+    ]
+  }
+}

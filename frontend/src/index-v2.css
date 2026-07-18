@@ -305,3 +305,39 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .metric-card { min-height: 190px; align-items: center; }
   .command-strip { align-items: flex-start; }
 }
+
+/* 웹 내장 폴더 탐색 모달 (OS 대화창 대체) */
+.folder-browser-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 46vh;
+  overflow-y: auto;
+  margin-top: 4px;
+}
+
+.folder-browser-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  text-align: left;
+  padding: 9px 12px;
+  background: var(--ui-surface, #111c2d);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  color: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.folder-browser-item:hover {
+  border-color: var(--status-ok, #34d399);
+}
+
+.folder-browser-item span {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

@@ -649,13 +649,40 @@ function App() {
         <div className="logo">
           <span className="logo-icon"><img src={clinicMark} alt="" /></span>
           <div>
-            <h1>
+            <h1 style={{ display: 'flex', alignItems: 'center' }}>
               Vibe Clinic
-              <span className="logo-badge">코드 건강 관제</span>
+              <span 
+                className="logo-badge"
+                style={{ 
+                  display: 'inline-flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center',
+                  height: '26px',
+                  padding: '0 8px', 
+                  fontSize: '11px', 
+                  boxSizing: 'border-box',
+                  marginLeft: '8px',
+                  verticalAlign: 'middle'
+                }}
+              >
+                코드 건강 관제
+              </span>
               <button 
                 className="btn-secondary" 
                 onClick={() => setIsHelpActive(true)}
-                style={{ marginLeft: '12px', padding: '4px 10px', fontSize: '13px', borderRadius: '4px' }}
+                style={{ 
+                  marginLeft: '12px', 
+                  display: 'inline-flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center',
+                  height: '26px',
+                  padding: '0 10px', 
+                  fontSize: '12px', 
+                  boxSizing: 'border-box',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  verticalAlign: 'middle'
+                }}
               >
                 💡 치료 가이드
               </button>

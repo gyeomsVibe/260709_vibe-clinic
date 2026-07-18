@@ -139,18 +139,37 @@ export default function useDashboardController() {
     }
   }, [loadByok, loadDiagnostics, loadErrors, loadTreatments, runDiagnostics, showToast])
 
-  const selectFolder = useCallback(async () => {
+  // 웹 내장 폴더 탐색 모달 (OS 대화창 대체 — z-order 문제 원천 소멸).
+  const [folderBrowser, setFolderBrowser] = useState({ open: false, loading: false, path: null, parent: null, dirs: [], roots: [], error: null })
+
+  const browseFolder = useCallback(async (dirPath) => {
+    setFolderBrowser((current) => ({ ...current, open: true, loading: true, error: null }))
     try {
-      showToast('Windows 폴더 선택기를 엽니다.')
-      const data = await dashboardApi.selectFolder()
-      if (data.success && data.selectedPath) return changeProject(data.selectedPath)
-      if (data.cancelled) showToast('폴더 선택이 취소되었습니다.', 'error')
-      else if (data.error) showToast(data.error, 'error')
+      const data = await dashboardApi.listFolders(dirPath)
+      if (data.roots) {
+        setFolderBrowser({ open: true, loading: false, path: null, parent: null, dirs: [], roots: data.roots, error: null })
+      } else {
+        setFolderBrowser({ open: true, loading: false, path: data.path, parent: data.parent, dirs: data.dirs || [], roots: [], error: null })
+      }
     } catch (error) {
-      showToast(error.message || '폴더 선택기 호출 실패', 'error')
+      setFolderBrowser((current) => ({ ...current, loading: false, error: error.message || '폴더 목록을 불러오지 못했습니다.' }))
     }
-    return false
-  }, [changeProject, showToast])
+  }, [])
+
+  const openFolderBrowser = useCallback(() => {
+    // 현재 프로젝트 경로에서 시작, 없으면 드라이브 루트부터.
+    browseFolder(currentProjectDir || undefined)
+  }, [browseFolder, currentProjectDir])
+
+  const closeFolderBrowser = useCallback(() => {
+    setFolderBrowser((current) => ({ ...current, open: false }))
+  }, [])
+
+  const confirmFolderBrowser = useCallback(async () => {
+    if (!folderBrowser.path) return
+    closeFolderBrowser()
+    await changeProject(folderBrowser.path)
+  }, [changeProject, closeFolderBrowser, folderBrowser.path])
 
   const initializeProject = useCallback(async () => {
     setBusy((current) => ({ ...current, initialize: true }))
@@ -267,7 +286,8 @@ export default function useDashboardController() {
     projects, currentProjectDir, customPath, setCustomPath, diagnostics, lastResults, summary, overallStatus, hasRun,
     errorPatterns, selectedErrorPattern, setSelectedErrorPattern, treatments, byok, setByok, providers, hasSavedKey,
     byokFeedback, projectExplain, pendingProposal, setPendingProposal, manualRx, setManualRx, cureAllReport,
-    setCureAllReport, repairStates, busy, toast, metrics, runDiagnostics, changeProject, selectFolder,
+    setCureAllReport, repairStates, busy, toast, metrics, runDiagnostics, changeProject,
+    folderBrowser, openFolderBrowser, closeFolderBrowser, browseFolder, confirmFolderBrowser,
     initializeProject, saveByok, explainProject, readErrorPattern, proposeRepair, applyRepair, cureAll,
   }
 }

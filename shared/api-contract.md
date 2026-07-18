@@ -109,9 +109,17 @@
 ### `POST /api/project/change`
 - 요청: `{ projectDir }` → 응답 `200`: `{ success, currentProjectDir }` / `400`: 없는 경로·폴더 아님
 
-### `POST /api/project/select` — Windows 폴더 선택 GUI (보조)
-- 응답 `200`: `{ success: true, selectedPath }` | `{ success: false, cancelled: true }` / `500`: 선택기 실패
-- GUI 대화창을 띄우므로 자동화·헤드리스 환경에서 호출 금지.
+### `GET /api/fs/list` — 서버측 폴더 탐색 (읽기 전용)
+- 요청: `?path=<절대경로>` (생략 시 드라이브 루트 목록)
+- 응답 `200` (path 생략): `{ roots: [{ name: "C:\\", path: "C:\\" }, ...] }`
+- 응답 `200` (path 지정): `{ path, parent: string|null, dirs: [{ name, path }] }` — **디렉터리만**, 이름순, 접근 불가 항목은 조용히 제외
+- 응답 `400`: 경로가 없거나 폴더가 아님 `{ error }`
+- **보증**: 어떤 경우에도 파일시스템에 쓰지 않는다. localhost 바인딩 + Origin 가드 동일 적용.
+- 용도: 대시보드 내장 폴더 탐색 모달(웹 UI). 선택 확정은 기존 `POST /api/project/change` 재사용.
+
+### `POST /api/project/select` — **폐기됨 (410)**
+- OS 대화창 방식은 제거되었다. 배경: 백그라운드 서버의 자식 프로세스는 Windows 포그라운드 정책상 대화창을 브라우저 앞에 띄울 수 없음(5개 변형 전부 실패, 계획서 58 §3). 웹 내장 탐색기(`GET /api/fs/list`)로 대체.
+- 항상 `410`: `{ error: "OS 폴더 선택창은 제거되었습니다. 화면의 폴더 탐색 기능을 사용하세요." }`
 
 ### `POST /api/project/init` — 진단 도구 설치(초기화)
 - 응답 `200`: `{ success, currentProjectDir }` — `.vibe-clinic/` 스캐폴딩 + 예제 패턴 시딩(이 시점에만 쓰기)

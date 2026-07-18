@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import {
   Activity, AlertTriangle, BookOpen, Bot, ChevronRight, CircleHelp, FileWarning,
-  Gauge, Home, Play, RefreshCw, Settings, Sparkles, Stethoscope, Terminal, TestTube2,
+  FolderOpen, Gauge, Home, Play, RefreshCw, Settings, Sparkles, Stethoscope, Terminal, TestTube2,
 } from 'lucide-react'
 import BrandMark from './components/BrandMark'
 import DiagnosticCard from './components/DiagnosticCard'
@@ -174,6 +174,36 @@ export default function AppV2() {
       <Modal open={Boolean(clinic.pendingProposal)} title="AI 치료 변경 제안" description={clinic.pendingProposal?.summary} onClose={() => clinic.setPendingProposal(null)} wide><div className="proposal-files">{(clinic.pendingProposal?.repairedFiles || []).map((file) => <section key={file.path}><h3>{file.delete ? '삭제 예정' : '수정 예정'} · {file.path}</h3>{!file.delete && <pre>{file.content}</pre>}</section>)}</div><div className="modal-actions"><button className="button button-secondary" type="button" onClick={() => clinic.setPendingProposal(null)}>보류</button><button className="button button-primary" type="button" onClick={clinic.applyRepair} disabled={clinic.busy.apply}><Sparkles size={16} />{clinic.busy.apply ? '적용·검증 중…' : '승인 후 적용'}</button></div></Modal>
       <Modal open={Boolean(clinic.manualRx)} title={`수동 처방전 · ${clinic.manualRx?.diagId || ''}`} description={clinic.manualRx?.summary} onClose={() => clinic.setManualRx(null)}>{(clinic.manualRx?.prescription || []).map((step, index) => <div className="prescription-step" key={`${step}-${index}`}><span>{index + 1}</span><p>{step}</p></div>)}<div className="modal-actions"><button className="button button-primary" type="button" onClick={() => { clinic.setManualRx(null); clinic.runDiagnostics() }}>조치 완료 후 재진단</button></div></Modal>
       <Modal open={Boolean(clinic.cureAllReport)} title="치료 검증 리포트" onClose={() => clinic.setCureAllReport(null)} wide>{clinic.cureAllReport?.summary && <div className="report-grid">{Object.entries(clinic.cureAllReport.summary).map(([key, value]) => <div key={key}><span>{key}</span><strong>{value}</strong></div>)}</div>}<pre className="document-view compact">{JSON.stringify(clinic.cureAllReport?.results || clinic.cureAllReport?.items || [], null, 2)}</pre></Modal>
+      {/* 웹 내장 폴더 탐색 모달 (OS 대화창 대체 — 항상 대시보드 안에 뜬다) */}
+      <Modal open={clinic.folderBrowser.open} title="대상 프로젝트 폴더 탐색" description={clinic.folderBrowser.path || '드라이브를 선택하세요'} onClose={clinic.closeFolderBrowser}>
+        {clinic.folderBrowser.error && <p className="feedback error">{clinic.folderBrowser.error}</p>}
+        {clinic.folderBrowser.loading ? (
+          <div className="empty-state">폴더 목록을 불러오는 중…</div>
+        ) : (
+          <div className="folder-browser-list">
+            {clinic.folderBrowser.parent && (
+              <button type="button" className="folder-browser-item" onClick={() => clinic.browseFolder(clinic.folderBrowser.parent)}>
+                <FolderOpen size={15} /><span>.. (상위 폴더)</span>
+              </button>
+            )}
+            {(clinic.folderBrowser.roots.length ? clinic.folderBrowser.roots : clinic.folderBrowser.dirs).map((entry) => (
+              <button type="button" className="folder-browser-item" key={entry.path} onClick={() => clinic.browseFolder(entry.path)}>
+                <FolderOpen size={15} /><span>{entry.name}</span><ChevronRight size={14} />
+              </button>
+            ))}
+            {!clinic.folderBrowser.roots.length && !clinic.folderBrowser.dirs.length && !clinic.folderBrowser.error && (
+              <div className="empty-state">하위 폴더가 없습니다.</div>
+            )}
+          </div>
+        )}
+        <div className="modal-actions">
+          <button className="button button-secondary" type="button" onClick={clinic.closeFolderBrowser}>취소</button>
+          <button className="button button-primary" type="button" disabled={!clinic.folderBrowser.path} onClick={clinic.confirmFolderBrowser}>
+            이 폴더를 대상 프로젝트로 선택
+          </button>
+        </div>
+      </Modal>
+
       <Modal open={helpOpen} title="Vibe Clinic V2 사용 안내" onClose={() => setHelpOpen(false)}><ol className="help-list"><li><Gauge size={18} /><div><strong>실데이터 지표</strong><p>진단 전에는 임의 점수 대신 데이터 없음으로 표시합니다.</p></div></li><li><Activity size={18} /><div><strong>진단과 치료</strong><p>진단 카드를 선택하면 원인·로그·치료 요청을 한곳에서 확인합니다.</p></div></li><li><BookOpen size={18} /><div><strong>V1 병행 운영</strong><p>상단 V1 대시보드 버튼으로 언제든 기존 화면으로 돌아갈 수 있습니다.</p></div></li></ol></Modal>
     </div>
   )

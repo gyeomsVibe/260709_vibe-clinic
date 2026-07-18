@@ -1,0 +1,47 @@
+{
+  "schema": "EP-Handoff/source-manifest-v2",
+  "generated_at": "2026-07-18",
+  "repo_root": "D:/D_Workspace_NB/-google-workspace/-antigravity-workspace/260709_vibe-clinic",
+  "git_head": "92564fb (feat(dashboard): Unify V1 and V2 console UI) == origin/main",
+  "hash_basis": "SHA-256 of WORKING-TREE bytes at generation time (uncommitted state included). Re-hash before trusting a source as unchanged.",
+  "tier_legend": {
+    "S1": "Load-bearing production source, behavior proven by automated tests",
+    "S2": "Config / manifest / workspace-governance state",
+    "S3": "Automated test artifacts",
+    "S4": "Author-generated plan/report docs (not proof)",
+    "S5": "Historical / superseded (do not treat as current)"
+  },
+  "sources": [
+    { "id": "S1.dashboard", "path": "backend/src/dashboard.js", "tier": "S1", "sha256": "5fe848ef4aa5505a9ec920e9b611fa375d786453377025a4d1ae38a62f96d315", "state": "UNCOMMITTED", "note": "fs/list 신설 + project/select 410 + 사용자 디버그 console.log 혼재" },
+    { "id": "S1.runner", "path": "backend/src/runner.js", "tier": "S1", "sha256": "61a37739db8da2f189db0aa0ae97f522a50cb7eb36e300140ba461aacebb6a5d", "state": "COMMITTED" },
+    { "id": "S1.repairer", "path": "backend/src/repairer.js", "tier": "S1", "sha256": "849f80dac53f465dfda82aec9e86a42239c0faa9b772677af4caace22a704b23", "state": "COMMITTED", "note": "P2~P4: weakening guard·rollback·ledger·cureAll" },
+    { "id": "S1.triage", "path": "backend/src/triage.js", "tier": "S1", "sha256": "259f71020f392091d27e9e03d7bbada7e32b862a21cdc8f21f1ff8d8483e4e59", "state": "COMMITTED" },
+    { "id": "S1.config", "path": "backend/src/config-manager.js", "tier": "S1", "sha256": "38ff52e45953fe8639ffa08ee8231071b22266492de2703899e5a2e2aba58cdc", "state": "COMMITTED", "note": "마스킹 키 덮어쓰기 방지 가드" },
+    { "id": "S1.ai", "path": "backend/src/ai-provider.js", "tier": "S1", "sha256": "94186392f012c5920a11abd219dcd345e4989552fd7b3251778973e7a52efe3d", "state": "COMMITTED", "note": "Gemini 전용 + 25s abort" },
+    { "id": "S1.schema", "path": "backend/src/schema.js", "tier": "S1", "sha256": "7fe2a82a26b34c0c5e38da004c21b1341ef28dde568b97376c9bd781302b7c93", "state": "COMMITTED" },
+    { "id": "S1.init", "path": "backend/src/init.js", "tier": "S1", "sha256": "c6e4c2a22d946ba2614d0ca29e29d3c59d1abf06ec3115a5367caa64d6aae130", "state": "COMMITTED" },
+    { "id": "S1.reporter", "path": "backend/src/reporter.js", "tier": "S1", "sha256": "2bbce0d87f696cc7b2430711278c5d73bb54662be05eb8b26b8519ee85b78f9d", "state": "COMMITTED" },
+    { "id": "S1.cli", "path": "backend/bin/vibe-clinic.js", "tier": "S1", "sha256": "618c57b82efaad8ac2a9bafad96ee331414eb0bb5b90307107e38df4708cf432", "state": "COMMITTED", "note": "--ui v1|v2, --cwd" },
+    { "id": "S1.mcp", "path": "backend/mcp-server/index.js", "tier": "S1", "sha256": "f4f948719cc123a01eb9fdbd574782aa1da4522e86c97944949d5af3336e00e5", "state": "COMMITTED" },
+    { "id": "S1.appv2", "path": "frontend/src/AppV2.jsx", "tier": "S1", "sha256": "f8107e398f4bdc29d6d225b4168a4123deacab1a1b29d1d53ef21c249aad39dd", "state": "UNCOMMITTED", "note": "폴더 탐색 모달 추가" },
+    { "id": "S1.fe-api", "path": "frontend/src/api/dashboardApi.js", "tier": "S1", "sha256": "4d17cc75675c6cc7828579bba7a010cc7b5bd292bcddebf33a1271967de5ac03", "state": "UNCOMMITTED", "note": "listFolders 신설, selectFolder 제거, allowStatuses(409)" },
+    { "id": "S1.fe-hook", "path": "frontend/src/hooks/useDashboardController.js", "tier": "S1", "sha256": "9c3176ed00eaa30722720a9a67823c45e0893fb7cc8573595487d63ae5a0aa3a", "state": "UNCOMMITTED", "note": "folderBrowser 상태·open/browse/confirm" },
+    { "id": "S1.fe-drawer", "path": "frontend/src/components/SettingsDrawer.jsx", "tier": "S1", "sha256": "fcebe2d9f7518688613aeda533d229baeffcccbdf5af6b8ebc48e1a2100eeb97", "state": "UNCOMMITTED" },
+    { "id": "S1.fe-modal", "path": "frontend/src/components/Modal.jsx", "tier": "S1", "sha256": "2c14fc6a85423386d66967cd23c29e7c9d2802840ac359d085e56083248e0f6b", "state": "COMMITTED", "note": "포커스 트랩 보유" },
+    { "id": "S1.fe-css", "path": "frontend/src/index-v2.css", "tier": "S1", "sha256": "e14d411e133b837465745b9f617c8dab86f3555cc903b1b53c8e0a3ec4712a4a", "state": "UNCOMMITTED", "note": "folder-browser-* 스타일 추가" },
+    { "id": "S2.contract", "path": "shared/api-contract.md", "tier": "S2", "sha256": "0ebe1abae8f50211590b0df744bd2aa0bd150a257cd569f5b03c4fc64df59b6c", "state": "UNCOMMITTED", "note": "단일 진실원: fs/list 신설·select 410 반영" },
+    { "id": "S2.pkg-backend", "path": "backend/package.json", "tier": "S2", "sha256": "fb050b5571373e13a8fc4d58e4337ff81e97c3745b0dbdd155278319cdc86a1a", "state": "UNCOMMITTED", "note": "--cwd .. 수정" },
+    { "id": "S2.pkg-root", "path": "package.json", "tier": "S2", "sha256": "dae749a9feff53f99babd72f7f5e5baeca34f460c3323c8bb6d22eafe6d9d387", "state": "COMMITTED", "note": "npm workspaces [backend, frontend]" },
+    { "id": "S2.wsmap", "path": "WORKSPACE_MAP.md", "tier": "S2", "sha256": "18979830c3dae480b33e14a7707db9fc6f8a6ccd6f52246bab8b9ce6c1d7f877", "state": "COMMITTED", "note": "워크스페이스 경계·복구 기준 (Codex 작성)" },
+    { "id": "S2.claude", "path": "CLAUDE.md", "tier": "S2", "sha256": "76095599dfa0c0bb18674985eaeffbd6e55eeeb50767f14bda0f7ca6420b3e12", "state": "COMMITTED", "note": "경계·승인 게이트 규칙" },
+    { "id": "S3.unit", "path": "backend/test/unit.test.js", "tier": "S3", "sha256": "cf9781f3ed413bbe36d53497c4ee36f308f381a061e0dd298b42f751e2a84821", "state": "UNCOMMITTED", "note": "picker 테스트 3건 제거 → fs 2건 추가. 총 45개 중 일부" },
+    { "id": "S3.contract-test", "path": "backend/test/api-contract.test.js", "tier": "S3", "sha256": "4400324f25d3fbc96d5d271602ada53ab3c3c9d90674e926211d4e778c81f604", "state": "UNCOMMITTED", "note": "fs/list 3종 + select 410 계약 검증 추가" },
+    { "id": "S3.selfdiag", "path": ".vibe-clinic/diagnostics/task-001-runner.clinic.js", "tier": "S3", "sha256": "2de764e20c9ef9bf0eb16c7bc9a0ea887468e5d962ac00b10a2eb3470e9af7f2", "state": "UNCOMMITTED", "note": "backend/ 파티션 경로로 교정" },
+    { "id": "S4.audit58", "path": "docs/plans/[user-docs] vibe-clinic-rebranding/58.MIA 전 기능 점검 계획 및 전수검토.md", "tier": "S4", "sha256": "031aa9c33f69bb6752072468ad65046a8c047ffb5f5c79cfba59baa7513d29b1", "state": "UNTRACKED", "note": "C4 5회 실패 이력 + 아키텍처 교체 종결 기록" },
+    { "id": "S4.plan59", "path": "docs/plans/[user-docs] vibe-clinic-rebranding/59.MIA 워크스페이스 정밀 진단 및 처방전(Implementation Plan).md", "tier": "S4", "sha256": "60ce6fcba8da677747d144cecd957406ec3b8f053b713f91c222a073d465f888", "state": "UNTRACKED", "note": "병렬 세션 작성" },
+    { "id": "S5.walk60", "path": "docs/plans/[user-docs] vibe-clinic-rebranding/60.MIA 워크스페이스 정밀 진단 및 치료 결과 보고서 (Walkthrough).md", "tier": "S5", "sha256": "4742ca047caa5913a33d08fa388ee1245dc5ce125f50f1ac7e2eff65ed5c4e6d", "state": "UNTRACKED", "note": "⚠️ 문서의 C4 치료 주장(Show/Activate)은 이후 실패로 판명·삭제됨 — SUPERSEDED" }
+  ],
+  "deleted_sources": [
+    { "path": "backend/src/folder-picker.ps1", "state": "git rm (staged D)", "recovery": "git checkout HEAD -- backend/src/folder-picker.ps1", "reason": "OS 대화창 아키텍처 폐기 (5개 변형 전부 포그라운드 정책 벽)" }
+  ]
+}
