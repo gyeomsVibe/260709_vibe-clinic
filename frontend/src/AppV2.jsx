@@ -21,6 +21,17 @@ const NAVIGATION = [
 
 const TECH_STACK_COLORS = ['#f7df1e', '#61dafb', '#a855f7', '#38bdf8', '#34d399', '#fb7185']
 
+// cure-all 응답이 결과를 나눠 담는 실제 필드들. 숫자만 보여주면 어느 진단이 왜 그렇게
+// 분류됐는지 알 수 없어 다음 조치를 정할 수 없다.
+const CURE_BUCKETS = [
+  { key: 'cured', label: '완치 검증' },
+  { key: 'rolledBack', label: '자동 롤백' },
+  { key: 'manual', label: '수동 처방 필요' },
+  { key: 'blocked', label: '차단됨' },
+  { key: 'unprescribable', label: '처방 불가' },
+  { key: 'held', label: '보류' },
+]
+
 function languagePercent(language, total) {
   const value = Number(language.percent ?? language.percentage)
   return Number.isFinite(value) && value > 0 ? value : 100 / Math.max(total, 1)
@@ -177,7 +188,29 @@ export default function AppV2() {
       <Modal open={Boolean(clinic.selectedErrorPattern)} title={clinic.selectedErrorPattern?.filename || '오류 패턴'} onClose={() => clinic.setSelectedErrorPattern(null)} wide><pre className="document-view">{clinic.selectedErrorPattern?.content}</pre></Modal>
       <Modal open={Boolean(clinic.pendingProposal)} title="AI 치료 변경 제안" description={clinic.pendingProposal?.summary} onClose={() => clinic.setPendingProposal(null)} wide><div className="proposal-files">{(clinic.pendingProposal?.repairedFiles || []).map((file) => <section key={file.path}><h3>{file.delete ? '삭제 예정' : '수정 예정'} · {file.path}</h3>{!file.delete && <pre>{file.content}</pre>}</section>)}</div><div className="modal-actions"><button className="button button-secondary" type="button" onClick={() => clinic.setPendingProposal(null)}>보류</button><button className="button button-primary" type="button" onClick={clinic.applyRepair} disabled={clinic.busy.apply}><Sparkles size={16} />{clinic.busy.apply ? '적용·검증 중…' : '승인 후 적용'}</button></div></Modal>
       <Modal open={Boolean(clinic.manualRx)} title={`수동 처방전 · ${clinic.manualRx?.diagId || ''}`} description={clinic.manualRx?.summary} onClose={() => clinic.setManualRx(null)}>{(clinic.manualRx?.prescription || []).map((step, index) => <div className="prescription-step" key={`${step}-${index}`}><span>{index + 1}</span><p>{step}</p></div>)}<div className="modal-actions"><button className="button button-primary" type="button" onClick={() => { clinic.setManualRx(null); clinic.runDiagnostics() }}>조치 완료 후 재진단</button></div></Modal>
-      <Modal open={Boolean(clinic.cureAllReport)} title="치료 검증 리포트" onClose={() => clinic.setCureAllReport(null)} wide>{clinic.cureAllReport?.summary && <div className="report-grid">{Object.entries(clinic.cureAllReport.summary).map(([key, value]) => <div key={key}><span>{key}</span><strong>{value}</strong></div>)}</div>}<pre className="document-view compact">{JSON.stringify(clinic.cureAllReport?.results || clinic.cureAllReport?.items || [], null, 2)}</pre></Modal>
+      <Modal open={Boolean(clinic.cureAllReport)} title="치료 검증 리포트" onClose={() => clinic.setCureAllReport(null)} wide>
+        {clinic.cureAllReport?.summary && <div className="report-grid">{Object.entries(clinic.cureAllReport.summary).map(([key, value]) => <div key={key}><span>{key}</span><strong>{value}</strong></div>)}</div>}
+        {CURE_BUCKETS.map(({ key, label }) => {
+          const items = clinic.cureAllReport?.[key] || []
+          if (!items.length) return null
+          return (
+            <section className="cure-bucket" key={key}>
+              <h4>{label}<span className="count-badge">{items.length}</span></h4>
+              <ul>
+                {items.map((item, index) => (
+                  <li key={`${item?.diagId || 'item'}-${index}`}>
+                    <strong>{item?.diagId || '진단 ID 없음'}</strong>
+                    <span>{item?.summary || item?.reason || item?.error || item?.verifiedStatus || ''}</span>
+                    {Array.isArray(item?.filesModified) && item.filesModified.length > 0 && <em>{item.filesModified.join(', ')}</em>}
+                    {Array.isArray(item?.prescription) && item.prescription.length > 0 && <ol>{item.prescription.map((step, stepIndex) => <li key={`${stepIndex}-${String(step).slice(0, 12)}`}>{step}</li>)}</ol>}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )
+        })}
+        {clinic.cureAllReport && CURE_BUCKETS.every(({ key }) => !(clinic.cureAllReport?.[key] || []).length) && <div className="empty-state">분류된 치료 결과가 없습니다.</div>}
+      </Modal>
       {/* 웹 내장 폴더 탐색 모달 (OS 대화창 대체 — 항상 대시보드 안에 뜬다) */}
       <Modal open={clinic.folderBrowser.open} title="대상 프로젝트 폴더 탐색" description={clinic.folderBrowser.path || '드라이브를 선택하세요'} onClose={clinic.closeFolderBrowser}>
         {clinic.folderBrowser.error && <p className="feedback error">{clinic.folderBrowser.error}</p>}

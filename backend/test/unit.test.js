@@ -611,6 +611,65 @@ test('dashboard handles /api/project/init POST request to initialize current pro
   }
 });
 
+test('every AI provider adapter builds a request its own API accepts', () => {
+  const { PROVIDERS, listProviders } = require('../src/ai-provider');
+  const messages = [
+    { role: 'system', content: 'you are a repair assistant' },
+    { role: 'user', content: 'fix this' },
+  ];
+
+  const listed = listProviders();
+  assert.deepStrictEqual(
+    listed.map(p => p.id).sort(),
+    ['anthropic', 'gemini', 'openai', 'openrouter'],
+    'BYOK must offer a fallback when one vendor is down'
+  );
+  // 모델 표기가 프로바이더마다 달라 설정 화면이 힌트를 줄 수 있어야 한다.
+  assert.ok(listed.every(p => p.defaultModel), 'each provider needs a default model hint');
+
+  for (const [id, provider] of Object.entries(PROVIDERS)) {
+    const headers = provider.buildHeaders('secret-key');
+    assert.ok(
+      Object.values(headers).some(value => String(value).includes('secret-key')),
+      `${id}: api key must reach the request headers`
+    );
+    const body = JSON.parse(provider.buildBody(provider.defaultModel, messages));
+    assert.ok(body, `${id}: body must be valid JSON`);
+  }
+
+  // OpenAI 호환 계열: system 이 messages 안에 남는다.
+  for (const id of ['openai', 'openrouter']) {
+    const body = JSON.parse(PROVIDERS[id].buildBody('m', messages));
+    assert.strictEqual(body.messages.length, 2, `${id}: system stays inline`);
+    assert.strictEqual(PROVIDERS[id].buildHeaders('k').Authorization, 'Bearer k');
+    assert.strictEqual(
+      PROVIDERS[id].extractContent({ choices: [{ message: { content: 'hello' } }] }),
+      'hello'
+    );
+  }
+
+  // Anthropic: system 은 최상위 필드이고 messages 에서 빠져야 한다. max_tokens 는 필수.
+  const anthropicBody = JSON.parse(PROVIDERS.anthropic.buildBody('claude-sonnet-5', messages));
+  assert.strictEqual(anthropicBody.system, 'you are a repair assistant');
+  assert.strictEqual(anthropicBody.messages.length, 1);
+  assert.ok(anthropicBody.max_tokens > 0, 'anthropic requires max_tokens');
+  assert.strictEqual(PROVIDERS.anthropic.buildHeaders('k')['anthropic-version'], '2023-06-01');
+  assert.strictEqual(
+    PROVIDERS.anthropic.extractContent({ content: [{ type: 'text', text: 'hi' }, { type: 'thinking', text: 'x' }] }),
+    'hi',
+    'only text blocks belong in the answer'
+  );
+
+  // Gemini: systemInstruction 분리 + parts 기반 추출
+  const geminiBody = JSON.parse(PROVIDERS.gemini.buildBody('gemini-2.0-flash', messages));
+  assert.ok(geminiBody.systemInstruction, 'gemini keeps system separately');
+  assert.strictEqual(geminiBody.contents.length, 1);
+  assert.strictEqual(
+    PROVIDERS.gemini.extractContent({ candidates: [{ content: { parts: [{ text: 'yo' }] } }] }),
+    'yo'
+  );
+});
+
 test('dashboard handles /api/project/explain GET request and returns AI explanation', async () => {
   const originalLog = console.log;
   console.log = () => {};

@@ -188,6 +188,15 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .report-grid > div { padding: 12px; border: 1px solid var(--border); border-radius: 10px; background: rgba(255,255,255,.025); }
 .report-grid span { display: block; color: var(--text-3); font-size: 9px; }
 .report-grid strong { display: block; margin-top: 5px; font-size: 22px; }
+/* 치료 리포트 분류별 상세 — 숫자 타일만으로는 다음 조치를 정할 수 없다. */
+.cure-bucket { margin-top: 16px; }
+.cure-bucket h4 { display: flex; align-items: center; gap: 7px; margin: 0 0 8px; font-size: 11px; color: var(--text-2); }
+.cure-bucket ul { display: flex; flex-direction: column; gap: 7px; margin: 0; padding: 0; list-style: none; }
+.cure-bucket > ul > li { display: flex; flex-direction: column; gap: 3px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 9px; background: rgba(255,255,255,.025); }
+.cure-bucket strong { font-size: 11px; }
+.cure-bucket span { color: var(--text-3); font-size: 10.5px; line-height: 1.5; }
+.cure-bucket em { color: var(--text-3); font-size: 10px; font-style: normal; opacity: .75; }
+.cure-bucket ol { margin: 5px 0 0; padding-left: 16px; color: var(--text-2); font-size: 10.5px; line-height: 1.6; }
 .help-list { display: flex; flex-direction: column; gap: 16px; margin: 0; padding: 0; list-style: none; }
 .help-list li { display: grid; grid-template-columns: 26px 1fr; gap: 10px; }
 .help-list svg { color: var(--cyan); }
