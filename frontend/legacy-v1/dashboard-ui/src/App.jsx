@@ -796,7 +796,21 @@ function App() {
             {byokEnabled && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '12px' }}>
                 <div>
-                  <label style={{ fontSize: '13px', color: 'var(--text3)', display: 'block', marginBottom: '4px' }}>AI API 키 (Gemini)</label>
+                  <label style={{ fontSize: '13px', color: 'var(--text3)', display: 'block', marginBottom: '4px' }}>AI 서비스</label>
+                  {/* V2 와 동일 로직: 백엔드는 PROVIDERS[id] 로 조회하므로 저장값은 반드시 id 여야 한다.
+                      표시명(name)을 value 로 쓰면 이후 모든 AI 호출이 Unknown provider 로 실패한다. */}
+                  <select
+                    value={byok.provider}
+                    onChange={(e) => setByok(prev => ({ ...prev, provider: e.target.value }))}
+                    style={{ width: '100%', padding: '8px 10px', background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--text)', fontSize: '13px' }}
+                  >
+                    {(providers.length ? providers : [{ id: 'gemini', name: 'Google Gemini' }]).map(p => (
+                      <option key={p.id || p} value={p.id || p}>{p.name || p.id || p}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label style={{ fontSize: '13px', color: 'var(--text3)', display: 'block', marginBottom: '4px' }}>API 키</label>
                   <input
                     type="password"
                     value={byok.apiKey}
@@ -806,15 +820,15 @@ function App() {
                   />
                 </div>
                 <div>
-                  <label style={{ fontSize: '13px', color: 'var(--text3)', display: 'block', marginBottom: '4px' }}>모델 구성</label>
-                  <select 
-                    value={byok.model} 
+                  <label style={{ fontSize: '13px', color: 'var(--text3)', display: 'block', marginBottom: '4px' }}>사용 모델</label>
+                  {/* 프로바이더마다 모델 표기가 달라 자유 입력 + 선택한 서비스의 기본 모델을 힌트로 준다. */}
+                  <input
+                    type="text"
+                    value={byok.model}
                     onChange={(e) => setByok(prev => ({ ...prev, model: e.target.value }))}
+                    placeholder={(providers.find(p => (p.id || p) === byok.provider)?.defaultModel) || '모델명 입력'}
                     style={{ width: '100%', padding: '8px 10px', background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--text)', fontSize: '13px' }}
-                  >
-                    <option value="gemini-3.5-flash">gemini-3.5-flash (추천/고속)</option>
-                    <option value="gemini-1.5-pro">gemini-1.5-pro (고성능)</option>
-                  </select>
+                  />
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '4px' }}>
                   <span style={{ fontSize: '13px', color: byokFeedback.type === 'ok' ? 'var(--ok)' : 'var(--err)' }}>
